@@ -1,0 +1,243 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <title>THEREMIN - A Touch Friendly Synthesizer</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1.0, user-scalable=no" />
+
+        <!-- fb -->
+        <meta name="og:title" content="Theremin - A Touch Friendly Synthesizer"/>
+        <meta property="og:type" content="blog, website or article"/>
+        <meta name="og:url" content="http://www.femurdesign.com/theremin/"/>
+        <meta name="og:description" content="An online interactive musical instrument modelled on the classic Moog theremin"/>
+        <meta name="og:image" content="images/theremin_lg_landscape.png"/>
+        <meta property="fb:admins" content="605035371" />
+
+        <!-- Twitter -->
+        <meta name="Twitter:title" content="Theremin - A Touch Friendly Synthesizer"/>
+        <meta name="Twitter:url" content="http://www.femurdesign.com/theremin/"/>
+        <meta name="Twitter:description" content="An online interactive musical instrument modelled on the classic Moog theremin"/>
+        <meta name="Twitter:image" content="images/theremin_lg_landscape.png"/>
+        <meta name="Twitter:site" content="@femurdesign"/>
+        <meta name="Twitter:creator" content="@lukephills"/>
+
+        <!-- G+ -->
+        <meta itemprop="name" content="Theremin - A Touch Friendly Synthesizer"/>
+        <meta itemprop="description" content="The theremin is an interactive musical instrument built using the latest web audio technology"/>
+        <meta itemprop="image" content="images/theremin_lg_landscape.png"/>
+        <link rel="author" href="http://www.femurdesign.com"/>
+        <link rel="publisher" href="https://plus.google.com/108918707363344775133"/> 
+
+        
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <!-- iOS home screen icons -->
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/iOS-144.png" />
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/iOS-114.png" />
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/iOS-72.png" />
+        <link rel="apple-touch-icon-precomposed" href="images/iOS-57.png" />
+        <link rel="icon" href="images/iOS-57.png" />
+        <link rel="shortcut icon" href="/favicon.ico">
+
+
+        <!-- build:css styles/vendor.css -->
+        <!-- bower:css -->
+        <!-- endbower -->
+        <!-- endbuild -->
+        <!-- build:css(.tmp) styles/main.css -->
+        <link rel="stylesheet" href="styles/main.css">
+        <!-- endbuild -->
+        <!-- build:js scripts/vendor/modernizr.js -->
+        <script src="../bower_components/modernizr/modernizr.js"></script>
+        <!-- endbuild -->
+
+
+
+    </head>
+    <body class="main off">
+    <!--[if lt IE 10]>
+        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    <div id="body-wrapper">   
+        <div class="container blurred">
+            <header class="title">
+                <h1>THEREMIN</h1>
+            </header>
+            <div class="top-controls">
+                <section class="oscillator">
+                    <h2>Waveform</h2>
+                    <select id="waveform">
+                        <option value="0">Sine</option>
+                        <option value="1" selected>Square</option>
+                        <option value="2">Sawtooth</option>
+                        <option value="3">Triangle</option>
+                    </select>
+                </section>
+                <section class="main-volume">
+                    <h2>Main Volume <span id="mainVolume-output" for="theremin"></span></h2>
+                    <input id="mainVolume" type="range" min="0" max="1" step="0.01" value="0.6" />
+                    
+                </section>
+                <section class="info">
+                    
+                    <h2>Info</h2>
+                    <button id="info" class="reg" type="button">?</button>
+                    <div class="pop">
+                        <span>✖</span>
+                        <h1>Web Audio Theremin</h1>
+                        <!-- <small>Created 11 December 2013</small> -->
+                        <small>Update: 7 February 2014</small>
+                        <p class="top">Thanks to everyone for sharing! Over 100,000 people have played on the theremin in the last 3 days which is absolutely amazing.
+                        Due to a large number of requests, we've began working on a record function as well as an offline version of the app which will be available soon.</p>
+                        <p>Feel free to either subscribe at the bottom of the page or follow us on <a href="https://www.facebook.com/femurdesign">Facebook</a> &amp; <a href="https://www.twitter.com/femurdesign">Twitter</a> for updates and future toys.</p>
+                        <small>More info</small>
+                        <p class="top">The web audio theremin is a touch friendly &amp; responsive audio synthesizer built in javascript using the <a href="https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html">Web Audio API</a> with HTML5 canvas.
+                        <!-- I'm currently working on the second version which will allow you to play along with your favourite songs. Please share if you like. --></p>
+                        <p>Feel free to get in contact with me here: <a href="mailto:luke@femurdesign.com">luke@femurdesign.com</a></p>
+                    </div>
+
+                    <div id="error">
+                    <!-- Displayed if Web Audio is unavailable -->
+                        <span>✖</span>
+                        <h1>Browser needs updating</h1>
+                        <p>If you are using Safari or Chrome, please update your browser to the latest version.</p>
+                        <p>This synthesizer uses latest Web Audio API technology 
+                        which is currently supported in <a href="http://www.google.co.uk/chrome">Chrome</a>, 
+                        <a href="http://support.apple.com/downloads/#safari">Safari</a>, <a href="http://www.opera.com/download/‎">Opera</a> and 
+                        iOS Safari 6+. If you're seeing this message you need to update.</p>
+                        <p>Unfortunately this will not work in Internet Explorer at all and runs slowly in Firefox (as of 11/12/13).</p>
+                    </div>
+
+                </section>
+            </div>
+            <section class="help">
+            <!-- Disappears after first touch -->
+            Turn your sound up and touch the screen to play
+            </section>
+            <section class="firefox">
+            <!-- Display this for firefox users -->
+                <p>This version of the theremin currently has some bugs in Firefox. For a better experience please open the page in Safari or Chrome.</p>
+            </section>
+
+            <section class="surface">
+                <div class="finger"></div>
+                <canvas></canvas>
+            </section>
+            <section class="row delay">
+                <div class="delay-time col-xs-4 col-sm-4">
+                    <h2>Delay Time</h2>
+                    <input id="delay" type="range" min="0" max="0.5" step="0.001" value="0.225" />
+                    <output id="delay-output" for="delay"></output>
+                </div>
+                <div class="delay-feedback col-xs-4 col-sm-4">
+                    <h2>Feedback</h2>
+                    <input id="feedback" type="range" min="0" max="0.9" step="0.1" value="0.5" />
+                    <output id="feedback-output" for="feedback"></output>
+                </div>
+                <div class="delay-scuzz col-xs-4 col-sm-4">
+                    <h2>Scuzz</h2>
+                    <input id="scuzzVolume" type="range" min="0" max="1000" step="1" value="0" />
+                    <output id="scuzzVolume-output" for="scuzz"></output>
+                </div>
+            </section>
+            <section>
+            <div>
+                <!-- Social Media Icons -->
+                <div class="share">
+                    <p class="share-this">SHARE THIS</p>
+
+                <!-- Twitter -->
+                    <li class="twitter">
+                        <a href="#" 
+                            class="tweet btnTw" 
+                            data-url="http://femurdesign.com/theremin/" 
+                            data-via="femurdesign" 
+                            data-text="Playable Theremin" 
+                            data-related="Femur_Design"
+                            data-hashtags="theramin"
+                            onclick="popUp=window.open('http://twitter.com/home?status=Theremin - An Online Playable Touch Synthesizer+http://femurdesign.com/theremin/+via @femurdesign', 'popupwindow', 'scrollbars=yes,width=800,height=400');popUp.focus();return false">
+                            <div class="count">
+                                <p class="twCount"></p>
+                            </div>
+                        </a>
+                    </li>
+
+                <!-- Facebook -->
+                    <li class="facebook">
+                        <a href="#" 
+                            class="btnFb" 
+                            title="Share this on Facebook"
+                            data-href="http://femurdesign.com/theremin"
+                            onclick="popUp=window.open('http://www.facebook.com/sharer/sharer.php?s=100&p[url]=http://femurdesign.com/theremin&p[images][0]=http://femurdesign.com/theremin/images/theremin_lg_landscape.png&p[title]=Theremin%20-%20An%20interactive%20touch%20audio%20synthesizer&p[summary]=An%20online%20interactive%20musical%20instrument%20modelled%20on%20the%20classic%20Moog%20theremin.', 'popupwindow', 'scrollbars=yes,width=800,height=400');popUp.focus();return false">
+                            <div class="count">
+                                <p class="fbCount"></p>
+                            </div>
+                        </a>
+                    </li>
+                </div>
+                
+
+                <footer>
+                    <!-- Begin MailChimp Signup Form -->
+                    <div id="mc_embed_signup" class="email-signup">
+                    <form action="http://femurdesign.us3.list-manage.com/subscribe/post?u=a8685aebc16700ab70541a03a&amp;id=cd9caaf477" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+                       
+                        
+                        
+                        <div id="mce-responses" class="clear">
+                            <div class="response" id="mce-error-response" style="display:none"></div>
+                            <div class="response" id="mce-success-response" style="display:none"></div>
+                        </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                        <div style="position: absolute; left: -5000px;"><input type="text" name="b_a8685aebc16700ab70541a03a_cd9caaf477" value=""></div>
+                        <div class="row">
+                            <div class="sign-up-container">
+                                <div class="col-xs-12 col-sm-6">
+                                    <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
+                                </div>
+                                <div class="col-xs-12 col-sm-6">
+                                    <input type="submit" value="SUBSCRIBE" name="subscribe" id="mc-embedded-subscribe" class="button">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                    <!--End mc_embed_signup-->
+                </footer>
+
+                <p>Follow us on <a href="https://www.facebook.com/femurdesign">Facebook</a> or <a href="https://twitter.com/femurdesign">Twitter</a> to hear about new instruments and updates.</p>
+                <p></p>
+                
+                <p class="bottom">Created by Luke Phillips, <a href="http://www.femurdesign.com">Femur</a>, 2014 &#169; | For best results please use the latest version of <a href="http://www.google.co.uk/chrome">Chrome</a> or <a href="http://support.apple.com/downloads/#safari">Safari</a>.</p>
+            
+                
+            </section>  
+        </div>
+    </div>    
+
+        <!-- build:js scripts/vendor.js -->
+        <!-- bower:js -->
+        <script src="bower_components/modernizr/modernizr.js"></script>
+        <script src="bower_components/jquery/dist/jquery.js"></script>
+        <!-- endbower -->
+        <!-- endbuild -->
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-44791750-2', 'femurdesign.com');
+            ga('send', 'pageview');
+        </script>
+
+        <!-- TO DO - GET RID OF BOWSER AND USE MODERNIZER INSTEAD -->
+
+        <!-- build:js({app,.tmp}) scripts/main.js -->
+        <script src="scripts/bowser.min.js"></script>
+        <script src="scripts/main.js"></script>
+        <!-- endbuild -->
+</body>
+</html>
