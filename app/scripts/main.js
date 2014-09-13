@@ -392,46 +392,6 @@ var theremin = (function () {
 window.addEventListener("DOMContentLoaded", theremin.init, true);
 
 
-// Pop up modal
-$(document).ready(function () {
-    $("button").click(function () {
-        $(".pop").fadeIn(300);
-        positionPopup();
-    });
 
-    $(".pop > span, .pop").click(function () {
-        $(".pop").fadeOut(300);
-    });
-    $('.surface').mousedown(function (){
-        $('.help').fadeOut(500);
-    })
-
-    // If Firefox
-    if (bowser.gecko){
-        $(".firefox").fadeIn(200);
-    };
-});
-
-
-// Functions to get facebook and twitter share counts.
-function getfbcount(url){
-    var fblikes;
-    $.getJSON('http://graph.facebook.com/?ids=' + url, function(data){;
-        fblikes = data[url].shares;
-        $('.fbCount').append(fblikes + " likes");
-    });
-}
-function gettwcount(url){
-    var tweets;
-    $.getJSON('http://urls.api.twitter.com/1/urls/count.json?url=' + url + '&callback=?', function(data){
-        tweets = data.count;
-        $('.twCount').append(tweets + " tweets");
-    });
-}
-$(document).ready(function($){
-    var url = "http://www.femurdesign.com/theremin/";
-    getfbcount(url);
-    gettwcount(url);
-});
 
 
