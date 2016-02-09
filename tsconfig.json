@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "jsx": "preserve",
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "sourceMap": true
+  },
+  "exclude": [
+    "node_modules",
+    "config",
+    "dev_server.js",
+    "typings/browser.d.ts",
+    "typings/browser"
+  ]
+}
