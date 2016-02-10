@@ -24,9 +24,7 @@ class NodeGuideButton extends React.Component<INodeGuideButtonProps, {}> {
 				<ToggleButton
 					onClick={() => this.onButtonClick()}
 				    isOn={this.props.isOn}
-				>
-					Guides
-				</ToggleButton>
+					buttonValue="Guides"/>
 			</div>
 		);
 	}

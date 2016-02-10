@@ -31,9 +31,7 @@ class WaveformSelectGroup extends React.Component<IProps, IState> {
 							isOn={waveform === this.state.waveform}
 							onClick={() => this.onButtonClick(waveform)}
 							key={id}
-						>
-							{waveform}
-						</ToggleButton>
+						    buttonValue={waveform} />
 					);
 				})}
 			</div>

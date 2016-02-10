@@ -4,6 +4,7 @@ const Slider = require('rc-slider');
 require('./Styles/slider.css');
 
 import { Defaults } from '../Constants/Defaults';
+import { styles } from './Styles/styles'
 
 class RangeSliderGroup extends React.Component<any, any> {
 
@@ -30,7 +31,12 @@ class RangeSliderGroup extends React.Component<any, any> {
 				{Defaults.Sliders.map((slider: any, id: number) => {
 					return (
 						<div>
-							<span>{slider.name}</span>
+							<span style={this.getWaveformTitleStyles(slider)}>
+								{slider.name.toUpperCase()} - {this.state[slider.name]}
+							</span>
+							<span style={this.getWaveformTitleStyles(slider)}>
+								{this.state[slider.name]}
+							</span>
 							<Slider
 								key={id}
 								min={slider.min}
@@ -51,6 +57,16 @@ class RangeSliderGroup extends React.Component<any, any> {
 		this.setState({
 			[slider]: value
 		});
+	}
+
+	private getWaveformTitleStyles(slider) {
+		return Object.assign(
+			{},
+			styles.sliderToolTip,
+			{
+				marginLeft: this.state[slider.name]
+			}
+		);
 	}
 }
 

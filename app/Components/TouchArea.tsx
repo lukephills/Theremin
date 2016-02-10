@@ -5,11 +5,16 @@ interface ICoordinates {
 	y: number;
 }
 
+interface IProps {
+	width: number;
+	height: number;
+}
+
 interface IState {
 	pointerDown: boolean;
 }
 
-class TouchArea extends React.Component<any, IState> {
+class TouchArea extends React.Component<IProps, IState> {
 
 	constructor() {
 		super();
@@ -17,10 +22,13 @@ class TouchArea extends React.Component<any, IState> {
 	}
 
 	public render(): React.ReactElement<{}> {
+		const { width, height } = this.props;
 		const style = {
 			border: '2px solid black',
 			background: 'grey',
 			cursor: 'pointer',
+			width,
+			height,
 		}
 		return (
 			<canvas
@@ -77,8 +85,8 @@ class TouchArea extends React.Component<any, IState> {
 
 	private getPositionAsPercentage(e): ICoordinates {
 		return {
-			x: ((e.pageX - e.target.offsetLeft) / e.target.width) * 100,
-			y: (100 - ((e.pageY - e.target.offsetTop) / e.target.height) * 100),
+			x: ((e.pageX - e.target.offsetLeft) / e.target.offsetWidth) * 100,
+			y: (100 - ((e.pageY - e.target.offsetTop) / e.target.offsetHeight) * 100),
 		}
 	}
 }

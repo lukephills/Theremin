@@ -6,18 +6,19 @@ interface IProps {
 	key?: number;
 	isOn?: boolean;
 	onClick?: any;
-	children?: string;
+	buttonValue?: string;
 }
 
 class ToggleButton extends React.Component<IProps, {}> {
 
 	public render(): React.ReactElement<{}> {
 		return (
-			<button
+			<div
 				style={this.getStyles()}
-				onClick={this.props.onClick}>
-				{this.props.children}
-			</button>
+				onClick={this.props.onClick}
+				value={this.props.buttonValue}>
+				{this.props.buttonValue}
+			</div>
 		);
 	}
 

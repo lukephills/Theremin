@@ -24,15 +24,13 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 			<section>
 				<ToggleButton
 					onClick={() => this.record()}
-					isOn={this.state.isRecording}>
-					Record
-				</ToggleButton>
+					isOn={this.state.isRecording}
+					buttonValue="Record"/>
 
 				<ToggleButton
 					onClick={() => this.play()}
-					isOn={this.state.isPlaying}>
-					Play
-				</ToggleButton>
+					isOn={this.state.isPlaying}
+					buttonValue="Play"/>
 			</section>
 		);
 	}
