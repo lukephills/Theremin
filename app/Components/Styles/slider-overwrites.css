@@ -4,7 +4,7 @@
 }
 .rc-slider {
     position: relative;
-    height: 20px;
+    height: 80px;
     width: 100%;
     border-radius: 0;
     background-color: lightgray;
@@ -14,27 +14,9 @@
 .rc-slider-track {
     position: absolute;
     left: 0;
-    height: 20px;
+    height: 80px;
     border-radius: 0;
     background-color: darkgray;
     z-index: 1;
 }
-.rc-slider-handle {
-    position: absolute;
-    margin-top: 0;
-    margin-left: -7px;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    border-radius: 0;
-    border: solid 2px black;
-    background-color: #fff;
-    z-index: 2;
-}
-.rc-slider-handle:hover {
-    border-color: darkgreen;
-}
 
-.rc-slider-mark, .rc-slider-mark-text {
-    display: none;
-}

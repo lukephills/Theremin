@@ -8,4 +8,27 @@ export const WAVEFORMS: string[] = [
 export const Defaults: any = {
 	NoteGuideButton: false,
 	Waveform: 1,
+	Sliders: [
+		{
+			name: 'delay',
+			value: 2,
+			min: 0,
+			max: 100,
+			step: 1,
+		},
+		{
+			name: 'feedback',
+			value: 100,
+			min: 0,
+			max: 100,
+			step: 1,
+		},
+		{
+			name: 'scuzz',
+			value: 50,
+			min: 0,
+			max: 100,
+			step: 1,
+		},
+	]
 }
