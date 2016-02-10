@@ -1,39 +1,38 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { NoteGrid } from '../Actions/aNoteGrid';
+import { NoteGuide } from '../Actions/aNoteGuide';
 import ToggleButton from './ToggleButton';
 
-interface INoteGridButtonProps {
+interface INodeGuideButtonProps {
 	dispatch?: Function;
 	isOn?: boolean;
 }
 
 function select(state: any): any {
 	return {
-		isOn: state.NoteGrid.isOn
+		isOn: state.NoteGuide.isOn
 	};
 }
 
 @connect(select)
-class NoteGridButton extends React.Component<INoteGridButtonProps, {}> {
+class NodeGuideButton extends React.Component<INodeGuideButtonProps, {}> {
 
 	public render(): React.ReactElement<{}> {
 
 		return (
 			<div>
-				<span>NoteGridButton:</span>
 				<ToggleButton
 					onClick={() => this.onButtonClick()}
 				    isOn={this.props.isOn}
 				>
-					Note Grid Button
+					Guides
 				</ToggleButton>
 			</div>
 		);
 	}
 
 	private onButtonClick(): void {
-		this.props.dispatch(NoteGrid());
+		this.props.dispatch(NoteGuide());
 	}
 }
-export default NoteGridButton;
+export default NodeGuideButton;

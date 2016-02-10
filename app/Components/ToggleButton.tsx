@@ -1,16 +1,17 @@
 import * as React from 'react';
 import { styles } from './Styles/styles'
 
-interface IToggleProps {
+interface IProps {
+	id?: string;
+	key?: number;
 	isOn?: boolean;
 	onClick?: any;
 	children?: string;
 }
 
-class ToggleButton extends React.Component<IToggleProps, {}> {
+class ToggleButton extends React.Component<IProps, {}> {
 
 	public render(): React.ReactElement<{}> {
-
 		return (
 			<button
 				style={this.getStyles()}

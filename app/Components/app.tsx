@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import RecordPlayButtonGroup from './RecordPlayButtonGroup';
-import NoteGridButton from './NoteGridButton';
+import NoteGuideButton from './NoteGuideButton';
 import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
 
@@ -20,7 +20,7 @@ class App extends React.Component<any, {}> {
 			<div id='body-wrapper'>
 				<h1>Theremin</h1>
 				<RecordPlayButtonGroup />
-				<NoteGridButton />
+				<NoteGuideButton />
 				<WaveformSelectGroup />
 				<canvas id="touchArea"/>
 				<RangeSliderGroup />

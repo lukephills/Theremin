@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
-import { NoteGrid } from './rNoteGrid';
+import { NoteGuide } from './rNoteGuide';
 
 export default combineReducers({
-	NoteGrid
+	NoteGuide
 });

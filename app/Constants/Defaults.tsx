@@ -1,3 +1,11 @@
+export const WAVEFORMS: string[] = [
+	'sine',
+	'square',
+	'triangle',
+	'saw',
+]
+
 export const Defaults: any = {
-	NoteGridButton: false,
+	NoteGuideButton: false,
+	Waveform: 1,
 }

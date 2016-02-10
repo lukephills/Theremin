@@ -13,11 +13,17 @@ module.exports = {
             loader: 'tslint',
             include: APP_DIR
         }],
-        loaders: [{
-            test: /\.tsx?$/,
-            loaders: ['babel', 'ts'],
-            include: APP_DIR
-        }]
+        loaders: [
+            {
+                test: /\.tsx?$/,
+                loaders: ['babel', 'ts'],
+                include: APP_DIR
+            },
+            {
+                test: /\.css$/,
+                loader: "style-loader!css-loader"
+            },
+        ]
     },
     output: {
         filename: 'app.js',

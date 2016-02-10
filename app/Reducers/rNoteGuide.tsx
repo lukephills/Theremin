@@ -1,4 +1,4 @@
-import { NOTE_GRID_BUTTON_TOGGLE } from '../Constants/ActionTypes';
+import { NOTE_GUIDE_BUTTON_TOGGLE } from '../Constants/ActionTypes';
 import { Defaults } from '../Constants/Defaults'
 
 interface IToggleState {
@@ -7,9 +7,9 @@ interface IToggleState {
 
 //TODO: Object.assign needs a polyfill
 
-export const NoteGrid = (state = { isOn: Defaults.NoteGridButton }, action): IToggleState => {
+export const NoteGuide = (state = { isOn: Defaults.NoteGuideButton }, action): IToggleState => {
 	switch (action.type) {
-		case NOTE_GRID_BUTTON_TOGGLE:
+		case NOTE_GUIDE_BUTTON_TOGGLE:
 			//TODO: USe es7 spread when available in typescript
 			//return {
 			//	...state,
