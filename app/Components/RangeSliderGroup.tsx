@@ -1,15 +1,9 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-//import * as ReactSlider from 'react-slider';
 const Slider = require('rc-slider');
 //require('rc-slider/assets/index.css');
-require('./Styles/slider-overwrites.css');
+require('./Styles/slider.css');
 
 import { Defaults } from '../Constants/Defaults';
-
-interface IState {
-	name: any;
-}
 
 class RangeSliderGroup extends React.Component<any, any> {
 
@@ -58,7 +52,6 @@ class RangeSliderGroup extends React.Component<any, any> {
 			[slider]: value
 		});
 	}
-
 }
 
 export default RangeSliderGroup;

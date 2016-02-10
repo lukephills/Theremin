@@ -5,6 +5,7 @@ import RecordPlayButtonGroup from './RecordPlayButtonGroup';
 import NoteGuideButton from './NoteGuideButton';
 import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
+import TouchArea from './TouchArea';
 
 function select(state, props) {
 	return {
@@ -22,7 +23,7 @@ class App extends React.Component<any, {}> {
 				<RecordPlayButtonGroup />
 				<NoteGuideButton />
 				<WaveformSelectGroup />
-				<canvas id="touchArea"/>
+				<TouchArea />
 				<RangeSliderGroup />
 			</div>
 		);
