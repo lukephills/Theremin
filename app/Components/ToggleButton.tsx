@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styles } from './Styles/styles'
+import { style } from './Styles/styles'
 
 interface IProps {
 	id?: string;
@@ -25,8 +25,8 @@ class ToggleButton extends React.Component<IProps, {}> {
 	private getStyles() {
 		return Object.assign(
 			{},
-			styles.button,
-			this.props.isOn && styles.buttonActive
+			style.button,
+			this.props.isOn && style.buttonActive
 		);
 	}
 }

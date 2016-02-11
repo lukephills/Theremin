@@ -1,34 +1,46 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import {Defaults, WAVEFORMS} from '../Constants/Defaults'
+import { Waveform } from '../Actions/actions';
+import {Defaults, WAVEFORMS} from '../Constants/Defaults';
 import ToggleButton from './ToggleButton';
+import { IGlobalState } from '../Constants/GlobalState';
 
 interface IProps {
-	//selected?: boolean;
+	dispatch?: Function;
+	style?: any;
+	waveform?: string;
 }
 
 interface IState {
-	waveform: string;
+	waveform: any;
 }
 
+function select(state: IGlobalState): any {
+	return {
+		waveform: state.Waveform.wave
+	};
+}
+
+@connect(select)
 class WaveformSelectGroup extends React.Component<IProps, IState> {
 
 	constructor() {
 		super();
 		this.state = {
-			waveform: WAVEFORMS[Defaults.Waveform],
+			waveform: {
+				wave: WAVEFORMS[Defaults.Waveform],
+			},
 		}
 	}
 
 	public render(): React.ReactElement<{}> {
-
 		return (
-			<div>
+			<div style={this.props.style}>
 				{WAVEFORMS.map((waveform: string, id: number) => {
 					return (
 						<ToggleButton
 							id={waveform}
-							isOn={waveform === this.state.waveform}
+							isOn={waveform === this.props.waveform}
 							onClick={() => this.onButtonClick(waveform)}
 							key={id}
 						    buttonValue={waveform} />
@@ -39,11 +51,7 @@ class WaveformSelectGroup extends React.Component<IProps, IState> {
 	}
 
 	private onButtonClick(waveform: string) {
-		console.log(waveform);
-		//Set button with the corresponding id's isOn prop to true
-
-		//Set all others isOn prop to false
-		this.setState({waveform})
+		this.props.dispatch(Waveform(waveform));
 	}
 }
 export default WaveformSelectGroup;

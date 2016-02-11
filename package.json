@@ -44,7 +44,7 @@
     "webpack-hot-middleware": "^2.6.4"
   },
   "dependencies": {
-    "lodash": "^4.2.0",
+    "lodash": "^4.3.0",
     "normalize.css": "^3.0.3",
     "rc-slider": "^3.3.2",
     "react": "^0.14.7",

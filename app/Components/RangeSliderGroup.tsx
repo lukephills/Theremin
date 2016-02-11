@@ -1,47 +1,42 @@
 import * as React from 'react';
 const Slider = require('rc-slider');
+import { connect } from 'react-redux';
 //require('rc-slider/assets/index.css');
 require('./Styles/slider.css');
 
 import { Defaults } from '../Constants/Defaults';
-import { styles } from './Styles/styles'
+import { style } from './Styles/styles';
+import {SliderAction} from '../Actions/actions'
+import {IGlobalState} from '../Constants/GlobalState';
 
+
+
+function select(state: IGlobalState): any {
+	return {
+		slider: state.Slider,
+	};
+}
+
+@connect(select)
 class RangeSliderGroup extends React.Component<any, any> {
 
-	constructor() {
-		super();
-
-		// Set the original state dynamically based on Defaults.Sliders
-		let originalState = {};
-		for (let i = 0; i < Defaults.Sliders.length; i++ ){
-			const slider = Defaults.Sliders[i];
-			originalState = Object.assign(
-				originalState,
-				{
-					[slider.name]: slider.value
-				}
-			);
-		}
-		this.state = originalState;
+	public componentDidMount() {
+		this.setSliderStyles();
 	}
 
 	public render(): React.ReactElement<{}> {
 		return (
-			<div>
+			<div style={style.sliderGroup}>
 				{Defaults.Sliders.map((slider: any, id: number) => {
 					return (
-						<div>
+						<div key={id} style={this.getSliderStyles()}>
 							<span style={this.getWaveformTitleStyles(slider)}>
-								{slider.name.toUpperCase()} - {this.state[slider.name]}
-							</span>
-							<span style={this.getWaveformTitleStyles(slider)}>
-								{this.state[slider.name]}
+								{slider.name.toUpperCase()} - {this.props[slider.name]}
 							</span>
 							<Slider
-								key={id}
 								min={slider.min}
 								max={slider.max}
-								value={this.state[slider.name]}
+								value={this.props.slider[slider.name]}
 								onChange={(value) => this.onSliderChange(slider.name, value)}
 								tipFormatter={null}
 							/>
@@ -53,21 +48,45 @@ class RangeSliderGroup extends React.Component<any, any> {
 	}
 
 	private onSliderChange(slider: string, value: number){
-		console.log('changed', slider, value);
-		this.setState({
-			[slider]: value
-		});
+		this.props.dispatch(SliderAction(slider, value));
 	}
 
 	private getWaveformTitleStyles(slider) {
 		return Object.assign(
 			{},
-			styles.sliderToolTip,
+			style.sliderToolTip,
 			{
-				marginLeft: this.state[slider.name]
+				marginLeft: this.props[slider.name]
 			}
 		);
 	}
+
+	private getSliderStyles(){
+		return Object.assign(
+			{},
+			style.sliderContainer,
+			{
+				display: 'flex',
+				flexDirection: 'row-reverse',
+				alignItems: 'center',
+			}
+		);
+
+	}
+
+	private setSliderStyles() {
+		const sliders: any = document.querySelectorAll('.rc-slider');
+		for (var i = 0; i < sliders.length; i++) {
+			sliders[i].style.height = `${style.slider.height}px`;
+		}
+
+		const sliderTracks: any = document.querySelectorAll('.rc-slider-track');
+		for (var i = 0; i < sliderTracks.length; i++) {
+			sliderTracks[i].style.height = `${style.slider.height}px`;
+		}
+		console.log('sliders style set')
+	}
+
 }
 
 export default RangeSliderGroup;

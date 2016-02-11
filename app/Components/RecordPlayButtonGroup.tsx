@@ -1,53 +1,63 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import ToggleButton from './ToggleButton';
+import {IGlobalState, IPlayer, IRecorder} from '../Constants/GlobalState';
+import { Player, Recorder } from '../Actions/actions';
 
-interface IProps {
+interface IProps extends IPlayer, IRecorder {
+	style?: any;
+	dispatch?: Function;
 }
 interface  IState {
 	isRecording?: boolean;
 	isPlaying?: boolean;
 }
 
+function select(state: IGlobalState): any {
+	return {
+		isPlaying: state.Player.isPlaying,
+		isRecording: state.Recorder.isRecording,
+	};
+}
+
+@connect(select)
 class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 	constructor() {
 		super();
-		this.state = {
-			isRecording: false,
-			isPlaying: false,
-		};
 	}
 
 	public render(): React.ReactElement<{}> {
+		const recordButtonValue = this.props.isRecording? 'Stop' : 'Record';
+		const playButtonValue = this.props.isPlaying? 'Stop' : 'Play';
 		return (
-			<section>
+			<section style={this.props.style}>
 				<ToggleButton
 					onClick={() => this.record()}
-					isOn={this.state.isRecording}
-					buttonValue="Record"/>
+					isOn={this.props.isRecording}
+					buttonValue={recordButtonValue}/>
 
 				<ToggleButton
 					onClick={() => this.play()}
-					isOn={this.state.isPlaying}
-					buttonValue="Play"/>
+					isOn={this.props.isPlaying}
+					buttonValue={playButtonValue}/>
 			</section>
 		);
 	}
 
 	private play() {
-		if (this.state.isPlaying) {
-			this.setState({isPlaying: false});
+		if (this.props.isPlaying) {
+			this.props.dispatch(Player(false));
 		} else {
-			this.setState({isPlaying: true});
+			this.props.dispatch(Player(true));
 		}
 	}
 
 	private record() {
-		if (this.state.isRecording) {
-			this.setState({isRecording: false});
+		if (this.props.isRecording) {
+			this.props.dispatch(Recorder(false));
 		} else {
-			this.setState({isRecording: true});
+			this.props.dispatch(Recorder(true));
 		}
 	}
 }

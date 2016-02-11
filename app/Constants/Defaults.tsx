@@ -6,6 +6,7 @@ export const WAVEFORMS: string[] = [
 ]
 
 export const Defaults: any = {
+	Title: 'Theremin',
 	NoteGuideButton: false,
 	Waveform: 1,
 	Sliders: [

@@ -2,6 +2,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 require("normalize.css");
 
+import {style, STYLE_CONST} from './Styles/styles';
+import {Defaults} from '../Constants/Defaults';
 import RecordPlayButtonGroup from './RecordPlayButtonGroup';
 import NoteGuideButton from './NoteGuideButton';
 import WaveformSelectGroup from './WaveformSelectGroup';
@@ -39,15 +41,21 @@ class App extends React.Component<any, IState> {
 	}
 
 	public render(): React.ReactElement<{}> {
+
+		const touchAreaHeight = this.state.windowHeight -
+			( STYLE_CONST.TOP_PANEL_HEIGHT + (STYLE_CONST.BORDER_WIDTH * 2) + STYLE_CONST.BOTTOM_PANEL_HEIGHT);
+
 		return (
 			<div id='body-wrapper'>
-				<h1>Theremin</h1>
-				<RecordPlayButtonGroup />
-				<NoteGuideButton />
-				<WaveformSelectGroup />
+				<div style={style.title.container}>
+					<span style={style.title.h1}>{Defaults.Title.toUpperCase()}</span>
+				</div>
+				<RecordPlayButtonGroup style={style.recordPlayButtonGroup.container} />
+				<NoteGuideButton style={style.noteGuideButton.container} />
+				<WaveformSelectGroup style={style.waveformSelectGroup.container} />
 				<TouchArea
 					width={this.state.windowWidth}
-					height={this.state.windowHeight - 300}
+					height={touchAreaHeight}
 				/>
 				<RangeSliderGroup />
 			</div>
