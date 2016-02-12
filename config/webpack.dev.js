@@ -35,6 +35,9 @@ module.exports = {
         new webpack.NoErrorsPlugin()
     ],
     resolve: {
+        alias: {
+            Tone: "tone/Tone"
+        },
         root: [path.resolve('../app')],
         extensions: ['', '.jsx', '.js', '.tsx', '.ts']
     }

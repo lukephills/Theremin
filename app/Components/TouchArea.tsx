@@ -2,6 +2,7 @@ import * as React from 'react';
 const _round = require('lodash/round');
 import { connect } from 'react-redux';
 
+import Audio from '../Audio';
 import { style } from './Styles/styles';
 import { IGlobalState } from '../Constants/GlobalState';
 
@@ -86,6 +87,7 @@ class TouchArea extends React.Component<IProps, IState> {
 		console.log(this.props);
 		console.log(e);
 		//start playing
+		Audio.Start(0);
 	}
 
 	private onTouchStart(e) {
@@ -100,15 +102,19 @@ class TouchArea extends React.Component<IProps, IState> {
 				x: pos.x,
 				y: pos.y,
 			});
+
+			Audio.Start(touch.identifier);
 		}
-		this.resetTouchesState();
+		this.updateTouchesState();
 		console.log('down', this.currentTouches);
 	}
 
 	private onPointerMove(e) {
-		if (this.state.pointerDown){
+		//only do something if we have pointers down
+		if (this.state.pointerDown || this.state.touches.length){
 			const pos = this.getPositionAsPercentage(e);
 			console.log('move',pos);
+			Audio.SetPitch(0, pitch)
 		}
 	}
 
@@ -126,13 +132,16 @@ class TouchArea extends React.Component<IProps, IState> {
 				currentTouch.x = pos.x;
 				currentTouch.y = pos.y;
 
+				// Update this touches pitch
+				Audio.SetPitch(touch.identifier, pitch)
+
 				// Store the record.
 				this.currentTouches.splice(currentTouchIndex, 1, currentTouch);
 			} else {
 				console.log(`touch not found`);
 			}
 		}
-		this.resetTouchesState();
+		this.updateTouchesState();
 		console.log('move', this.currentTouches);
 	}
 
@@ -144,6 +153,8 @@ class TouchArea extends React.Component<IProps, IState> {
 		//stop playing
 		const pos = this.getPositionAsPercentage(e);
 		console.log('up',pos);
+
+		Audio.Stop(0);
 
 		console.log(this.state);
 	}
@@ -158,13 +169,14 @@ class TouchArea extends React.Component<IProps, IState> {
 			if (currentTouchIndex >= 0) {
 				var currentTouch = this.currentTouches[currentTouchIndex];
 
+				Audio.Stop(touch.identifier);
 				// Remove the record.
 				this.currentTouches.splice(currentTouchIndex, 1);
 			} else {
 				console.log('Touch was not found!');
 			}
 		}
-		this.resetTouchesState();
+		this.updateTouchesState();
 		console.log('up', this.currentTouches);
 	}
 
@@ -187,7 +199,7 @@ class TouchArea extends React.Component<IProps, IState> {
 		}
 	}
 
-	private resetTouchesState(){
+	private updateTouchesState(){
 		this.setState({
 			touches: this.currentTouches,
 		});

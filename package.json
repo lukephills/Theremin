@@ -10,6 +10,9 @@
     "start": "node dev_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "paths": {
+    "Tone" : "tone/Tone"
+  },
   "author": "George Lee",
   "license": "ISC",
   "repository": {
@@ -52,6 +55,7 @@
     "react-redux": "^4.1.2",
     "redux": "^3.1.5",
     "redux-actions": "^0.9.1",
+    "tone": "^0.6.1",
     "ts-loader": "^0.8.0",
     "typescript": "1.7.5"
   }

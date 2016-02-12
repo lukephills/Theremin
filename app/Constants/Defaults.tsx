@@ -7,8 +7,16 @@ export const WAVEFORMS: string[] = [
 
 export const Defaults: any = {
 	Title: 'Theremin',
-	NoteGuideButton: false,
 	Waveform: 1,
+	VoiceCount: 8,
+	Envelope: {
+		attack: 0.01,
+		decay: 0.5,
+		sustain: 0.5,
+		release: 0.01,
+	},
+	SetPitchRampTime: 0.05,
+	NoteGuideButton: false,
 	Sliders: [
 		{
 			name: 'delay',
