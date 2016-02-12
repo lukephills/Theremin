@@ -16,6 +16,7 @@ class ToggleButton extends React.Component<IProps, {}> {
 			<div
 				style={this.getStyles()}
 				onClick={this.props.onClick}
+				onTouchStart={this.props.onClick}
 				value={this.props.buttonValue}>
 				{this.props.buttonValue}
 			</div>

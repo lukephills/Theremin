@@ -41,7 +41,7 @@ class WaveformSelectGroup extends React.Component<IProps, IState> {
 						<ToggleButton
 							id={waveform}
 							isOn={waveform === this.props.waveform}
-							onClick={() => this.onButtonClick(waveform)}
+							onClick={(e) => this.onButtonClick(e, waveform)}
 							key={id}
 						    buttonValue={waveform} />
 					);
@@ -50,7 +50,8 @@ class WaveformSelectGroup extends React.Component<IProps, IState> {
 		);
 	}
 
-	private onButtonClick(waveform: string) {
+	private onButtonClick(e, waveform: string) {
+		e.preventDefault();
 		this.props.dispatch(Waveform(waveform));
 	}
 }

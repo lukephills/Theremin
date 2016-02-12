@@ -33,19 +33,20 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		return (
 			<section style={this.props.style}>
 				<ToggleButton
-					onClick={() => this.record()}
+					onClick={(e) => this.record(e)}
 					isOn={this.props.isRecording}
 					buttonValue={recordButtonValue}/>
 
 				<ToggleButton
-					onClick={() => this.play()}
+					onClick={(e) => this.play(e)}
 					isOn={this.props.isPlaying}
 					buttonValue={playButtonValue}/>
 			</section>
 		);
 	}
 
-	private play() {
+	private play(e) {
+		e.preventDefault();
 		if (this.props.isPlaying) {
 			this.props.dispatch(Player(false));
 		} else {
@@ -53,7 +54,8 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		}
 	}
 
-	private record() {
+	private record(e) {
+		e.preventDefault();
 		if (this.props.isRecording) {
 			this.props.dispatch(Recorder(false));
 		} else {

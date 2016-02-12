@@ -24,14 +24,15 @@ class NodeGuideButton extends React.Component<IProps, {}> {
 		return (
 			<div style={this.props.style}>
 				<ToggleButton
-					onClick={() => this.onButtonClick()}
+					onClick={(e) => this.onButtonClick(e)}
 				    isOn={this.props.isOn}
 					buttonValue="Guides"/>
 			</div>
 		);
 	}
 
-	private onButtonClick(): void {
+	private onButtonClick(e): void {
+		e.preventDefault();
 		this.props.dispatch(NoteGuide());
 	}
 }
