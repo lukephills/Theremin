@@ -3,9 +3,18 @@ import * as React from 'react';
 //TODO: find StyleSheet typings
 
 export const STYLE_CONST: any = {
-	TOP_PANEL_HEIGHT: 60,
-	BORDER_WIDTH: 3,
-	BOTTOM_PANEL_HEIGHT: 220,
+	TOP_PANEL_HEIGHT: 70,
+	BORDER_WIDTH: 0,
+	BOTTOM_PANEL_HEIGHT: 150,
+	TITLE_FONT_SIZE: 34,
+	SLIDER_FONT_SIZE: 28,
+	YELLOW: 'rgb(211,198,101)',
+	GREEN: 'rgb(76,126,130)',
+	GREEN_VALUES: '76,126,130',
+	BROWN: 'rgb(52,40,0)',
+	WHITE: 'white',
+	BLACK: 'black',
+	PADDING: 5,
 }
 
 export const style: any = {
@@ -13,52 +22,64 @@ export const style: any = {
 		container: {
 			display: 'block',
 			float: 'left',
-			height: STYLE_CONST.TOP_PANEL_HEIGHT + (STYLE_CONST.BORDER_WIDTH * 2),
+			height: STYLE_CONST.TOP_PANEL_HEIGHT,
 		},
 		h1: {
-			fontSize: 30,
+			fontSize: STYLE_CONST.TITLE_FONT_SIZE,
+			lineHeight: `${STYLE_CONST.TOP_PANEL_HEIGHT}px`,
 			margin: 0,
+			marginLeft: 20,
+			fontWeight: 300,
 		},
 	},
 	recordPlayButtonGroup: {
 		container: {
 			display: 'inline-block',
+			float: 'right',
+			//marginLeft: 10,
+			borderLeft: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
 		},
 	},
 	noteGuideButton: {
 		container: {
 			display: 'inline-block',
+			float: 'right',
+			//marginLeft: 10,
+			borderLeft: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
 		},
 	},
 	waveformSelectGroup: {
 		container: {
 			display: 'inline-block',
 			float: 'right',
-			outline: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
+			//marginLeft: 10,
+			borderLeft: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
 		},
 	},
 	button: {
 		backgroundColor: 'white',
-		border: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
-		fontSize: 20,
-		color: 'red',
+		//TODO: Delete the border - use icons with whitespace, no outlines
+		//border: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
+		lineHeight: `${STYLE_CONST.TOP_PANEL_HEIGHT}px`,
+		textAlign: 'center',
+		fontSize: 12,
+		color: STYLE_CONST.BLACK,
 		width: STYLE_CONST.TOP_PANEL_HEIGHT,
 		height: STYLE_CONST.TOP_PANEL_HEIGHT,
 		display: 'inline-block',
 		cursor: 'pointer',
 	},
 	buttonActive: {
-		color: 'green',
+		color: STYLE_CONST.GREEN,
 	},
 
 	touchArea: {
-		background: 'grey',
+		background: STYLE_CONST.YELLOW,
 		cursor: 'pointer',
-		outline: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
+		border: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
 	},
 
 	sliderGroup: {
-		marginTop: -1,
 		cursor: 'pointer',
 	},
 
@@ -74,8 +95,8 @@ export const style: any = {
 		position: 'absolute',
 		zIndex: 10,
 		right: 0,
-		fontSize: 34,
-		marginTop: 16,
+		fontSize: STYLE_CONST.SLIDER_FONT_SIZE,
+		lineHeight: `${STYLE_CONST.BOTTOM_PANEL_HEIGHT/3}px`,
 		marginRight: 20,
 		pointerEvents: 'none',
 	}

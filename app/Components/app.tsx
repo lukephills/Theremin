@@ -43,7 +43,10 @@ class App extends React.Component<any, IState> {
 	public render(): React.ReactElement<{}> {
 
 		const touchAreaHeight = this.state.windowHeight -
-			( STYLE_CONST.TOP_PANEL_HEIGHT + (STYLE_CONST.BORDER_WIDTH * 2) + STYLE_CONST.BOTTOM_PANEL_HEIGHT);
+			( STYLE_CONST.TOP_PANEL_HEIGHT +
+			//(STYLE_CONST.BORDER_WIDTH * 2) +
+			(STYLE_CONST.PADDING * 2 )+
+			STYLE_CONST.BOTTOM_PANEL_HEIGHT);
 
 		return (
 			<div id='body-wrapper'>
@@ -54,7 +57,7 @@ class App extends React.Component<any, IState> {
 				<NoteGuideButton style={style.noteGuideButton.container} />
 				<WaveformSelectGroup style={style.waveformSelectGroup.container} />
 				<TouchArea
-					width={this.state.windowWidth}
+					width={this.state.windowWidth - (STYLE_CONST.PADDING*2)}
 					height={touchAreaHeight}
 				/>
 				<RangeSliderGroup />

@@ -15,21 +15,21 @@ export const Defaults: any = {
 			value: 2,
 			min: 0,
 			max: 100,
-			step: 1,
+			step: 0.1,
 		},
 		{
 			name: 'feedback',
 			value: 100,
 			min: 0,
 			max: 100,
-			step: 1,
+			step: 0.1,
 		},
 		{
 			name: 'scuzz',
 			value: 50,
 			min: 0,
 			max: 100,
-			step: 1,
+			step: 0.1,
 		},
 	]
 }

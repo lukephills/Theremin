@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 require('./Styles/slider.css');
 
 import { Defaults } from '../Constants/Defaults';
-import { style } from './Styles/styles';
+import { style, STYLE_CONST } from './Styles/styles';
 import {SliderAction} from '../Actions/actions'
 import {IGlobalState} from '../Constants/GlobalState';
 
@@ -31,11 +31,12 @@ class RangeSliderGroup extends React.Component<any, any> {
 					return (
 						<div key={id} style={this.getSliderStyles()}>
 							<span style={this.getWaveformTitleStyles(slider)}>
-								{slider.name.toUpperCase()} - {this.props[slider.name]}
+								{slider.name.toUpperCase()} {this.props.slider[slider.name].toFixed()}
 							</span>
 							<Slider
 								min={slider.min}
 								max={slider.max}
+								step={slider.step}
 								value={this.props.slider[slider.name]}
 								onChange={(value) => this.onSliderChange(slider.name, value)}
 								tipFormatter={null}
@@ -78,11 +79,15 @@ class RangeSliderGroup extends React.Component<any, any> {
 		const sliders: any = document.querySelectorAll('.rc-slider');
 		for (var i = 0; i < sliders.length; i++) {
 			sliders[i].style.height = `${style.slider.height}px`;
+			sliders[i].style.backgroundColor = STYLE_CONST.WHITE;
 		}
 
 		const sliderTracks: any = document.querySelectorAll('.rc-slider-track');
 		for (var i = 0; i < sliderTracks.length; i++) {
+			//const opacity = 1 - (i * 0.2)
+			sliderTracks[i].style.backgroundColor = `rgba(${STYLE_CONST.GREEN_VALUES},${1-(i*0.2)})`;
 			sliderTracks[i].style.height = `${style.slider.height}px`;
+
 		}
 		console.log('sliders style set')
 	}

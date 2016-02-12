@@ -24,7 +24,7 @@ function select(state: IGlobalState): any {
 		guides: state.NoteGuide.isOn,
 		waveform: state.Waveform.wave,
 		isRecording: state.Recorder.isRecording,
-		isPlaying: state.Player.isPlaying,
+		isPlaying: state.Player
 	};
 }
 
