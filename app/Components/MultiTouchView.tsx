@@ -2,7 +2,7 @@ import * as React from 'react';
 const _round = require('lodash/round');
 import { connect } from 'react-redux';
 
-import Audio from '../Audio';
+import { noOp } from '../Utils/utils';
 import { style } from './Styles/styles';
 import { IGlobalState } from '../Constants/GlobalState';
 
@@ -14,6 +14,14 @@ interface ICoordinates {
 interface IProps {
 	width: number;
 	height: number;
+	onMouseDown?: () => any;
+	onTouchStart?: () => any;
+	onMouseMove?: () => any;
+	onTouchMove?: () => any;
+	onMouseUp?: () => any;
+	onTouchEnd?: () => any;
+	onMouseLeave?: () => any;
+	onTouchCancel?: () => any;
 }
 
 interface IState {
@@ -37,7 +45,7 @@ function select(state: IGlobalState): any {
 }
 
 @connect(select)
-class TouchArea extends React.Component<IProps, IState> {
+class MultiTouchView extends React.Component<IProps, IState> {
 
 	private currentTouches: ITouch[];
 
@@ -48,18 +56,27 @@ class TouchArea extends React.Component<IProps, IState> {
 	}
 
 	public render(): React.ReactElement<{}> {
+		const {
+			onMouseDown,
+			onTouchStart,
+			onMouseMove,
+			onTouchMove,
+			onMouseUp,
+			onTouchEnd,
+			onMouseLeave,
+			onTouchCancel } = this.props
 		return (
 			<canvas
 				style={this.getStyles()}
 				id="touchArea"
-			    onMouseDown={(e) => this.onPointerDown(e)}
-			    onTouchStart={(e) => this.onTouchStart(e)}
-			    onMouseMove={(e) => this.onPointerMove(e)}
-			    onTouchMove={(e) => this.onTouchMove(e)}
-			    onMouseUp={(e) => this.onPointerUp(e)}
-			    onTouchEnd={(e) => this.onTouchEnd(e)}
-			    onMouseLeave={(e) => this.onPointerLeave(e)}
-			    onTouchCancel={(e) => this.onTouchEnd(e)}
+			    onMouseDown={(e) => this.onMouseDown(e, onMouseDown)}
+				onMouseUp={(e) => this.onMouseUp(e, onMouseUp)}
+				onMouseMove={(e) => this.onMouseMove(e, onMouseMove)}
+				onMouseLeave={(e) => this.onMouseLeave(e, onMouseLeave)}
+			    onTouchStart={(e) => this.onTouchStart(e, onTouchStart)}
+				onTouchEnd={(e) => this.onTouchEnd(e, onTouchEnd)}
+			    onTouchMove={(e) => this.onTouchMove(e, onTouchMove)}
+			    onTouchCancel={(e) => this.onTouchEnd(e, onTouchCancel)}
 			/>
 		);
 	}
@@ -76,21 +93,17 @@ class TouchArea extends React.Component<IProps, IState> {
 		);
 	}
 
-	private onPointerDown(e) {
-		console.log(this.state);
+	private onMouseDown(e, callback = noOp) {
+		//console.log(this.state);
 		e.preventDefault();
 		this.setState({
 			pointerDown: true,
 		})
 		const pos = this.getPositionAsPercentage(e);
-		console.log('down',pos);
-		console.log(this.props);
-		console.log(e);
-		//start playing
-		Audio.Start(0);
+		callback(pos);
 	}
 
-	private onTouchStart(e) {
+	private onTouchStart(e, callback = noOp) {
 		e.preventDefault();
 		for (let i = 0; i < e.changedTouches.length; i++) {
 			const touch = e.changedTouches[i];
@@ -103,22 +116,20 @@ class TouchArea extends React.Component<IProps, IState> {
 				y: pos.y,
 			});
 
-			Audio.Start(touch.identifier);
+			callback(pos, touch.identifier);
 		}
 		this.updateTouchesState();
-		console.log('down', this.currentTouches);
 	}
 
-	private onPointerMove(e) {
+	private onMouseMove(e, callback = noOp) {
 		//only do something if we have pointers down
-		if (this.state.pointerDown || this.state.touches.length){
+		if (this.state.pointerDown || (this.state.touches && this.state.touches.length)){
 			const pos = this.getPositionAsPercentage(e);
-			console.log('move',pos);
-			Audio.SetPitch(0, pitch)
+			callback(pos);
 		}
 	}
 
-	private onTouchMove(e) {
+	private onTouchMove(e, callback = noOp) {
 		e.preventDefault();
 		for (let i = 0; i < e.changedTouches.length; i++) {
 			const touch = e.changedTouches[i];
@@ -133,7 +144,7 @@ class TouchArea extends React.Component<IProps, IState> {
 				currentTouch.y = pos.y;
 
 				// Update this touches pitch
-				Audio.SetPitch(touch.identifier, pitch)
+				callback(pos, touch.identifier)
 
 				// Store the record.
 				this.currentTouches.splice(currentTouchIndex, 1, currentTouch);
@@ -142,24 +153,18 @@ class TouchArea extends React.Component<IProps, IState> {
 			}
 		}
 		this.updateTouchesState();
-		console.log('move', this.currentTouches);
 	}
 
-	private onPointerUp(e) {
+	private onMouseUp(e, callback = noOp) {
 		e.preventDefault();
 		this.setState({
 			pointerDown: false,
 		})
-		//stop playing
 		const pos = this.getPositionAsPercentage(e);
-		console.log('up',pos);
-
-		Audio.Stop(0);
-
-		console.log(this.state);
+		callback(pos);
 	}
 
-	private onTouchEnd(e) {
+	private onTouchEnd(e, callback = noOp) {
 		e.preventDefault();
 		for (let i = 0; i < e.changedTouches.length; i++) {
 			const touch = e.changedTouches[i];
@@ -168,8 +173,7 @@ class TouchArea extends React.Component<IProps, IState> {
 
 			if (currentTouchIndex >= 0) {
 				var currentTouch = this.currentTouches[currentTouchIndex];
-
-				Audio.Stop(touch.identifier);
+				callback(pos, touch.identifier)
 				// Remove the record.
 				this.currentTouches.splice(currentTouchIndex, 1);
 			} else {
@@ -177,18 +181,18 @@ class TouchArea extends React.Component<IProps, IState> {
 			}
 		}
 		this.updateTouchesState();
-		console.log('up', this.currentTouches);
 	}
 
-	private onPointerLeave(e) {
+	private onMouseLeave(e, callback = noOp) {
 		e.preventDefault();
 		if (this.state.pointerDown) {
 			this.setState({
 				pointerDown: false,
 			})
 			const pos = this.getPositionAsPercentage(e);
-			console.log('left', pos)
+			//console.log('left', pos)
 			//Stop playing
+			callback(pos)
 		}
 	}
 
@@ -216,4 +220,4 @@ class TouchArea extends React.Component<IProps, IState> {
 	}
 }
 
-export default TouchArea;
+export default MultiTouchView;

@@ -11,6 +11,7 @@ const initialState = {};
 const store: any = configureStore(initialState || {});
 
 class Main extends React.Component<{}, {}> {
+
 	public render(): React.ReactElement<Provider> {
 		return (
 			<Provider store={store}>

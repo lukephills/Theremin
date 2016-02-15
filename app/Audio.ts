@@ -8,28 +8,32 @@ const Delay = require("Tone/core/Delay.js");
 const Note = require("Tone/core/Note.js");
 const Master = require("Tone/core/Master.js");
 
-export default class Audio {
+class Audio {
 
-	public sources: Tone.SimpleSynth[];
-	public filters: Tone.Filter[];
+	public sources: Tone.SimpleSynth[] = [];
+	public filters: Tone.Filter[] = [];
 	public delay: Tone.Delay;
 	public scuzz: Tone.LFO;
 
-	Init() {
+	constructor() {
 
 		for (let i = 0; i < Defaults.VoiceCount; i++){
 			this.CreateSource();
-			this.CreateEnvelope();
 			this.CreateFilter();
 		}
 
 		this.sources.forEach((source, i: number) => {
-			source.connect(filters[i]);
+			source.connect(this.filters[i]);
 		})
 
+		this.delay = new Delay();
+		this.scuzz = new LFO();
+
 		this.filters.forEach((filter) => {
-			filter.connect(delay);
+			filter.connect(this.delay);
 		})
+
+		this.delay.toMaster();
 
 	}
 
@@ -38,23 +42,18 @@ export default class Audio {
 	}
 
 	CreateFilter() {
-		this.filters.push( new AmplitudeEnvelope(
-			Defaults.Envelope.attack,
-			Defaults.Envelope.decay,
-			Defaults.Envelope.sustain,
-			Defaults.Envelope.release
-		));
+		this.filters.push( new Filter());
 	}
 
-	Start(id: number) {
-		this.sources[id].envelope.triggerAttack()
+	public Start(id: number = 0) {
+		this.sources[id].triggerAttack(440)
 	}
 
-	Stop(id: number) {
-		this.sources[id].envelope.triggerRelease()
+	public Stop(id: number = 0) {
+		this.sources[id].triggerRelease()
 	}
 
-	SetPitch(pitch: number, id: number) {
+	SetPitch(pitch: number, id: number = 0) {
 		this.sources[id].frequency.exponentialRampToValue(pitch, Defaults.SetPitchRampTime);
 	}
 
@@ -63,11 +62,12 @@ export default class Audio {
 	}
 
 	SetFeedback(value: number) {
-		this.delay.feedback.value = value;
+		//this.delay.feedback.value = value;
 	}
 
 	SetScuzz(value: number) {
-		this.scuzz.rate.value = value;
+		//this.scuzz.rate.value = value;
 	}
 
 }
+export default Audio;

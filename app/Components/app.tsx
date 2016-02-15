@@ -4,11 +4,12 @@ require("normalize.css");
 
 import {style, STYLE_CONST} from './Styles/styles';
 import {Defaults} from '../Constants/Defaults';
+import Audio from '../Audio';
 import RecordPlayButtonGroup from './RecordPlayButtonGroup';
 import NoteGuideButton from './NoteGuideButton';
 import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
-import TouchArea from './TouchArea';
+import TouchAreaContainer from './TouchAreaContainer';
 
 interface IState {
 	windowHeight: number;
@@ -56,7 +57,7 @@ class App extends React.Component<any, IState> {
 				<RecordPlayButtonGroup style={style.recordPlayButtonGroup.container} />
 				<NoteGuideButton style={style.noteGuideButton.container} />
 				<WaveformSelectGroup style={style.waveformSelectGroup.container} />
-				<TouchArea
+				<TouchAreaContainer
 					width={this.state.windowWidth - (STYLE_CONST.PADDING*2)}
 					height={touchAreaHeight}
 				/>
