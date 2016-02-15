@@ -46,6 +46,7 @@ class TouchAreaContainer extends React.Component<IProps, IState> {
 
 	public componentDidMount() {
 		this.Audio = new Audio();
+		this.Audio.clientHeight = this.props.height;
 	}
 
 	public render(): React.ReactElement<{}> {
@@ -66,17 +67,18 @@ class TouchAreaContainer extends React.Component<IProps, IState> {
 
 	private onMouseDown(position) {
 		console.log('down', position);
-		this.Audio.Start();
-		console.log('start')
+		this.Audio.Start(position);
 		//Start
 	}
 	private onMouseUp(position) {
 		console.log('up', position);
-		this.Audio.Stop();
+		this.Audio.Stop(position);
 		//Stop
 	}
 	private onMouseMove(position) {
 		console.log('move', position);
+		this.Audio.Move(position);
+		//this.Audio.SetPitch(position)
 		//Update Pitch
 	}
 

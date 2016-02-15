@@ -4,12 +4,12 @@ require("normalize.css");
 
 import {style, STYLE_CONST} from './Styles/styles';
 import {Defaults} from '../Constants/Defaults';
-import Audio from '../Audio';
 import RecordPlayButtonGroup from './RecordPlayButtonGroup';
 import NoteGuideButton from './NoteGuideButton';
 import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
 import TouchAreaContainer from './TouchAreaContainer';
+
 
 interface IState {
 	windowHeight: number;

@@ -6,7 +6,7 @@ import { noOp } from '../Utils/utils';
 import { style } from './Styles/styles';
 import { IGlobalState } from '../Constants/GlobalState';
 
-interface ICoordinates {
+export interface ICoordinates {
 	x: number;
 	y: number;
 }

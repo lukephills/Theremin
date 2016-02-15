@@ -79,6 +79,10 @@ export const style: any = {
 		border: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
 	},
 
+	canvas: {
+		barWidth: 10,
+	},
+
 	sliderGroup: {
 		cursor: 'pointer',
 	},
