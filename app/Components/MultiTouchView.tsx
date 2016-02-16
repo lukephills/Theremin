@@ -99,7 +99,7 @@ class MultiTouchView extends React.Component<IProps, IState> {
 		this.setState({
 			pointerDown: true,
 		})
-		const pos = this.getPositionAsPercentage(e);
+		const pos: ICoordinates = this.getPositionAsPercentage(e);
 		callback(pos);
 	}
 
@@ -107,7 +107,7 @@ class MultiTouchView extends React.Component<IProps, IState> {
 		e.preventDefault();
 		for (let i = 0; i < e.changedTouches.length; i++) {
 			const touch = e.changedTouches[i];
-			const pos = this.getPositionAsPercentage(touch);
+			const pos: ICoordinates = this.getPositionAsPercentage(touch);
 
 			//Add this touch to list of touches
 			this.currentTouches.push({
@@ -124,7 +124,7 @@ class MultiTouchView extends React.Component<IProps, IState> {
 	private onMouseMove(e, callback = noOp) {
 		//only do something if we have pointers down
 		if (this.state.pointerDown || (this.state.touches && this.state.touches.length)){
-			const pos = this.getPositionAsPercentage(e);
+			const pos: ICoordinates = this.getPositionAsPercentage(e);
 			callback(pos);
 		}
 	}
@@ -133,7 +133,7 @@ class MultiTouchView extends React.Component<IProps, IState> {
 		e.preventDefault();
 		for (let i = 0; i < e.changedTouches.length; i++) {
 			const touch = e.changedTouches[i];
-			const pos = this.getPositionAsPercentage(touch);
+			const pos: ICoordinates = this.getPositionAsPercentage(touch);
 			const currentTouchIndex = this.getCurrentTouchIndex(touch.identifier);
 
 			if (currentTouchIndex >= 0){
@@ -160,7 +160,7 @@ class MultiTouchView extends React.Component<IProps, IState> {
 		this.setState({
 			pointerDown: false,
 		})
-		const pos = this.getPositionAsPercentage(e);
+		const pos: ICoordinates = this.getPositionAsPercentage(e);
 		callback(pos);
 	}
 
@@ -168,7 +168,7 @@ class MultiTouchView extends React.Component<IProps, IState> {
 		e.preventDefault();
 		for (let i = 0; i < e.changedTouches.length; i++) {
 			const touch = e.changedTouches[i];
-			const pos = this.getPositionAsPercentage(touch);
+			const pos: ICoordinates = this.getPositionAsPercentage(touch);
 			const currentTouchIndex = this.getCurrentTouchIndex(touch.identifier);
 
 			if (currentTouchIndex >= 0) {
@@ -189,7 +189,7 @@ class MultiTouchView extends React.Component<IProps, IState> {
 			this.setState({
 				pointerDown: false,
 			})
-			const pos = this.getPositionAsPercentage(e);
+			const pos: ICoordinates = this.getPositionAsPercentage(e);
 			//console.log('left', pos)
 			//Stop playing
 			callback(pos)

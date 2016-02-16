@@ -2,22 +2,27 @@ import * as React from 'react';
 import { style } from './Styles/styles'
 
 interface IProps {
+	disabled?: boolean;
 	id?: string;
 	key?: number;
 	isOn?: boolean;
-	onClick?: any;
+	onDown?: any;
 	buttonValue?: string;
 }
 
 class ToggleButton extends React.Component<IProps, {}> {
 
 	public render(): React.ReactElement<{}> {
+
+		const props = {
+			style: this.getStyles(),
+			onClick: this.props.disabled ? false : this.props.onDown,
+			onTouchStart: this.props.disabled ? false : this.props.onDown,
+			value: this.props.buttonValue,
+		}
+
 		return (
-			<div
-				style={this.getStyles()}
-				onClick={this.props.onClick}
-				onTouchStart={this.props.onClick}
-				value={this.props.buttonValue}>
+			<div {...props}>
 				{this.props.buttonValue}
 			</div>
 		);
@@ -27,7 +32,8 @@ class ToggleButton extends React.Component<IProps, {}> {
 		return Object.assign(
 			{},
 			style.button,
-			this.props.isOn && style.buttonActive
+			this.props.isOn && style.buttonActive,
+			this.props.disabled && style.buttonDisabled
 		);
 	}
 }

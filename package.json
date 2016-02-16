@@ -1,7 +1,7 @@
 {
-  "name": "react-typescript-boilerplate",
-  "version": "1.0.0",
-  "description": "Boilerplate project that uses Typescript, React, and Webpack",
+  "name": "theremin",
+  "version": "2.0.0",
+  "description": "Theremin emulator",
   "main": "index.js",
   "scripts": {
     "build:webpack": "NODE_ENV=production webpack --config config/webpack.prod.js",
@@ -11,7 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "paths": {
-    "Tone" : "tone/Tone"
+    "Tone": "tone/Tone"
   },
   "author": "George Lee",
   "license": "ISC",

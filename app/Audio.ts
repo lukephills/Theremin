@@ -17,14 +17,12 @@ class Audio {
 	private _clientHeight: number;
 	//private _pitchMultiplier: number = Defaults.PitchMultiplier
 	private frequencyMultiplier: number = 15;
-	private _lastFrequency: number = 320; //TODO: add to defaults
 	private mySpectrum;
 
 	public Tone: Tone = new Tone();
 	public context: AudioContext = this.Tone.context;
 
 	// Gains
-	public _volume: GainNode = this.context.createGain()
 	public oscillatorGain: GainNode = this.context.createGain()
 	public masterVolume: GainNode = this.context.createGain()
 	public scuzzGain: GainNode = this.context.createGain()
@@ -71,7 +69,6 @@ class Audio {
 		this.feedback.gain.value = 0.5;
 		this.scuzzGain.gain.value = 0;
 
-		//this._volume.gain.value = 0.6;
 		this.oscillatorGain.gain.value = 0;
 		this.masterVolume.gain.value = 0.5;
 
@@ -157,31 +154,31 @@ class Audio {
 
 	drawSpectrum() {
 		//TODO: the size is not drawing correctly - start again from scratch
-		var canvas: any = document.querySelector('canvas'),
-			ctx = canvas.getContext('2d'),
-			canvasSize = canvas.width + 30,
-			width = canvasSize,
-			height = canvasSize,
-			freqByteData,
-			barCount,
-			magnitude,
-			i;
-
-		canvas.width = canvasSize - 20;
-		canvas.height = canvasSize - 10;
-
-		ctx.clearRect(0, 0, width, height);
-		ctx.fillStyle = STYLE_CONST.BLACK;
-
-		freqByteData = new Uint8Array(this.audioAnalyser.frequencyBinCount);
-		this.audioAnalyser.getByteFrequencyData(freqByteData);
-		barCount = Math.round(width / style.barWidth);
-
-		for (i = 0; i < barCount; i += 1) {
-			magnitude = freqByteData[i];
-			// some values need adjusting to fit on the canvas
-			ctx.fillRect(style.barWidth * i * 1.6, height, style.barWidth, -magnitude);
-		}
+		//var canvas: any = document.querySelector('canvas'),
+		//	ctx = canvas.getContext('2d'),
+		//	canvasSize = canvas.width + 30,
+		//	width = canvasSize,
+		//	height = canvasSize,
+		//	freqByteData,
+		//	barCount,
+		//	magnitude,
+		//	i;
+		//
+		//canvas.width = canvasSize - 20;
+		//canvas.height = canvasSize - 10;
+		//
+		//ctx.clearRect(0, 0, width, height);
+		//ctx.fillStyle = STYLE_CONST.BLACK;
+		//
+		//freqByteData = new Uint8Array(this.audioAnalyser.frequencyBinCount);
+		//this.audioAnalyser.getByteFrequencyData(freqByteData);
+		//barCount = Math.round(width / style.barWidth);
+		//
+		//for (i = 0; i < barCount; i += 1) {
+		//	magnitude = freqByteData[i];
+		//	// some values need adjusting to fit on the canvas
+		//	ctx.fillRect(style.barWidth * i * 1.6, height, style.barWidth, -magnitude);
+		//}
 	}
 
 }

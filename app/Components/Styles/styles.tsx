@@ -14,6 +14,7 @@ export const STYLE_CONST: any = {
 	BROWN: 'rgb(52,40,0)',
 	WHITE: 'white',
 	BLACK: 'black',
+	GREY: 'grey',
 	PADDING: 5,
 }
 
@@ -72,7 +73,9 @@ export const style: any = {
 	buttonActive: {
 		color: STYLE_CONST.GREEN,
 	},
-
+	buttonDisabled: {
+		color: STYLE_CONST.WHITE,
+	},
 	touchArea: {
 		background: STYLE_CONST.YELLOW,
 		cursor: 'pointer',

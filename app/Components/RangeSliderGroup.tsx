@@ -7,7 +7,7 @@ require('./Styles/slider.css');
 import { Defaults } from '../Constants/Defaults';
 import { style, STYLE_CONST } from './Styles/styles';
 import {SliderAction} from '../Actions/actions'
-import {IGlobalState} from '../Constants/GlobalState';
+import {IGlobalState, ISlider} from '../Constants/GlobalState';
 
 
 
@@ -20,25 +20,34 @@ function select(state: IGlobalState): any {
 @connect(select)
 class RangeSliderGroup extends React.Component<any, any> {
 
+	private sliders: any;
+
+	constructor(props){
+		super(props);
+
+		this.sliders = Defaults.Sliders;
+	}
+
 	public componentDidMount() {
 		this.setSliderStyles();
 	}
 
 	public render(): React.ReactElement<{}> {
+
 		return (
 			<div style={style.sliderGroup}>
-				{Defaults.Sliders.map((slider: any, id: number) => {
+				{Object.keys(this.sliders).map((sliderName: any, id: number) => {
 					return (
 						<div key={id} style={this.getSliderStyles()}>
-							<span style={this.getWaveformTitleStyles(slider)}>
-								{slider.name.toUpperCase()} {this.props.slider[slider.name].toFixed()}
+							<span style={this.getWaveformTitleStyles(sliderName)}>
+								{sliderName.toUpperCase()}
 							</span>
 							<Slider
-								min={slider.min}
-								max={slider.max}
-								step={slider.step}
-								value={this.props.slider[slider.name]}
-								onChange={(value) => this.onSliderChange(slider.name, value)}
+								min={this.sliders[sliderName].min}
+								max={this.sliders[sliderName].max}
+								step={this.sliders[sliderName].step}
+								value={this.props.slider[sliderName]}
+								onChange={(value) => this.onSliderChange(sliderName, value)}
 								tipFormatter={null}
 							/>
 						</div>
@@ -49,6 +58,7 @@ class RangeSliderGroup extends React.Component<any, any> {
 	}
 
 	private onSliderChange(slider: string, value: number){
+		this.props.sliderChange(slider,value);
 		this.props.dispatch(SliderAction(slider, value));
 	}
 
@@ -84,12 +94,9 @@ class RangeSliderGroup extends React.Component<any, any> {
 
 		const sliderTracks: any = document.querySelectorAll('.rc-slider-track');
 		for (var i = 0; i < sliderTracks.length; i++) {
-			//const opacity = 1 - (i * 0.2)
 			sliderTracks[i].style.backgroundColor = `rgba(${STYLE_CONST.GREEN_VALUES},${1-(i*0.2)})`;
 			sliderTracks[i].style.height = `${style.slider.height}px`;
-
 		}
-		console.log('sliders style set')
 	}
 
 }

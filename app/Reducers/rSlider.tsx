@@ -3,16 +3,18 @@ import {ISlider} from '../Constants/GlobalState';
 import {SLIDER_CHANGE} from '../Constants/ActionTypes';
 
 let originalState:any = {};
+
 // Set the original state dynamically based on Defaults.Sliders
-for (let i = 0; i < Defaults.Sliders.length; i++ ){
-	const slider = Defaults.Sliders[i];
+for (let slider in Defaults.Sliders) {
+	console.log(slider);
 	originalState = Object.assign(
 		originalState,
 		{
-			[slider.name]: slider.value
+			[slider]: Defaults.Sliders[slider].value
 		}
 	);
 }
+
 const DefaultSliderObject: ISlider = originalState;
 
 export const Slider = (state = DefaultSliderObject, action): ISlider => {

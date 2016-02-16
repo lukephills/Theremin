@@ -9,6 +9,7 @@ interface IProps {
 	dispatch?: Function;
 	style?: any;
 	waveform?: string;
+	waveformChange(waveform: string): void;
 }
 
 interface IState {
@@ -24,13 +25,9 @@ function select(state: IGlobalState): any {
 @connect(select)
 class WaveformSelectGroup extends React.Component<IProps, IState> {
 
-	constructor() {
-		super();
-		this.state = {
-			waveform: {
-				wave: WAVEFORMS[Defaults.Waveform],
-			},
-		}
+	constructor(props){
+		super(props);
+		this.onButtonClick = this.onButtonClick.bind(this)
 	}
 
 	public render(): React.ReactElement<{}> {
@@ -41,7 +38,7 @@ class WaveformSelectGroup extends React.Component<IProps, IState> {
 						<ToggleButton
 							id={waveform}
 							isOn={waveform === this.props.waveform}
-							onClick={(e) => this.onButtonClick(e, waveform)}
+							onDown={(e) => this.onButtonClick(e, waveform)}
 							key={id}
 						    buttonValue={waveform} />
 					);
@@ -52,6 +49,7 @@ class WaveformSelectGroup extends React.Component<IProps, IState> {
 
 	private onButtonClick(e, waveform: string) {
 		e.preventDefault();
+		this.props.waveformChange(waveform);
 		this.props.dispatch(Waveform(waveform));
 	}
 }

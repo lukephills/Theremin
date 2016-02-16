@@ -5,8 +5,11 @@ import {IGlobalState, IPlayer, IRecorder} from '../Constants/GlobalState';
 import { Player, Recorder } from '../Actions/actions';
 
 interface IProps extends IPlayer, IRecorder {
-	style?: any;
 	dispatch?: Function;
+	style?: any;
+	isPlaybackDisabled: boolean;
+	onRecordButtonChange(value: boolean): void;
+	onPlaybackButtonChange(value: boolean): void;
 }
 interface  IState {
 	isRecording?: boolean;
@@ -30,15 +33,17 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 	public render(): React.ReactElement<{}> {
 		const recordButtonValue = this.props.isRecording? 'Stop' : 'Record';
 		const playButtonValue = this.props.isPlaying? 'Stop' : 'Play';
+
 		return (
 			<section style={this.props.style}>
 				<ToggleButton
-					onClick={(e) => this.record(e)}
+					onDown={(e) => this.record(e)}
 					isOn={this.props.isRecording}
 					buttonValue={recordButtonValue}/>
 
 				<ToggleButton
-					onClick={(e) => this.play(e)}
+					disabled={this.props.isPlaybackDisabled}
+					onDown={(e) => this.play(e)}
 					isOn={this.props.isPlaying}
 					buttonValue={playButtonValue}/>
 			</section>
@@ -49,17 +54,22 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		e.preventDefault();
 		if (this.props.isPlaying) {
 			this.props.dispatch(Player(false));
+			this.props.onPlaybackButtonChange(false);
 		} else {
 			this.props.dispatch(Player(true));
+			this.props.onPlaybackButtonChange(true);
 		}
+
 	}
 
 	private record(e) {
 		e.preventDefault();
 		if (this.props.isRecording) {
 			this.props.dispatch(Recorder(false));
+			this.props.onRecordButtonChange(false);
 		} else {
 			this.props.dispatch(Recorder(true));
+			this.props.onRecordButtonChange(true);
 		}
 	}
 }

@@ -5,11 +5,13 @@ import { connect } from 'react-redux';
 import { style } from './Styles/styles';
 import { IGlobalState } from '../Constants/GlobalState';
 import MultiTouchView from './MultiTouchView';
-import Audio from '../Audio';
 
 interface IProps {
 	width: number;
 	height: number;
+	start(pos): void;
+	stop(pos): void;
+	move(pos): void;
 }
 
 interface IState {
@@ -36,17 +38,11 @@ function select(state: IGlobalState): any {
 class TouchAreaContainer extends React.Component<IProps, IState> {
 
 	private currentTouches: ITouch[];
-	public Audio: Audio;
 
 	constructor() {
 		super();
 		this.state = {pointerDown: false}
 		this.currentTouches = [];
-	}
-
-	public componentDidMount() {
-		this.Audio = new Audio();
-		this.Audio.clientHeight = this.props.height;
 	}
 
 	public render(): React.ReactElement<{}> {
@@ -67,17 +63,20 @@ class TouchAreaContainer extends React.Component<IProps, IState> {
 
 	private onMouseDown(position) {
 		console.log('down', position);
-		this.Audio.Start(position);
+		this.props.start(position);
+		//this.Audio.Start(position);
 		//Start
 	}
 	private onMouseUp(position) {
 		console.log('up', position);
-		this.Audio.Stop(position);
+		this.props.stop(position);
+		//this.Audio.Stop(position);
 		//Stop
 	}
 	private onMouseMove(position) {
 		console.log('move', position);
-		this.Audio.Move(position);
+		//this.Audio.Move(position);
+		this.props.move(position);
 		//this.Audio.SetPitch(position)
 		//Update Pitch
 	}

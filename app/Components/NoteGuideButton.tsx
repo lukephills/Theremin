@@ -24,7 +24,7 @@ class NodeGuideButton extends React.Component<IProps, {}> {
 		return (
 			<div style={this.props.style}>
 				<ToggleButton
-					onClick={(e) => this.onButtonClick(e)}
+					onDown={(e) => this.onButtonClick(e)}
 				    isOn={this.props.isOn}
 					buttonValue="Guides"/>
 			</div>

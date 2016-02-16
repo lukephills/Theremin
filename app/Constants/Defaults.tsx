@@ -2,7 +2,7 @@ export const WAVEFORMS: string[] = [
 	'sine',
 	'square',
 	'triangle',
-	'saw',
+	'sawtooth',
 ]
 
 export const Defaults: any = {
@@ -19,27 +19,28 @@ export const Defaults: any = {
 	PitchMultiplier: 15,
 	PitchRampTime: 0.2,
 	NoteGuideButton: false,
-	Sliders: [
-		{
+	Sliders: {
+		delay: {
 			name: 'delay',
-			value: 2,
+			value: 0.225,
 			min: 0,
-			max: 100,
-			step: 0.1,
+			max: 0.5,
+			step: 0.001,
 		},
-		{
+		feedback: {
 			name: 'feedback',
-			value: 100,
+			value: 0.5,
 			min: 0,
-			max: 100,
-			step: 0.1,
+			max: 0.9,
+			step: 0.001,
 		},
-		{
+		scuzz: {
 			name: 'scuzz',
 			value: 50,
 			min: 0,
-			max: 100,
-			step: 0.1,
+			max: 1000,
+			step: 1,
+			waveform: 'sine',
 		},
-	]
+	}
 }
