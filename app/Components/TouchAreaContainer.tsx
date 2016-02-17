@@ -12,6 +12,7 @@ interface IProps {
 	start(pos): void;
 	stop(pos): void;
 	move(pos): void;
+	canvas?: HTMLCanvasElement;
 }
 
 interface IState {
@@ -51,6 +52,7 @@ class TouchAreaContainer extends React.Component<IProps, IState> {
 			<MultiTouchView
 				width={this.props.width}
 				height={this.props.height}
+				canvas={this.props.canvas}
 			    onMouseDown={this.onMouseDown.bind(this)}
 			    onMouseUp={this.onMouseUp.bind(this)}
 			    onMouseMove={this.onMouseMove.bind(this)}

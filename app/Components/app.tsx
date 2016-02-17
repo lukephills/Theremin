@@ -11,6 +11,7 @@ import TouchAreaContainer from './TouchAreaContainer';
 import { WAVEFORMS, Defaults } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
 import {ICoordinates} from './MultiTouchView';
+import {createCanvas, getPixelRatio, canvasResize} from '../Utils/utils';
 const Tone = require("Tone/core/Tone.js");
 
 
@@ -72,6 +73,9 @@ class App extends React.Component<any, IState> {
 
 	public recordingExists: boolean = false;
 	private isAnimating: boolean = false;
+	private touchAreaHeight: number;
+	private touchAreaWidth: number;
+	public Canvas: HTMLCanvasElement;
 
 	constructor(props) {
 		super(props);
@@ -85,9 +89,20 @@ class App extends React.Component<any, IState> {
 			isRecording: false,
 			scuzzVal: Defaults.Sliders.scuzz.value,
 			waveform: WAVEFORMS[Defaults.Waveform],
-			windowHeight: window.innerWidth,
+			windowHeight: window.innerHeight,
 			windowWidth: window.innerWidth,
 		};
+
+		this.touchAreaHeight = this.state.windowHeight - (STYLE_CONST.TOP_PANEL_HEIGHT + (STYLE_CONST.PADDING * 2 ) +
+			STYLE_CONST.BOTTOM_PANEL_HEIGHT);
+		this.touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
+		//Create canvas with the device resolution.
+		this.Canvas = createCanvas(this.touchAreaWidth, this.touchAreaHeight);
+
+		this.audioAnalyser.maxDecibels = -25;
+		this.audioAnalyser.minDecibels = -100;
+		this.audioAnalyser.smoothingTimeConstant = 0.85;
+
 
 		this.Start = this.Start.bind(this);
 		this.Stop = this.Stop.bind(this);
@@ -97,6 +112,8 @@ class App extends React.Component<any, IState> {
 		this.handleResize = this.handleResize.bind(this);
 		this.Record = this.Record.bind(this);
 		this.Playback = this.Playback.bind(this);
+
+
 	}
 
 	public componentDidMount() {
@@ -109,11 +126,12 @@ class App extends React.Component<any, IState> {
 
 	public render(): React.ReactElement<{}> {
 
-		const touchAreaHeight = this.state.windowHeight -
-			( STYLE_CONST.TOP_PANEL_HEIGHT +
-			//(STYLE_CONST.BORDER_WIDTH * 2) +
-			(STYLE_CONST.PADDING * 2 )+
-			STYLE_CONST.BOTTOM_PANEL_HEIGHT);
+		//const touchAreaHeight = this.state.windowHeight -
+		//	( STYLE_CONST.TOP_PANEL_HEIGHT +
+		//	//(STYLE_CONST.BORDER_WIDTH * 2) +
+		//	(STYLE_CONST.PADDING * 2 )+
+		//	STYLE_CONST.BOTTOM_PANEL_HEIGHT);
+		//const touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
 
 		return (
 			<div id='body-wrapper'>
@@ -134,8 +152,9 @@ class App extends React.Component<any, IState> {
 				    waveformChange={this.SetWaveform}
 				/>
 				<TouchAreaContainer
-					width={this.state.windowWidth - (STYLE_CONST.PADDING*2)}
-					height={touchAreaHeight}
+					canvas={this.Canvas}
+					width={this.touchAreaWidth}
+					height={this.touchAreaHeight}
 				    start={this.Start}
 				    stop={this.Stop}
 				    move={this.Move}
@@ -152,6 +171,12 @@ class App extends React.Component<any, IState> {
 			windowWidth: window.innerWidth,
 			windowHeight: window.innerHeight,
 		});
+		this.touchAreaHeight = this.state.windowHeight - (STYLE_CONST.TOP_PANEL_HEIGHT + (STYLE_CONST.PADDING * 2 ) +
+			STYLE_CONST.BOTTOM_PANEL_HEIGHT);
+		this.touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
+
+		// Resize the canvas element
+		canvasResize(this.Canvas, this.touchAreaWidth, this.touchAreaHeight);
 	}
 
 	RouteSounds() {
@@ -203,7 +228,7 @@ class App extends React.Component<any, IState> {
 	Start(pos: ICoordinates){
 		//Only start animating when the touch is down
 		if (this.isAnimating === false) {
-			this.animateSpectrum();
+			this.DrawSpectrum();
 		}
 
 		this.SetFilterFrequency(pos.y);
@@ -261,41 +286,31 @@ class App extends React.Component<any, IState> {
 		}
 	}
 
-	animateSpectrum() {
+	DrawSpectrum() {
 		this.isAnimating = true;
-		this.mySpectrum = requestAnimationFrame(this.animateSpectrum.bind(this));
-		this.drawSpectrum();
-	}
+		this.mySpectrum = requestAnimationFrame(this.DrawSpectrum.bind(this));
 
-	drawSpectrum() {
-		//var canvas;
-		//console.log(canvas);
+		const ctx = this.Canvas.getContext('2d');
+		const pixelRatio = getPixelRatio();
+		const width = this.Canvas.width/pixelRatio;
+		const height = this.Canvas.height/pixelRatio;
+		const barWidth = 6;
+		const maxHeight = height - 2;
+		const barSpacing = 9;
+		// Calculate number of bars needed to fill canvas width
+		const barCount: number = (width / (barSpacing + barWidth));
+		const maxMag = 255;
 
-		//TODO: the size is not drawing correctly - start again from scratch
-		var canvas: any = document.querySelector('canvas'),
-			ctx = canvas.getContext('2d'),
-			width = canvas.width,
-			//height = canvas.height,
-			freqByteData,
-			magnitude,
-			i;
+		const freqByteData = new Uint8Array(this.audioAnalyser.frequencyBinCount);
+		this.audioAnalyser.getByteFrequencyData(freqByteData);
 
-		ctx.clearRect(0, 0, width, canvas.height);
-		//ctx.clearRect(50, 0, width/100, height);
-		const barWidth = 3;
-		const maxHeight = canvas.height + 5;
-		const barSpacing = 3;
-		//ctx.fillRect(0, 0, barWidth, barHeight) //x,y,w,h
+		ctx.clearRect(0, 0, width, height);
 		ctx.fillStyle = STYLE_CONST.BLACK;
 
-		freqByteData = new Uint8Array(this.audioAnalyser.frequencyBinCount);
-		this.audioAnalyser.getByteFrequencyData(freqByteData);
-		const barCount = 40 //TODO: set this dynamically based on width of canvas
-
-		for (i = 0; i < barCount; i += 1) {
-			magnitude = freqByteData[i];
-			// some values need adjusting to fit on the canvas
-			ctx.fillRect(barWidth * i * barSpacing, maxHeight, barWidth, -magnitude);
+		for (let i = 0; i < barCount; i++) {
+			// Calculate the magnitude based on byte data and max bar height
+			const magnitude = freqByteData[i] / (maxMag / maxHeight);
+			ctx.fillRect((barWidth + barSpacing) * i, height, barWidth, -magnitude);
 		}
 	}
 

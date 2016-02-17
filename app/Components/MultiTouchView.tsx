@@ -1,10 +1,12 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 const _round = require('lodash/round');
 import { connect } from 'react-redux';
 
 import { noOp } from '../Utils/utils';
 import { style } from './Styles/styles';
 import { IGlobalState } from '../Constants/GlobalState';
+import {getPixelRatio} from '../Utils/utils';
 
 export interface ICoordinates {
 	x: number;
@@ -14,6 +16,7 @@ export interface ICoordinates {
 interface IProps {
 	width: number;
 	height: number;
+	canvas?: HTMLCanvasElement;
 	onMouseDown?: () => any;
 	onTouchStart?: () => any;
 	onMouseMove?: () => any;
@@ -55,6 +58,16 @@ class MultiTouchView extends React.Component<IProps, IState> {
 		this.currentTouches = [];
 	}
 
+	componentDidMount() {
+		//const pixelRatio = getPixelRatio();
+		//this.props.canvas.width = this.props.width * pixelRatio;
+		//this.props.canvas.height = this.props.height * pixelRatio;
+		//this.props.canvas.style.width = this.props.width + "px";
+		//this.props.canvas.style.height = this.props.height + "px";
+		//this.props.canvas.getContext("2d").setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+		ReactDOM.findDOMNode(this).appendChild(this.props.canvas);
+	}
+
 	public render(): React.ReactElement<{}> {
 		const {
 			onMouseDown,
@@ -66,7 +79,7 @@ class MultiTouchView extends React.Component<IProps, IState> {
 			onMouseLeave,
 			onTouchCancel } = this.props
 		return (
-			<canvas
+			<div
 				style={this.getStyles()}
 				id="touchArea"
 			    onMouseDown={(e) => this.onMouseDown(e, onMouseDown)}
@@ -81,10 +94,20 @@ class MultiTouchView extends React.Component<IProps, IState> {
 		);
 	}
 
+	//private setupCanvas() {
+	//	canvas.width = w * ratio;
+	//	canvas.height = h * ratio;
+	//	canvas.style.width = w + "px";
+	//	canvas.style.height = h + "px";
+	//	canvas.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
+	//}
+
 	private getStyles() {
 		const { width, height } = this.props;
 		return Object.assign(
-			{},
+			{
+				display: 'inline-block'
+			},
 			style.touchArea,
 			{
 				width,
