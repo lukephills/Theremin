@@ -9,9 +9,9 @@ import MultiTouchView from './MultiTouchView';
 interface IProps {
 	width: number;
 	height: number;
-	start(pos): void;
-	stop(pos): void;
-	move(pos): void;
+	start(pos, id): void;
+	stop(pos, id): void;
+	move(pos, id): void;
 	canvas?: HTMLCanvasElement;
 }
 
@@ -53,49 +53,26 @@ class TouchAreaContainer extends React.Component<IProps, IState> {
 				width={this.props.width}
 				height={this.props.height}
 				canvas={this.props.canvas}
-			    onMouseDown={this.onMouseDown.bind(this)}
-			    onMouseUp={this.onMouseUp.bind(this)}
-			    onMouseMove={this.onMouseMove.bind(this)}
-			    onTouchStart={this.onTouchStart.bind(this)}
-			    onTouchEnd={this.onTouchEnd.bind(this)}
-			    onTouchMove={this.onTouchMove.bind(this)}
+			    onDown={this.onDown.bind(this)}
+			    onUp={this.onUp.bind(this)}
+			    onMove={this.onMove.bind(this)}
+			    onLeave={this.onLeave.bind(this)}
 			/>
 		);
 	}
 
-	private onMouseDown(position) {
-		console.log('down', position);
-		this.props.start(position);
-		//this.Audio.Start(position);
-		//Start
+	private onDown(position, id: number = 0) {
+		this.props.start(position, id);
 	}
-	private onMouseUp(position) {
-		console.log('up', position);
-		this.props.stop(position);
-		//this.Audio.Stop(position);
-		//Stop
+	private onUp(position, id: number = 0) {
+		this.props.stop(position, id);
 	}
-	private onMouseMove(position) {
-		console.log('move', position);
-		//this.Audio.Move(position);
-		this.props.move(position);
-		//this.Audio.SetPitch(position)
-		//Update Pitch
+	private onMove(position, id: number = 0) {
+		this.props.move(position, id);
 	}
-
-	private onTouchStart(position, id: number) {
-		console.log('down', position, id);
-		//Start
+	private onLeave(position, id: number = 0) {
+		this.props.move(position, id);
 	}
-	private onTouchEnd(position, id: number) {
-		console.log('up', position, id);
-		//Stop
-	}
-	private onTouchMove(position, id: number) {
-		console.log('move', position, id);
-		//Update Pitch
-	}
-
 }
 
 export default TouchAreaContainer;

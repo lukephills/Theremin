@@ -40,6 +40,8 @@ class RangeSliderGroup extends React.Component<any, any> {
 					return (
 						<div key={id} style={this.getSliderStyles()}>
 							<span style={this.getWaveformTitleStyles(sliderName)}>
+								{this.sliders[sliderName].transformValue(this.props.slider[sliderName])}
+								{' '}
 								{sliderName.toUpperCase()}
 							</span>
 							<Slider

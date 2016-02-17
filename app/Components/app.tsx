@@ -15,8 +15,6 @@ import {createCanvas, getPixelRatio, canvasResize} from '../Utils/utils';
 const Tone = require("Tone/core/Tone.js");
 
 
-
-
 interface IState {
 	delayVal?: number;
 	feedbackVal?: number;
@@ -29,8 +27,7 @@ interface IState {
 	windowWidth?: number;
 }
 
-function select(state: IGlobalState, props) {
-	//console.log(state, props);
+function select(state: IGlobalState) {
 	return {
 		waveform: state.Waveform.wave,
 		isPlayingBack: state.Player.isPlaying,
@@ -45,41 +42,49 @@ function select(state: IGlobalState, props) {
 @connect(select)
 class App extends React.Component<any, IState> {
 
-	private _clientHeight: number;
-	//private _pitchMultiplier: number = Defaults.PitchMultiplier
-	private frequencyMultiplier: number = 15;
-	private mySpectrum;
+	private _frequencyMultiplier: number = 15;
+	private _DrawSpectrumLoop: number;
 
-	public Tone: Tone = new Tone();
-	public context: AudioContext = this.Tone.context;
+	public tone: Tone = new Tone();
+	public context: AudioContext = this.tone.context;
+	public voices: number = Defaults.VoiceCount;
 
 	// Gains
-	public oscillatorGain: GainNode = this.context.createGain();
 	public masterVolume: GainNode = this.context.createGain();
+	public oscillatorGains: GainNode[] = []
 	public scuzzGain: GainNode = this.context.createGain();
 
 	// Effects
-	public filter: BiquadFilterNode = this.context.createBiquadFilter();
+	public compressor: DynamicsCompressorNode = this.context.createDynamicsCompressor();
 	public delay: DelayNode = this.context.createDelay();
 	public feedback: GainNode = this.context.createGain();
-	public compressor: DynamicsCompressorNode = this.context.createDynamicsCompressor();
+	public filters: BiquadFilterNode[] = [];
 
 	// Analyser
 	public audioAnalyser: AnalyserNode = this.context.createAnalyser();
 
 	// Oscillators
-	public oscillator = this.context.createOscillator();
-	public scuzz = this.context.createOscillator();
+	public oscillators: OscillatorNode[] = [];
+	public scuzz: OscillatorNode = this.context.createOscillator();
 
-	public recordingExists: boolean = false;
-	private isAnimating: boolean = false;
-	private touchAreaHeight: number;
-	private touchAreaWidth: number;
-	public Canvas: HTMLCanvasElement;
+	public canvas: HTMLCanvasElement;
+	private _isAnimating: boolean = false;
+	private _pixelRatio: number = getPixelRatio();
+	private _touchAreaHeight: number;
+	private _touchAreaWidth: number;
+	private _recordingExists: boolean = false;
 
 	constructor(props) {
 		super(props);
-		this.RouteSounds();
+
+		// AUDIO NODE SETUP
+		for (let i = 0; i < this.voices; i++) {
+			this.oscillators.push(this.context.createOscillator());
+			this.filters.push(this.context.createBiquadFilter());
+			this.oscillatorGains.push(this.context.createGain());
+		}
+
+		this._routeSounds();
 
 		this.state = {
 			delayVal: Defaults.Sliders.delay.value,
@@ -93,15 +98,17 @@ class App extends React.Component<any, IState> {
 			windowWidth: window.innerWidth,
 		};
 
-		this.touchAreaHeight = this.state.windowHeight - (STYLE_CONST.TOP_PANEL_HEIGHT + (STYLE_CONST.PADDING * 2 ) +
+		this._touchAreaHeight = this.state.windowHeight - (STYLE_CONST.TOP_PANEL_HEIGHT + (STYLE_CONST.PADDING * 2 ) +
 			STYLE_CONST.BOTTOM_PANEL_HEIGHT);
-		this.touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
+		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
 		//Create canvas with the device resolution.
-		this.Canvas = createCanvas(this.touchAreaWidth, this.touchAreaHeight);
+		this.canvas = createCanvas(this._touchAreaWidth, this._touchAreaHeight);
+		this._pixelRatio = getPixelRatio();
 
 		this.audioAnalyser.maxDecibels = -25;
 		this.audioAnalyser.minDecibels = -100;
 		this.audioAnalyser.smoothingTimeConstant = 0.85;
+
 
 
 		this.Start = this.Start.bind(this);
@@ -138,23 +145,27 @@ class App extends React.Component<any, IState> {
 				<div style={style.title.container}>
 					<span style={style.title.h1}>{Defaults.Title.toUpperCase()}</span>
 				</div>
+				<span>Get the app</span>
+				<span>Subscribe</span>
+				<span>TW</span>
+				<span>FB</span>
 				<RecordPlayButtonGroup
 					style={style.recordPlayButtonGroup.container}
 				    onRecordButtonChange={this.Record}
 				    onPlaybackButtonChange={this.Playback}
-				    isPlaybackDisabled={!this.recordingExists}
+				    isPlaybackDisabled={!this._recordingExists}
 				/>
-				<NoteGuideButton
+				{/*<NoteGuideButton
 					style={style.noteGuideButton.container}
-				/>
+				/>*/}
 				<WaveformSelectGroup
 					style={style.waveformSelectGroup.container}
 				    waveformChange={this.SetWaveform}
 				/>
 				<TouchAreaContainer
-					canvas={this.Canvas}
-					width={this.touchAreaWidth}
-					height={this.touchAreaHeight}
+					canvas={this.canvas}
+					width={this._touchAreaWidth}
+					height={this._touchAreaHeight}
 				    start={this.Start}
 				    stop={this.Stop}
 				    move={this.Move}
@@ -171,26 +182,31 @@ class App extends React.Component<any, IState> {
 			windowWidth: window.innerWidth,
 			windowHeight: window.innerHeight,
 		});
-		this.touchAreaHeight = this.state.windowHeight - (STYLE_CONST.TOP_PANEL_HEIGHT + (STYLE_CONST.PADDING * 2 ) +
+		this._touchAreaHeight = this.state.windowHeight - (STYLE_CONST.TOP_PANEL_HEIGHT + (STYLE_CONST.PADDING * 2 ) +
 			STYLE_CONST.BOTTOM_PANEL_HEIGHT);
-		this.touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
+		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
 
 		// Resize the canvas element
-		canvasResize(this.Canvas, this.touchAreaWidth, this.touchAreaHeight);
+		canvasResize(this.canvas, this._touchAreaWidth, this._touchAreaHeight);
 	}
 
-	RouteSounds() {
+	private _routeSounds() {
 
-		//this.setWaveform('square');
-		this.oscillator.type = 'square';
-		this.filter.type = 'lowpass';
+		this.oscillators.forEach((oscillator) => {
+			oscillator.type = 'square';
+		});
+		this.filters.forEach((filter) => {
+			filter.type = 'lowpass';
+		});
 
 		// Set slider values
 		this.delay.delayTime.value = Defaults.Sliders.delay.value;
 		this.feedback.gain.value = Defaults.Sliders.feedback.value;
 		this.scuzzGain.gain.value = Defaults.Sliders.scuzz.value;
 
-		this.oscillatorGain.gain.value = 0;
+		this.oscillatorGains.forEach((oscGain) => {
+			oscGain.gain.value = 0;
+		})
 		this.masterVolume.gain.value = 0.5;
 
 
@@ -204,13 +220,14 @@ class App extends React.Component<any, IState> {
 		// Previously this:
 		// this.scuzzVolume.connect(this.source.frequency);
 		// But changed to this to fix older safari bug
-		this.scuzzGain.connect(this.oscillator.detune as any);
 
-		this.oscillator.connect(this.oscillatorGain);
-		this.oscillatorGain.connect(this.filter);
-
-		this.filter.connect(this.compressor);
-		this.filter.connect(this.delay);
+		for (let i = 0; i < this.voices; i++) {
+			this.scuzzGain.connect(this.oscillators[i].detune as any);
+			this.oscillators[i].connect(this.oscillatorGains[i]);
+			this.oscillatorGains[i].connect(this.filters[i]);
+			this.filters[i].connect(this.compressor);
+			this.filters[i].connect(this.delay);
+		}
 
 		this.delay.connect(this.feedback);
 		this.delay.connect(this.compressor);
@@ -221,54 +238,64 @@ class App extends React.Component<any, IState> {
 		this.audioAnalyser.connect(this.context.destination);
 
 		//Start oscillators
-		this.scuzz.start(0);
-		this.oscillator.start(0);
+		this.scuzz.start();
+		this.oscillators.forEach((osc) => {
+			osc.start();
+		})
 	}
 
-	Start(pos: ICoordinates){
+	public Start(pos: ICoordinates, id: number){
 		//Only start animating when the touch is down
-		if (this.isAnimating === false) {
-			this.DrawSpectrum();
+		//TODO: move this to after render function
+		if (this._isAnimating === false) {
+			this._DrawSpectrum();
 		}
 
-		this.SetFilterFrequency(pos.y);
-		this.oscillatorGain.gain.value = 1;
-		this.oscillator.frequency.value = pos.x * this.frequencyMultiplier;
+		this.SetFilterFrequency(pos.y, id);
+		this.oscillatorGains[id].gain.value = 1;
+		this.oscillators[id].frequency.value = pos.x * this._frequencyMultiplier;
 	}
-	Stop(pos: ICoordinates) {
-		this.oscillator.frequency.value = pos.x * this.frequencyMultiplier;
-		this.oscillatorGain.gain.value = 0;
-	}
-
-	Move(pos: ICoordinates) {
-		this.oscillator.frequency.value = pos.x * this.frequencyMultiplier;
-		this.SetFilterFrequency(pos.y);
+	public Stop(pos: ICoordinates, id: number) {
+		this.oscillators[id].frequency.value = pos.x * this._frequencyMultiplier;
+		this.oscillatorGains[id].gain.value = 0;
 	}
 
-	SliderChange(slider, value) {
+	public Move(pos: ICoordinates, id: number) {
+		this.oscillators[id].frequency.value = pos.x * this._frequencyMultiplier;
+		this.SetFilterFrequency(pos.y, id);
+	}
+
+	public SliderChange(slider, value) {
 		switch (slider) {
 			case 'delay':
 				this.delay.delayTime.value = value;
+				break;
 			case 'feedback':
 				this.feedback.gain.value = value;
+				break;
 			case 'scuzz':
 				this.scuzzGain.gain.value = value;
+				break;
 			default:
 				console.log(`Slider name ${slider} not found`);
 		}
+		console.log('changed ', slider, 'to', value)
+		console.log(this.feedback.gain.value)
 	}
 
-	SetWaveform(value) {
-		this.oscillator.type = value;
+	public SetWaveform(value) {
+		this.oscillators.forEach((osc) => {
+			osc.type = value;
+		});
 	}
 
-	SetFilterFrequency(y: number) {
-		this.filter.frequency.value = (this.Tone.context.sampleRate / 2) * (y / 100);
+	public SetFilterFrequency(y: number, id: number) {
+		this.filters[id].frequency.value = (this.tone.context.sampleRate / 2) * (y / 100);
 	}
 
-	Record(isRecording: boolean){
+	public Record(isRecording: boolean){
 		if (isRecording){
-			this.recordingExists = true;
+			this._recordingExists = true;
 			console.log('recording...');
 			//TODO: make recorder js an npm module
 		} else {
@@ -276,8 +303,8 @@ class App extends React.Component<any, IState> {
 		}
 	}
 
-	Playback(isPlayingBack: boolean) {
-		if (this.recordingExists) {
+	public Playback(isPlayingBack: boolean) {
+		if (this._recordingExists) {
 			if (isPlayingBack){
 				console.log('playing back recording..')
 			} else {
@@ -286,14 +313,14 @@ class App extends React.Component<any, IState> {
 		}
 	}
 
-	DrawSpectrum() {
-		this.isAnimating = true;
-		this.mySpectrum = requestAnimationFrame(this.DrawSpectrum.bind(this));
+	private _DrawSpectrum() {
+		this._isAnimating = true;
+		this._DrawSpectrumLoop = requestAnimationFrame(this._DrawSpectrum.bind(this));
 
-		const ctx = this.Canvas.getContext('2d');
-		const pixelRatio = getPixelRatio();
-		const width = this.Canvas.width/pixelRatio;
-		const height = this.Canvas.height/pixelRatio;
+		const ctx = this.canvas.getContext('2d');
+		const pixelRatio = this._pixelRatio;
+		const width = this.canvas.width/pixelRatio;
+		const height = this.canvas.height/pixelRatio;
 		const barWidth = 6;
 		const maxHeight = height - 2;
 		const barSpacing = 9;

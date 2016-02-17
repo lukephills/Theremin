@@ -26,13 +26,19 @@ export const Defaults: any = {
 			min: 0,
 			max: 0.5,
 			step: 0.001,
+			transformValue: (value) => {
+				return (value * 1000).toFixed();
+			},
 		},
 		feedback: {
 			name: 'feedback',
 			value: 0.5,
 			min: 0,
-			max: 0.9,
+			max: 1,
 			step: 0.001,
+			transformValue: (value) => {
+				return (value * 100).toFixed();
+			},
 		},
 		scuzz: {
 			name: 'scuzz',
@@ -41,6 +47,9 @@ export const Defaults: any = {
 			max: 1000,
 			step: 1,
 			waveform: 'sine',
+			transformValue: (value) => {
+				return value;
+			},
 		},
 	}
 }

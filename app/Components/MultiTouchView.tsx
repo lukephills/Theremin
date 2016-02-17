@@ -3,10 +3,9 @@ import * as ReactDOM from 'react-dom';
 const _round = require('lodash/round');
 import { connect } from 'react-redux';
 
+import { IGlobalState } from '../Constants/GlobalState';
 import { noOp } from '../Utils/utils';
 import { style } from './Styles/styles';
-import { IGlobalState } from '../Constants/GlobalState';
-import {getPixelRatio} from '../Utils/utils';
 
 export interface ICoordinates {
 	x: number;
@@ -17,14 +16,10 @@ interface IProps {
 	width: number;
 	height: number;
 	canvas?: HTMLCanvasElement;
-	onMouseDown?: () => any;
-	onTouchStart?: () => any;
-	onMouseMove?: () => any;
-	onTouchMove?: () => any;
-	onMouseUp?: () => any;
-	onTouchEnd?: () => any;
-	onMouseLeave?: () => any;
-	onTouchCancel?: () => any;
+	onDown?: () => any;
+	onMove?: () => any;
+	onUp?: () => any;
+	onLeave?: () => any;
 }
 
 interface IState {
@@ -59,48 +54,35 @@ class MultiTouchView extends React.Component<IProps, IState> {
 	}
 
 	componentDidMount() {
-		//const pixelRatio = getPixelRatio();
-		//this.props.canvas.width = this.props.width * pixelRatio;
-		//this.props.canvas.height = this.props.height * pixelRatio;
-		//this.props.canvas.style.width = this.props.width + "px";
-		//this.props.canvas.style.height = this.props.height + "px";
-		//this.props.canvas.getContext("2d").setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 		ReactDOM.findDOMNode(this).appendChild(this.props.canvas);
+	}
+
+	componentWillUnmount() {
+		ReactDOM.findDOMNode(this).removeChild(this.props.canvas);
 	}
 
 	public render(): React.ReactElement<{}> {
 		const {
-			onMouseDown,
-			onTouchStart,
-			onMouseMove,
-			onTouchMove,
-			onMouseUp,
-			onTouchEnd,
-			onMouseLeave,
-			onTouchCancel } = this.props
+			onDown,
+			onMove,
+			onUp,
+			onLeave,
+			} = this.props
 		return (
 			<div
 				style={this.getStyles()}
 				id="touchArea"
-			    onMouseDown={(e) => this.onMouseDown(e, onMouseDown)}
-				onMouseUp={(e) => this.onMouseUp(e, onMouseUp)}
-				onMouseMove={(e) => this.onMouseMove(e, onMouseMove)}
-				onMouseLeave={(e) => this.onMouseLeave(e, onMouseLeave)}
-			    onTouchStart={(e) => this.onTouchStart(e, onTouchStart)}
-				onTouchEnd={(e) => this.onTouchEnd(e, onTouchEnd)}
-			    onTouchMove={(e) => this.onTouchMove(e, onTouchMove)}
-			    onTouchCancel={(e) => this.onTouchEnd(e, onTouchCancel)}
+			    onMouseDown={(e) => this.onMouseDown(e, onDown)}
+				onMouseUp={(e) => this.onMouseUp(e, onUp)}
+				onMouseMove={(e) => this.onMouseMove(e, onMove)}
+				onMouseLeave={(e) => this.onMouseLeave(e, onLeave)}
+			    onTouchStart={(e) => this.onTouchStart(e, onDown)}
+				onTouchEnd={(e) => this.onTouchEnd(e, onUp)}
+			    onTouchMove={(e) => this.onTouchMove(e, onMove)}
+			    onTouchCancel={(e) => this.onTouchEnd(e, onLeave)}
 			/>
 		);
 	}
-
-	//private setupCanvas() {
-	//	canvas.width = w * ratio;
-	//	canvas.height = h * ratio;
-	//	canvas.style.width = w + "px";
-	//	canvas.style.height = h + "px";
-	//	canvas.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
-	//}
 
 	private getStyles() {
 		const { width, height } = this.props;
@@ -117,7 +99,6 @@ class MultiTouchView extends React.Component<IProps, IState> {
 	}
 
 	private onMouseDown(e, callback = noOp) {
-		//console.log(this.state);
 		e.preventDefault();
 		this.setState({
 			pointerDown: true,
@@ -195,7 +176,7 @@ class MultiTouchView extends React.Component<IProps, IState> {
 			const currentTouchIndex = this.getCurrentTouchIndex(touch.identifier);
 
 			if (currentTouchIndex >= 0) {
-				var currentTouch = this.currentTouches[currentTouchIndex];
+				const currentTouch = this.currentTouches[currentTouchIndex];
 				callback(pos, touch.identifier)
 				// Remove the record.
 				this.currentTouches.splice(currentTouchIndex, 1);
@@ -213,8 +194,6 @@ class MultiTouchView extends React.Component<IProps, IState> {
 				pointerDown: false,
 			})
 			const pos: ICoordinates = this.getPositionAsPercentage(e);
-			//console.log('left', pos)
-			//Stop playing
 			callback(pos)
 		}
 	}
@@ -233,7 +212,7 @@ class MultiTouchView extends React.Component<IProps, IState> {
 	}
 
 	private getCurrentTouchIndex(id) {
-		for (var i=0; i < this.currentTouches.length; i++) {
+		for (let i = 0; i < this.currentTouches.length; i++) {
 			if (this.currentTouches[i].id === id) {
 				return i;
 			}
