@@ -28,7 +28,6 @@ interface ITouch {
 
 function select(state: IGlobalState): any {
 	return {
-		guides: state.NoteGuide.isOn,
 		waveform: state.Waveform.wave,
 		isRecording: state.Recorder.isRecording,
 		isPlaying: state.Player

@@ -1,6 +1,5 @@
 import {
 	ActionType,
-	NOTE_GUIDE_TOGGLE,
 	WAVEFORM_CHANGE,
 	RECORDER_TOGGLE,
 	PLAYER_TOGGLE,
@@ -9,12 +8,6 @@ import {
 
 export interface IAction {
 	type: ActionType;
-}
-
-export function NoteGuide(): IAction {
-	return {
-		type: NOTE_GUIDE_TOGGLE
-	};
 }
 
 export function Waveform(wave: string): any {

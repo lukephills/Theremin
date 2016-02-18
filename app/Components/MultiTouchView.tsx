@@ -33,16 +33,6 @@ interface ITouch {
 	y: number;
 }
 
-function select(state: IGlobalState): any {
-	return {
-		guides: state.NoteGuide.isOn,
-		waveform: state.Waveform.wave,
-		isRecording: state.Recorder.isRecording,
-		isPlaying: state.Player
-	};
-}
-
-@connect(select)
 class MultiTouchView extends React.Component<IProps, IState> {
 
 	private currentTouches: ITouch[];

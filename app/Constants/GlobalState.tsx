@@ -1,13 +1,8 @@
 export interface IGlobalState {
-	NoteGuide?: INoteGuide;
 	Waveform?: IWaveform;
 	Player?: IPlayer;
 	Recorder?: IRecorder;
 	Slider?: ISlider;
-}
-
-export interface INoteGuide {
-	isOn?: boolean;
 }
 
 export interface IWaveform {

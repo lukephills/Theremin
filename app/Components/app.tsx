@@ -4,7 +4,6 @@ require('normalize.css');
 
 import {style, STYLE_CONST} from './Styles/styles';
 import RecordPlayButtonGroup from './RecordPlayButtonGroup';
-import NoteGuideButton from './NoteGuideButton';
 import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
 import TouchAreaContainer from './TouchAreaContainer';
@@ -12,7 +11,9 @@ import { WAVEFORMS, Defaults } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
 import {ICoordinates} from './MultiTouchView';
 import {createCanvas, getPixelRatio, canvasResize} from '../Utils/utils';
+const Recorder = require('../Utils/Recorder/recorder.js').default; //TODO: make recorder js an npm module
 const Tone = require("Tone/core/Tone.js");
+
 
 
 interface IState {
@@ -32,7 +33,6 @@ function select(state: IGlobalState) {
 		waveform: state.Waveform.wave,
 		isPlayingBack: state.Player.isPlaying,
 		isRecording: state.Recorder.isRecording,
-		guides: state.NoteGuide.isOn,
 		delayVal: state.Slider.delay,
 		feedbackVal: state.Slider.feedback,
 		scuzzVal: state.Slider.scuzz,
@@ -48,11 +48,15 @@ class App extends React.Component<any, IState> {
 	public tone: Tone = new Tone();
 	public context: AudioContext = this.tone.context;
 	public voiceCount: number = Defaults.VoiceCount;
+	public recorder: Recorder;
+	public recording: AudioBufferSourceNode;
 
 	// Gains
 	public masterVolume: GainNode = this.context.createGain();
+	public thereminOutput: GainNode = this.context.createGain();
 	public oscillatorGains: GainNode[] = []
 	public scuzzGain: GainNode = this.context.createGain();
+	public recordingGain: GainNode = this.context.createGain();
 
 	// Effects
 	public compressor: DynamicsCompressorNode = this.context.createDynamicsCompressor();
@@ -89,7 +93,6 @@ class App extends React.Component<any, IState> {
 		this.state = {
 			delayVal: Defaults.Sliders.delay.value,
 			feedbackVal: Defaults.Sliders.feedback.value,
-			guides: Defaults.NoteGuideButton,
 			isPlayingBack: false,
 			isRecording: false,
 			scuzzVal: Defaults.Sliders.scuzz.value,
@@ -109,7 +112,7 @@ class App extends React.Component<any, IState> {
 		this.audioAnalyser.minDecibels = -100;
 		this.audioAnalyser.smoothingTimeConstant = 0.85;
 
-
+		this.recorder = new Recorder(this.thereminOutput);
 
 		this.Start = this.Start.bind(this);
 		this.Stop = this.Stop.bind(this);
@@ -131,13 +134,6 @@ class App extends React.Component<any, IState> {
 
 	public render(): React.ReactElement<{}> {
 
-		//const touchAreaHeight = this.state.windowHeight -
-		//	( STYLE_CONST.TOP_PANEL_HEIGHT +
-		//	//(STYLE_CONST.BORDER_WIDTH * 2) +
-		//	(STYLE_CONST.PADDING * 2 )+
-		//	STYLE_CONST.BOTTOM_PANEL_HEIGHT);
-		//const touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
-
 		return (
 			<div id='body-wrapper'>
 				<div style={style.title.container}>
@@ -153,9 +149,6 @@ class App extends React.Component<any, IState> {
 				    onPlaybackButtonChange={this.Playback}
 				    isPlaybackDisabled={!this._recordingExists}
 				/>
-				{/*<NoteGuideButton
-					style={style.noteGuideButton.container}
-				/>*/}
 				<WaveformSelectGroup
 					style={style.waveformSelectGroup.container}
 				    waveformChange={this.SetWaveform}
@@ -230,8 +223,10 @@ class App extends React.Component<any, IState> {
 		this.delay.connect(this.feedback);
 		this.delay.connect(this.compressor);
 		this.feedback.connect(this.delay);
+		this.compressor.connect(this.thereminOutput);
 
-		this.compressor.connect(this.masterVolume);
+		this.thereminOutput.connect(this.masterVolume);
+		this.recordingGain.connect(this.masterVolume);
 		this.masterVolume.connect(this.audioAnalyser);
 		this.audioAnalyser.connect(this.context.destination);
 
@@ -288,7 +283,7 @@ class App extends React.Component<any, IState> {
 	}
 
 	public SetWaveform(value) {
-		this.oscillators.forEach((osc) => {
+		this.oscillators.forEach((osc: OscillatorNode) => {
 			osc.type = value;
 		});
 	}
@@ -303,8 +298,11 @@ class App extends React.Component<any, IState> {
 		if (isRecording){
 			this._recordingExists = true;
 			console.log('recording...');
-			//TODO: make recorder js an npm module
+
+			this.recorder.clear();
+			this.recorder.record();
 		} else {
+			this.recorder.stop();
 			console.log('stopped recording')
 		}
 	}
@@ -312,8 +310,19 @@ class App extends React.Component<any, IState> {
 	public Playback(isPlayingBack: boolean) {
 		if (this._recordingExists) {
 			if (isPlayingBack){
+				this.recorder.getBuffer((buffers: Float32Array[]) => {
+					this.recording = this.tone.context.createBufferSource();
+					var newBuffer: AudioBuffer = this.tone.context.createBuffer( 2, buffers[0].length, this.tone.context.sampleRate );
+					newBuffer.getChannelData(0).set(buffers[0]);
+					newBuffer.getChannelData(1).set(buffers[1]);
+					this.recording.buffer = newBuffer;
+					this.recording.connect( this.recordingGain );
+					this.recording.loop = true;
+					this.recording.start();
+				});
 				console.log('playing back recording..')
 			} else {
+				this.recording.stop();
 				console.log('playback stopped.')
 			}
 		}
