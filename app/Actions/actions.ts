@@ -3,7 +3,7 @@ import {
 	WAVEFORM_CHANGE,
 	RECORDER_TOGGLE,
 	PLAYER_TOGGLE,
-	SLIDER_CHANGE
+	SLIDER_CHANGE,
 } from '../Constants/ActionTypes';
 
 export interface IAction {

@@ -10,10 +10,11 @@ interface IProps extends IPlayer, IRecorder {
 	isPlaybackDisabled: boolean;
 	onRecordButtonChange(value: boolean): void;
 	onPlaybackButtonChange(value: boolean): void;
+	onDownloadButtonChange(): void;
 }
 interface  IState {
-	isRecording?: boolean;
-	isPlaying?: boolean;
+	isRecording: boolean;
+	isPlaying: boolean;
 }
 
 function select(state: IGlobalState): any {
@@ -46,6 +47,12 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 					onDown={(e) => this.play(e)}
 					isOn={this.props.isPlaying}
 					buttonValue={playButtonValue}/>
+
+				<ToggleButton
+					disabled={this.props.isPlaybackDisabled}
+					onDown={this.props.onDownloadButtonChange}
+					isOn={true}
+					buttonValue="Download"/>
 			</section>
 		);
 	}

@@ -16,6 +16,10 @@ module.exports = {
     //}],
     loaders: [
       {
+        test: /\.js$/,
+        loaders: ['babel']
+      },
+      {
         test: /\.tsx?$/,
         loaders: ['babel', 'ts'],
         include: APP_DIR

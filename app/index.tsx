@@ -5,6 +5,8 @@ import { Provider } from 'react-redux';
 import configureStore from './configureStore';
 import App from './Components/App';
 
+Object.assign = Object.assign || require('object-assign');
+
 //Initialize app with start data
 const initialState: any = {};
 

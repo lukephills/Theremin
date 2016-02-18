@@ -122,6 +122,7 @@ class App extends React.Component<any, IState> {
 		this.handleResize = this.handleResize.bind(this);
 		this.Record = this.Record.bind(this);
 		this.Playback = this.Playback.bind(this);
+		this.Download = this.Download.bind(this);
 	}
 
 	public componentDidMount() {
@@ -148,6 +149,7 @@ class App extends React.Component<any, IState> {
 				    onRecordButtonChange={this.Record}
 				    onPlaybackButtonChange={this.Playback}
 				    isPlaybackDisabled={!this._recordingExists}
+				    onDownloadButtonChange={this.Download}
 				/>
 				<WaveformSelectGroup
 					style={style.waveformSelectGroup.container}
@@ -183,10 +185,10 @@ class App extends React.Component<any, IState> {
 
 	private _routeSounds() {
 
-		this.oscillators.forEach((oscillator) => {
+		this.oscillators.forEach((oscillator: OscillatorNode) => {
 			oscillator.type = 'square';
 		});
-		this.filters.forEach((filter) => {
+		this.filters.forEach((filter: BiquadFilterNode) => {
 			filter.type = 'lowpass';
 		});
 
@@ -231,9 +233,9 @@ class App extends React.Component<any, IState> {
 		this.audioAnalyser.connect(this.context.destination);
 
 		//Start oscillators
-		this.scuzz.start();
+		this.scuzz.start(0);
 		this.oscillators.forEach((osc) => {
-			osc.start();
+			osc.start(0);
 		})
 	}
 
@@ -296,12 +298,11 @@ class App extends React.Component<any, IState> {
 
 	public Record(isRecording: boolean){
 		if (isRecording){
-			this._recordingExists = true;
 			console.log('recording...');
-
 			this.recorder.clear();
 			this.recorder.record();
 		} else {
+			this._recordingExists = true;
 			this.recorder.stop();
 			console.log('stopped recording')
 		}
@@ -318,14 +319,37 @@ class App extends React.Component<any, IState> {
 					this.recording.buffer = newBuffer;
 					this.recording.connect( this.recordingGain );
 					this.recording.loop = true;
-					this.recording.start();
+					this.recording.start(0);
 				});
 				console.log('playing back recording..')
 			} else {
-				this.recording.stop();
+				this.recording.stop(0);
 				console.log('playback stopped.')
 			}
 		}
+	}
+
+	public Download() {
+		console.log('downloading recording..');
+		this.recorder.exportWAV((recording: Blob) => {
+
+			const url = (window.URL || (window as any).webkitURL).createObjectURL(recording);
+			const link: HTMLAnchorElement = document.createElement('a');
+			link.href = url;
+
+			const downloadAttrSupported: boolean = ('download' in link);
+			if (downloadAttrSupported) {
+				link.setAttribute('download', 'theremin.wav');
+				let click = document.createEvent("Event");
+				click.initEvent("click", true, true);
+				link.dispatchEvent(click);
+			} else {
+				// Show the anchor link with instructions to 'right click save as'
+				link.innerHTML = 'right click save as'
+				document.body.appendChild(link); //FIXME: append to a pop up box instead of body
+				//TODO: could use this to trigger a saveAs() https://github.com/koffsyrup/FileSaver.js
+			}
+		});
 	}
 
 	private _DrawSpectrum() {

@@ -13,7 +13,8 @@
             "transform": "react-transform-catch-errors",
             "imports": ["react", "redbox-react"]
           }]
-        }]
+        }],
+        ["transform-object-assign"]
       ]
     }
   }
