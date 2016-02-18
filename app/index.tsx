@@ -5,7 +5,8 @@ import { Provider } from 'react-redux';
 import configureStore from './configureStore';
 import App from './Components/App';
 
-Object.assign = Object.assign || require('object-assign');
+//Object.assign = Object.assign || require('object-assign');
+import "babel-polyfill";
 
 //Initialize app with start data
 const initialState: any = {};
