@@ -6,7 +6,7 @@ import configureStore from './configureStore';
 import App from './Components/App';
 
 //Initialize app with start data
-const initialState = {};
+const initialState: any = {};
 
 const store: any = configureStore(initialState || {});
 

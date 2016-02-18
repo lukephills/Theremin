@@ -1,4 +1,6 @@
 var path = require('path');
+//var FileSystem = require("fs");
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 var webpack = require('webpack');
 
 var APP_DIR = path.join(__dirname, '..', 'app');
@@ -7,11 +9,11 @@ module.exports = {
   devtool: 'source-map',
   entry: './app/index.tsx',
   module: {
-    preLoaders: [{
-      test: /\.tsx?$/,
-      loader: 'tslint',
-      include: APP_DIR
-    }],
+    //preLoaders: [{
+    //  test: /\.tsx?$/,
+    //  loader: 'tslint',
+    //  include: APP_DIR
+    //}],
     loaders: [
       {
         test: /\.tsx?$/,
@@ -25,8 +27,8 @@ module.exports = {
     ]
   },
   output: {
-    path: path.join(__dirname, '..', 'build'),
-    filename: 'app-[hash].js',
+    path: path.join(__dirname, '..', 'build/static'),
+    filename: 'app.js',
     publicPath: '/static/'
   },
   plugins: [
@@ -40,7 +42,10 @@ module.exports = {
       compressor: {
         warnings: false
       }
-    })
+    }),
+    new CopyWebpackPlugin([
+      { from: 'index.html', to: '../' },
+    ])
   ],
   resolve: {
     alias: {

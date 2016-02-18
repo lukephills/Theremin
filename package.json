@@ -13,16 +13,16 @@
   "paths": {
     "Tone": "tone/Tone"
   },
-  "author": "George Lee",
+  "author": "Luke Phillips",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/keokilee/react-typescript-boilerplate.git"
+    "url": "https://github.com/lukephills/Theremin"
   },
   "bugs": {
-    "url": "https://github.com/keokilee/react-typescript-boilerplate/issues"
+    "url": "https://github.com/lukephills/Theremin/issues"
   },
-  "homepage": "https://github.com/keokilee/react-typescript-boilerplate",
+  "homepage": "https://github.com/lukephills/Theremin",
   "devDependencies": {
     "babel-core": "^6.4.5",
     "babel-loader": "^6.2.1",
@@ -30,6 +30,7 @@
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-react": "^6.3.13",
     "babel-preset-stage-0": "^6.3.13",
+    "copy-webpack-plugin": "^1.1.1",
     "css-loader": "^0.23.1",
     "express": "^4.13.4",
     "react-transform-catch-errors": "^1.0.1",

@@ -47,7 +47,7 @@ class App extends React.Component<any, IState> {
 
 	public tone: Tone = new Tone();
 	public context: AudioContext = this.tone.context;
-	public voices: number = Defaults.VoiceCount;
+	public voiceCount: number = Defaults.VoiceCount;
 
 	// Gains
 	public masterVolume: GainNode = this.context.createGain();
@@ -78,7 +78,7 @@ class App extends React.Component<any, IState> {
 		super(props);
 
 		// AUDIO NODE SETUP
-		for (let i = 0; i < this.voices; i++) {
+		for (let i = 0; i < this.voiceCount; i++) {
 			this.oscillators.push(this.context.createOscillator());
 			this.filters.push(this.context.createBiquadFilter());
 			this.oscillatorGains.push(this.context.createGain());
@@ -119,8 +119,6 @@ class App extends React.Component<any, IState> {
 		this.handleResize = this.handleResize.bind(this);
 		this.Record = this.Record.bind(this);
 		this.Playback = this.Playback.bind(this);
-
-
 	}
 
 	public componentDidMount() {
@@ -221,7 +219,7 @@ class App extends React.Component<any, IState> {
 		// this.scuzzVolume.connect(this.source.frequency);
 		// But changed to this to fix older safari bug
 
-		for (let i = 0; i < this.voices; i++) {
+		for (let i = 0; i < this.voiceCount; i++) {
 			this.scuzzGain.connect(this.oscillators[i].detune as any);
 			this.oscillators[i].connect(this.oscillatorGains[i]);
 			this.oscillatorGains[i].connect(this.filters[i]);
@@ -251,18 +249,24 @@ class App extends React.Component<any, IState> {
 			this._DrawSpectrum();
 		}
 
-		this.SetFilterFrequency(pos.y, id);
-		this.oscillatorGains[id].gain.value = 1;
-		this.oscillators[id].frequency.value = pos.x * this._frequencyMultiplier;
+		if (id < this.voiceCount) {
+			this.SetFilterFrequency(pos.y, id);
+			this.oscillatorGains[id].gain.value = 1;
+			this.oscillators[id].frequency.value = pos.x * this._frequencyMultiplier;
+		}
 	}
 	public Stop(pos: ICoordinates, id: number) {
-		this.oscillators[id].frequency.value = pos.x * this._frequencyMultiplier;
-		this.oscillatorGains[id].gain.value = 0;
+		if (id < this.voiceCount) {
+			this.oscillators[id].frequency.value = pos.x * this._frequencyMultiplier;
+			this.oscillatorGains[id].gain.value = 0;
+		}
 	}
 
 	public Move(pos: ICoordinates, id: number) {
-		this.oscillators[id].frequency.value = pos.x * this._frequencyMultiplier;
-		this.SetFilterFrequency(pos.y, id);
+		if (id < this.voiceCount) {
+			this.oscillators[id].frequency.value = pos.x * this._frequencyMultiplier;
+			this.SetFilterFrequency(pos.y, id);
+		}
 	}
 
 	public SliderChange(slider, value) {
@@ -290,7 +294,9 @@ class App extends React.Component<any, IState> {
 	}
 
 	public SetFilterFrequency(y: number, id: number) {
-		this.filters[id].frequency.value = (this.tone.context.sampleRate / 2) * (y / 100);
+		if (id < this.voiceCount){
+			this.filters[id].frequency.value = (this.tone.context.sampleRate / 2) * (y / 100);
+		}
 	}
 
 	public Record(isRecording: boolean){
