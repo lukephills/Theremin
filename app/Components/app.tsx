@@ -16,6 +16,7 @@ import '../Utils/Recorder/recorder'; //TODO: make recorder js an npm module
 import Visibility from '../Utils/visibility';
 import * as AudioUtils from '../Utils/AudioUtils';
 import * as CanvasUtils from '../Utils/CanvasUtils';
+import {IdentifierIndexMap} from '../Utils/utils';
 
 
 
@@ -54,7 +55,9 @@ class App extends React.Component<any, IState> {
 	private _touchAreaHeight: number;
 	private _touchAreaWidth: number;
 	private hasRecording: boolean = false;
-	private touchIds: Map<number, number> = new Map();
+
+	private touches: IdentifierIndexMap;
+
 
 	constructor(props) {
 		super(props);
@@ -78,7 +81,7 @@ class App extends React.Component<any, IState> {
 		this.canvas = CanvasUtils.createCanvas(this._touchAreaWidth, this._touchAreaHeight);
 		this._pixelRatio = CanvasUtils.getPixelRatio();
 
-
+		this.touches = new IdentifierIndexMap();
 
 		this.Start = this.Start.bind(this);
 		this.Stop = this.Stop.bind(this);
@@ -160,31 +163,12 @@ class App extends React.Component<any, IState> {
 	}
 
 
-	//TODO: rename to something better
-	public GetVoiceIdFromTouchId(touchIdentifier) {
-		return this.touchIds.get(touchIdentifier);
-	}
 
-	public RemoveVoiceIdFromTouchId(touchIdentifier) {
-		delete this.touchIds.delete(touchIdentifier)
-	}
-
-	public AddVoiceIdFromTouchId(touchIdentifier) {
-		var num = 0;
-		//loop through values stored
-		for (let value of this.touchIds.values()) {
-			if (value === num) {
-				num++;
-			}
-		}
-		this.touchIds.set(touchIdentifier, num);
-		return num;
-	}
 
 
 	public Start(pos: ICoordinates = {x:0,y:0}, identifier: number = 0){
 		//console.log('start', pos, id)
-		const index = this.AddVoiceIdFromTouchId(identifier);
+		const index = this.touches.Add(identifier);
 		//Only start animating when the touch is down
 		//TODO: move this to after render function
 		if (this._isAnimating === false) {
@@ -194,18 +178,18 @@ class App extends React.Component<any, IState> {
 		Audio.Start(pos, index);
 	}
 	public Stop(pos: ICoordinates = {x:0,y:0}, identifier: number = 0) {
-		const index = this.GetVoiceIdFromTouchId(identifier);
+		const index = this.touches.GetIndexFromIdentifier(identifier);
 		Audio.Stop(pos, index);
 
 		//Remove from list of touch ids
-		this.RemoveVoiceIdFromTouchId(identifier)
+		this.touches.Remove(identifier)
 	}
 
 
 
 	public Move(pos: ICoordinates = {x:0,y:0}, id: number = 0) {
 		//console.log('move', pos, id);
-		const index = this.GetVoiceIdFromTouchId(id);
+		const index = this.touches.GetIndexFromIdentifier(id);
 		Audio.Move(pos, index);
 	}
 
@@ -223,8 +207,7 @@ class App extends React.Component<any, IState> {
 			default:
 				console.log(`Slider name ${slider} not found`);
 		}
-		console.log('changed ', slider, 'to', value)
-		console.log(Audio.feedback.gain.value)
+		console.log('changed ', slider, 'to', value);
 	}
 
 
@@ -240,7 +223,7 @@ class App extends React.Component<any, IState> {
 		} else {
 			this.hasRecording = true;
 			Audio.StopRecorder();
-			console.log('stopped recording')
+			console.log('stopped recording');
 		}
 	}
 
