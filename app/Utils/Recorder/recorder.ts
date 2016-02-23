@@ -1,45 +1,12 @@
-var WORKER_ENABLED = !!(global === global.window && global.URL && global.Blob && global.Worker);
+const InlineWorker = require('inline-worker');
 
-function InlineWorker(func, self) {
-    var _this = this;
-    var functionBody;
+class Recorder {
 
-    self = self || {};
+    private context: AudioContext;
+    private node: ScriptProcessorNode;
+    private worker: Worker;
 
-    if (WORKER_ENABLED) {
-        functionBody = func.toString().trim().match(
-            /^function\s*\w*\s*\([\w\s,]*\)\s*{([\w\W]*?)}$/
-        )[1];
-
-        return new global.Worker(global.URL.createObjectURL(
-            new global.Blob([ functionBody ], { type: "text/javascript" })
-        ));
-    }
-
-    function postMessage(data) {
-        setTimeout(function() {
-            _this.onmessage({ data: data });
-        }, 0);
-    }
-
-    this.self = self;
-    this.self.postMessage = postMessage;
-
-    setTimeout(function() {
-        func.call(self, self);
-    }, 0);
-}
-
-InlineWorker.prototype.postMessage = function postMessage(data) {
-    var _this = this;
-
-    setTimeout(function() {
-        _this.self.onmessage({ data: data });
-    }, 0);
-};
-
-export class Recorder {
-    config = {
+    config: any = {
         bufferLen: 4096,
         numChannels: 2,
         mimeType: 'audio/wav'
@@ -52,11 +19,11 @@ export class Recorder {
         exportWAV: []
     };
 
-    constructor(source, cfg) {
+    constructor(source, cfg?) {
         Object.assign(this.config, cfg);
         this.context = source.context;
         this.node = (this.context.createScriptProcessor ||
-        this.context.createJavaScriptNode).call(this.context,
+        (<any>this.context).createJavaScriptNode).call(this.context,
             this.config.bufferLen, this.config.numChannels, this.config.numChannels);
 
         this.node.onaudioprocess = (e) => {
@@ -75,7 +42,7 @@ export class Recorder {
         source.connect(this.node);
         this.node.connect(this.context.destination);    //this should not be necessary
 
-        let self = {};
+        let self: any = {};
         this.worker = new InlineWorker(function () {
             let recLength = 0,
                 recBuffers = [],
@@ -265,7 +232,7 @@ export class Recorder {
         this.worker.postMessage({command: 'getBuffer'});
     }
 
-    exportWAV(cb, mimeType) {
+    exportWAV(cb?, mimeType?) {
         mimeType = mimeType || this.config.mimeType;
         cb = cb || this.config.callback;
         if (!cb) throw new Error('Callback not set');
@@ -279,10 +246,10 @@ export class Recorder {
     }
 
     static forceDownload(blob, filename) {
-        let url = (window.URL || window.webkitURL).createObjectURL(blob);
+        let url = (window.URL || (<any>window).webkitURL).createObjectURL(blob);
         let link = window.document.createElement('a');
         link.href = url;
-        link.download = filename || 'output.wav';
+        (<any>link).download = filename || 'output.wav';
         let click = document.createEvent("Event");
         click.initEvent("click", true, true);
         link.dispatchEvent(click);

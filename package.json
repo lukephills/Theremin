@@ -49,6 +49,8 @@
     "webpack-hot-middleware": "^2.6.4"
   },
   "dependencies": {
+    "document-visibility": "^1.0.1",
+    "inline-worker": "^1.0.0",
     "lodash": "^4.3.0",
     "normalize.css": "^3.0.3",
     "object-assign": "^4.0.1",
@@ -60,6 +62,7 @@
     "redux-actions": "^0.9.1",
     "tone": "^0.6.1",
     "ts-loader": "^0.8.0",
-    "typescript": "1.7.5"
+    "typescript": "1.7.5",
+    "worker-loader": "^0.7.0"
   }
 }

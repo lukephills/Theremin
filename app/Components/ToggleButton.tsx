@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { style } from './Styles/styles'
+import { style } from './Styles/styles';
 
 interface IProps {
 	disabled?: boolean;
@@ -15,11 +15,11 @@ class ToggleButton extends React.Component<IProps, {}> {
 	public render(): React.ReactElement<{}> {
 
 		const props = {
-			style: this.getStyles(),
 			onClick: this.props.disabled ? false : this.props.onDown,
 			onTouchStart: this.props.disabled ? false : this.props.onDown,
+			style: this.getStyles(),
 			value: this.props.buttonValue,
-		}
+		};
 
 		return (
 			<div {...props}>

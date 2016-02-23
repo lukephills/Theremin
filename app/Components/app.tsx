@@ -6,20 +6,22 @@ import {style, STYLE_CONST} from './Styles/styles';
 import RecordPlayButtonGroup from './RecordPlayButtonGroup';
 import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
-import TouchAreaContainer from './TouchAreaContainer';
+import MultiTouchView from './MultiTouchView';
 import { WAVEFORMS, Defaults } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
 import {ICoordinates} from './MultiTouchView';
-import {createCanvas, getPixelRatio, canvasResize} from '../Utils/utils';
-const Recorder = require('../Utils/Recorder/recorder.js').default; //TODO: make recorder js an npm module
-const Tone = require("Tone/core/Tone.js");
+import Audio from '../Audio';
+
+import '../Utils/Recorder/recorder'; //TODO: make recorder js an npm module
+import Visibility from '../Utils/visibility';
+import * as AudioUtils from '../Utils/AudioUtils';
+import * as CanvasUtils from '../Utils/CanvasUtils';
 
 
 
 interface IState {
 	delayVal?: number;
 	feedbackVal?: number;
-	guides?: boolean;
 	isPlayingBack?: boolean;
 	isRecording?: boolean;
 	scuzzVal?: number;
@@ -42,53 +44,21 @@ function select(state: IGlobalState) {
 @connect(select)
 class App extends React.Component<any, IState> {
 
-	private _frequencyMultiplier: number = 15;
+	//private _frequencyMultiplier: number = 15;
 	private _DrawSpectrumLoop: number;
 
-	public tone: Tone = new Tone();
-	public context: AudioContext = this.tone.context;
-	public voiceCount: number = Defaults.VoiceCount;
-	public recorder: Recorder;
-	public recording: AudioBufferSourceNode;
-
-	// Gains
-	public masterVolume: GainNode = this.context.createGain();
-	public thereminOutput: GainNode = this.context.createGain();
-	public oscillatorGains: GainNode[] = []
-	public scuzzGain: GainNode = this.context.createGain();
-	public recordingGain: GainNode = this.context.createGain();
-
-	// Effects
-	public compressor: DynamicsCompressorNode = this.context.createDynamicsCompressor();
-	public delay: DelayNode = this.context.createDelay();
-	public feedback: GainNode = this.context.createGain();
-	public filters: BiquadFilterNode[] = [];
-
-	// Analyser
-	public audioAnalyser: AnalyserNode = this.context.createAnalyser();
-
-	// Oscillators
-	public oscillators: OscillatorNode[] = [];
-	public scuzz: OscillatorNode = this.context.createOscillator();
 
 	public canvas: HTMLCanvasElement;
 	private _isAnimating: boolean = false;
-	private _pixelRatio: number = getPixelRatio();
+	private _pixelRatio: number = CanvasUtils.getPixelRatio();
 	private _touchAreaHeight: number;
 	private _touchAreaWidth: number;
-	private _recordingExists: boolean = false;
+	private hasRecording: boolean = false;
+	private touchIds: Map<number, number> = new Map();
 
 	constructor(props) {
 		super(props);
 
-		// AUDIO NODE SETUP
-		for (let i = 0; i < this.voiceCount; i++) {
-			this.oscillators.push(this.context.createOscillator());
-			this.filters.push(this.context.createBiquadFilter());
-			this.oscillatorGains.push(this.context.createGain());
-		}
-
-		this._routeSounds();
 
 		this.state = {
 			delayVal: Defaults.Sliders.delay.value,
@@ -105,28 +75,36 @@ class App extends React.Component<any, IState> {
 			STYLE_CONST.BOTTOM_PANEL_HEIGHT);
 		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
 		//Create canvas with the device resolution.
-		this.canvas = createCanvas(this._touchAreaWidth, this._touchAreaHeight);
-		this._pixelRatio = getPixelRatio();
+		this.canvas = CanvasUtils.createCanvas(this._touchAreaWidth, this._touchAreaHeight);
+		this._pixelRatio = CanvasUtils.getPixelRatio();
 
-		this.audioAnalyser.maxDecibels = -25;
-		this.audioAnalyser.minDecibels = -100;
-		this.audioAnalyser.smoothingTimeConstant = 0.85;
 
-		this.recorder = new Recorder(this.thereminOutput);
 
 		this.Start = this.Start.bind(this);
 		this.Stop = this.Stop.bind(this);
 		this.Move = this.Move.bind(this);
 		this.SliderChange = this.SliderChange.bind(this);
 		this.SetWaveform = this.SetWaveform.bind(this);
-		this.handleResize = this.handleResize.bind(this);
 		this.Record = this.Record.bind(this);
 		this.Playback = this.Playback.bind(this);
 		this.Download = this.Download.bind(this);
+		this.handleResize = this.handleResize.bind(this);
 	}
 
 	public componentDidMount() {
 		window.addEventListener('resize', this.handleResize);
+
+		// Make sure all sounds stop when app is awoken.
+		Visibility.onVisible = () => {
+			Audio.StopAll();
+			console.log('onVisible called!');
+		}
+
+		// Stop when switch to another tab in browser
+		Visibility.onInvisible = () => {
+			Audio.StopAll();
+			console.log('onInvisible called!');
+		}
 	}
 
 	public componentWillUnmount() {
@@ -140,28 +118,26 @@ class App extends React.Component<any, IState> {
 				<div style={style.title.container}>
 					<span style={style.title.h1}>{Defaults.Title.toUpperCase()}</span>
 				</div>
-				<span>Get the app</span>
-				<span>Subscribe</span>
-				<span>TW</span>
-				<span>FB</span>
 				<RecordPlayButtonGroup
 					style={style.recordPlayButtonGroup.container}
 				    onRecordButtonChange={this.Record}
 				    onPlaybackButtonChange={this.Playback}
-				    isPlaybackDisabled={!this._recordingExists}
+				    isPlaybackDisabled={!this.hasRecording}
 				    onDownloadButtonChange={this.Download}
 				/>
 				<WaveformSelectGroup
 					style={style.waveformSelectGroup.container}
 				    waveformChange={this.SetWaveform}
 				/>
-				<TouchAreaContainer
+				<MultiTouchView
 					canvas={this.canvas}
 					width={this._touchAreaWidth}
 					height={this._touchAreaHeight}
-				    start={this.Start}
-				    stop={this.Stop}
-				    move={this.Move}
+				    onDown={this.Start}
+				    onUp={this.Stop}
+				    onMove={this.Move}
+				    onLeave={this.Move}
+				    onFirstTouch={() => AudioUtils.startIOSAudio(Audio.context)}
 				/>
 				<RangeSliderGroup
 					sliderChange={this.SliderChange}
@@ -180,159 +156,108 @@ class App extends React.Component<any, IState> {
 		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
 
 		// Resize the canvas element
-		canvasResize(this.canvas, this._touchAreaWidth, this._touchAreaHeight);
+		CanvasUtils.canvasResize(this.canvas, this._touchAreaWidth, this._touchAreaHeight);
 	}
 
-	private _routeSounds() {
 
-		this.oscillators.forEach((oscillator: OscillatorNode) => {
-			oscillator.type = 'square';
-		});
-		this.filters.forEach((filter: BiquadFilterNode) => {
-			filter.type = 'lowpass';
-		});
+	//TODO: rename to something better
+	public GetVoiceIdFromTouchId(touchIdentifier) {
+		return this.touchIds.get(touchIdentifier);
+	}
 
-		// Set slider values
-		this.delay.delayTime.value = Defaults.Sliders.delay.value;
-		this.feedback.gain.value = Defaults.Sliders.feedback.value;
-		this.scuzzGain.gain.value = Defaults.Sliders.scuzz.value;
+	public RemoveVoiceIdFromTouchId(touchIdentifier) {
+		delete this.touchIds.delete(touchIdentifier)
+	}
 
-		this.oscillatorGains.forEach((oscGain) => {
-			oscGain.gain.value = 0;
-		})
-		this.masterVolume.gain.value = 0.5;
-
-
-		this.scuzz.frequency.value = 400;
-		this.scuzz.type = Defaults.Sliders.scuzz.waveform;
-
-		// Connect the Scuzz
-		this.scuzz.connect(this.scuzzGain);
-
-		//TODO: CHECK THIS
-		// Previously this:
-		// this.scuzzVolume.connect(this.source.frequency);
-		// But changed to this to fix older safari bug
-
-		for (let i = 0; i < this.voiceCount; i++) {
-			this.scuzzGain.connect(this.oscillators[i].detune as any);
-			this.oscillators[i].connect(this.oscillatorGains[i]);
-			this.oscillatorGains[i].connect(this.filters[i]);
-			this.filters[i].connect(this.compressor);
-			this.filters[i].connect(this.delay);
+	public AddVoiceIdFromTouchId(touchIdentifier) {
+		var num = 0;
+		//loop through values stored
+		for (let value of this.touchIds.values()) {
+			if (value === num) {
+				num++;
+			}
 		}
-
-		this.delay.connect(this.feedback);
-		this.delay.connect(this.compressor);
-		this.feedback.connect(this.delay);
-		this.compressor.connect(this.thereminOutput);
-
-		this.thereminOutput.connect(this.masterVolume);
-		this.recordingGain.connect(this.masterVolume);
-		this.masterVolume.connect(this.audioAnalyser);
-		this.audioAnalyser.connect(this.context.destination);
-
-		//Start oscillators
-		this.scuzz.start(0);
-		this.oscillators.forEach((osc) => {
-			osc.start(0);
-		})
+		this.touchIds.set(touchIdentifier, num);
+		return num;
 	}
 
-	public Start(pos: ICoordinates, id: number){
+
+	public Start(pos: ICoordinates = {x:0,y:0}, identifier: number = 0){
+		//console.log('start', pos, id)
+		const index = this.AddVoiceIdFromTouchId(identifier);
 		//Only start animating when the touch is down
 		//TODO: move this to after render function
 		if (this._isAnimating === false) {
 			this._DrawSpectrum();
 		}
 
-		if (id < this.voiceCount) {
-			this.SetFilterFrequency(pos.y, id);
-			this.oscillatorGains[id].gain.value = 1;
-			this.oscillators[id].frequency.value = pos.x * this._frequencyMultiplier;
-		}
+		Audio.Start(pos, index);
 	}
-	public Stop(pos: ICoordinates, id: number) {
-		if (id < this.voiceCount) {
-			this.oscillators[id].frequency.value = pos.x * this._frequencyMultiplier;
-			this.oscillatorGains[id].gain.value = 0;
-		}
+	public Stop(pos: ICoordinates = {x:0,y:0}, identifier: number = 0) {
+		const index = this.GetVoiceIdFromTouchId(identifier);
+		Audio.Stop(pos, index);
+
+		//Remove from list of touch ids
+		this.RemoveVoiceIdFromTouchId(identifier)
 	}
 
-	public Move(pos: ICoordinates, id: number) {
-		if (id < this.voiceCount) {
-			this.oscillators[id].frequency.value = pos.x * this._frequencyMultiplier;
-			this.SetFilterFrequency(pos.y, id);
-		}
+
+
+	public Move(pos: ICoordinates = {x:0,y:0}, id: number = 0) {
+		//console.log('move', pos, id);
+		const index = this.GetVoiceIdFromTouchId(id);
+		Audio.Move(pos, index);
 	}
 
 	public SliderChange(slider, value) {
 		switch (slider) {
 			case 'delay':
-				this.delay.delayTime.value = value;
+				Audio.delay.delayTime.value = value;
 				break;
 			case 'feedback':
-				this.feedback.gain.value = value;
+				Audio.feedback.gain.value = value;
 				break;
 			case 'scuzz':
-				this.scuzzGain.gain.value = value;
+				Audio.scuzzGain.gain.value = value;
 				break;
 			default:
 				console.log(`Slider name ${slider} not found`);
 		}
 		console.log('changed ', slider, 'to', value)
-		console.log(this.feedback.gain.value)
+		console.log(Audio.feedback.gain.value)
 	}
+
 
 	public SetWaveform(value) {
-		this.oscillators.forEach((osc: OscillatorNode) => {
-			osc.type = value;
-		});
+		Audio.SetWaveform(value);
 	}
 
-	public SetFilterFrequency(y: number, id: number) {
-		if (id < this.voiceCount){
-			this.filters[id].frequency.value = (this.tone.context.sampleRate / 2) * (y / 100);
-		}
-	}
 
 	public Record(isRecording: boolean){
 		if (isRecording){
 			console.log('recording...');
-			this.recorder.clear();
-			this.recorder.record();
+			Audio.StartRecorder();
 		} else {
-			this._recordingExists = true;
-			this.recorder.stop();
+			this.hasRecording = true;
+			Audio.StopRecorder();
 			console.log('stopped recording')
 		}
 	}
 
 	public Playback(isPlayingBack: boolean) {
-		if (this._recordingExists) {
+		if (this.hasRecording) {
 			if (isPlayingBack){
-				this.recorder.getBuffer((buffers: Float32Array[]) => {
-					this.recording = this.tone.context.createBufferSource();
-					var newBuffer: AudioBuffer = this.tone.context.createBuffer( 2, buffers[0].length, this.tone.context.sampleRate );
-					newBuffer.getChannelData(0).set(buffers[0]);
-					newBuffer.getChannelData(1).set(buffers[1]);
-					this.recording.buffer = newBuffer;
-					this.recording.connect( this.recordingGain );
-					this.recording.loop = true;
-					this.recording.start(0);
-				});
-				console.log('playing back recording..')
+				Audio.StartPlayback();
 			} else {
-				this.recording.stop(0);
-				console.log('playback stopped.')
+				Audio.StopPlayback();
 			}
 		}
 	}
 
 	public Download() {
 		console.log('downloading recording..');
-		this.recorder.exportWAV((recording: Blob) => {
 
+		Audio.onExportWav = (recording: Blob) => {
 			const url = (window.URL || (window as any).webkitURL).createObjectURL(recording);
 			const link: HTMLAnchorElement = document.createElement('a');
 			link.href = url;
@@ -349,7 +274,8 @@ class App extends React.Component<any, IState> {
 				document.body.appendChild(link); //FIXME: append to a pop up box instead of body
 				//TODO: could use this to trigger a saveAs() https://github.com/koffsyrup/FileSaver.js
 			}
-		});
+		}
+		Audio.Download();
 	}
 
 	private _DrawSpectrum() {
@@ -367,8 +293,8 @@ class App extends React.Component<any, IState> {
 		const barCount: number = (width / (barSpacing + barWidth));
 		const maxMag = 255;
 
-		const freqByteData = new Uint8Array(this.audioAnalyser.frequencyBinCount);
-		this.audioAnalyser.getByteFrequencyData(freqByteData);
+		const freqByteData = new Uint8Array(Audio.audioAnalyser.frequencyBinCount);
+		Audio.audioAnalyser.getByteFrequencyData(freqByteData);
 
 		ctx.clearRect(0, 0, width, height);
 		ctx.fillStyle = STYLE_CONST.BLACK;

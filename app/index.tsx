@@ -1,12 +1,10 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import "babel-polyfill";
 
 import configureStore from './configureStore';
 import App from './Components/App';
-
-//Object.assign = Object.assign || require('object-assign');
-import "babel-polyfill";
 
 //Initialize app with start data
 const initialState: any = {};

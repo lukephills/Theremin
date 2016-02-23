@@ -1,5 +1,5 @@
 var path = require('path');
-//var FileSystem = require("fs");
+var fs = require("fs");
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var webpack = require('webpack');
 
@@ -32,7 +32,7 @@ module.exports = {
   },
   output: {
     path: path.join(__dirname, '..', 'build/static'),
-    filename: 'app.js',
+    filename: 'app-[hash].js',
     publicPath: '/static/'
   },
   plugins: [
@@ -49,7 +49,26 @@ module.exports = {
     }),
     new CopyWebpackPlugin([
       { from: 'index.html', to: '../' },
-    ])
+    ]),
+    // plugin to replace /static/app.js to static/app-[hash].js in the build index file
+    // check here for a nicer version in the future: https://github.com/webpack/webpack/issues/86
+    function () {
+      this.plugin("done", function (stats) {
+        var replaceInFile = function (filePath, toReplace, replacement) {
+          var replacer = function (match) {
+            console.log('Replacing in %s: %s => %s', filePath, match, replacement);
+            return replacement
+          };
+          var str = fs.readFileSync(filePath, 'utf8');
+          var out = str.replace(new RegExp(toReplace, 'g'), replacer);
+          fs.writeFileSync(filePath, out);
+        };
+
+        var hash = stats.hash; // Build's hash, found in `stats` since build lifecycle is done.
+
+        replaceInFile('build/index.html', '/static/app.js', 'static/app-' + hash + '.js');
+      });
+    }
   ],
   resolve: {
     alias: {

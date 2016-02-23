@@ -1,80 +1,83 @@
-import { Defaults, WAVEFORMS } from './Constants/Defaults';
 import {ICoordinates} from './Components/MultiTouchView';
-import {STYLE_CONST, style} from './Components/Styles/styles';
-//const SimpleSynth = require("Tone/instrument/SimpleSynth.js");
-//const AmplitudeEnvelope = require("Tone/component/AmplitudeEnvelope.js");
-//const Filter = require("Tone/component/Filter.js");
-//const LFO = require("Tone/component/LFO.js");
-//const Analyser = require("Tone/component/Analyser.js");
-//const Delay = require("Tone/core/Delay.js");
-//const Note = require("Tone/core/Note.js");
+import { WAVEFORMS, Defaults } from './Constants/Defaults';
+import Recorder from './Utils/Recorder/recorder';
+import Visibility from './Utils/visibility';
+import * as AudioUtils from './Utils/AudioUtils';
+import * as CanvasUtils from './Utils/CanvasUtils';
 const Tone = require("Tone/core/Tone.js");
 
 class Audio {
 
-
-
-	private _clientHeight: number;
-	//private _pitchMultiplier: number = Defaults.PitchMultiplier
-	private frequencyMultiplier: number = 15;
-	private mySpectrum;
-
-	public Tone: Tone = new Tone();
-	public context: AudioContext = this.Tone.context;
+	public tone: Tone = new Tone();
+	public context: AudioContext = this.tone.context;
+	public voiceCount: number = Defaults.VoiceCount;
+	public recorder: Recorder;
+	public recording: AudioBufferSourceNode;
 
 	// Gains
-	public oscillatorGain: GainNode = this.context.createGain()
-	public masterVolume: GainNode = this.context.createGain()
-	public scuzzGain: GainNode = this.context.createGain()
+	public masterVolume: GainNode = this.context.createGain();
+	public thereminOutput: GainNode = this.context.createGain();
+	public oscillatorGains: GainNode[] = []
+	public scuzzGain: GainNode = this.context.createGain();
+	public recordingGain: GainNode = this.context.createGain();
 
 	// Effects
-	public filter: BiquadFilterNode = this.context.createBiquadFilter();
+	public compressor: DynamicsCompressorNode = this.context.createDynamicsCompressor();
 	public delay: DelayNode = this.context.createDelay();
 	public feedback: GainNode = this.context.createGain();
-	public compressor: DynamicsCompressorNode = this.context.createDynamicsCompressor();
+	public filters: BiquadFilterNode[] = [];
 
 	// Analyser
 	public audioAnalyser: AnalyserNode = this.context.createAnalyser();
 
 	// Oscillators
-	public oscillator = this.context.createOscillator();
-	public scuzz = this.context.createOscillator();
+	public oscillators: OscillatorNode[] = [];
+	public scuzz: OscillatorNode = this.context.createOscillator();
 
-
-
-
-	get clientHeight(): number {
-		return this._clientHeight;
-	}
-	set clientHeight(height) {
-		this._clientHeight = height;
-	}
-
+	private _frequencyMultiplier: number = 15;
+	private _defaultCoordinates: ICoordinates = {x: 0, y: 0};
 
 	constructor() {
+		// AUDIO NODE SETUP
+		for (let i = 0; i < this.voiceCount; i++) {
+			this.oscillators.push(this.context.createOscillator());
+			this.filters.push(this.context.createBiquadFilter());
+			this.oscillatorGains.push(this.context.createGain());
+		}
 
-		this.routeSounds();
+		this._routeSounds();
+
+
+		this.audioAnalyser.maxDecibels = -25;
+		this.audioAnalyser.minDecibels = -100;
 		this.audioAnalyser.smoothingTimeConstant = 0.85;
-		this.animateSpectrum();
+
+		this.recorder = new Recorder(this.thereminOutput);
+
 	}
 
-	routeSounds() {
+	private _routeSounds() {
 
-		//this.setWaveform('square');
-		this.oscillator.type = 'square';
-		this.filter.type = 'lowpass';
+		this.oscillators.forEach((oscillator: OscillatorNode) => {
+			oscillator.type = 'square';
+		});
+		this.filters.forEach((filter: BiquadFilterNode) => {
+			filter.type = 'lowpass';
+		});
 
 		// Set slider values
-		this.delay.delayTime.value = 0.225;
-		this.feedback.gain.value = 0.5;
-		this.scuzzGain.gain.value = 0;
+		this.delay.delayTime.value = Defaults.Sliders.delay.value;
+		this.feedback.gain.value = Defaults.Sliders.feedback.value;
+		this.scuzzGain.gain.value = Defaults.Sliders.scuzz.value;
 
-		this.oscillatorGain.gain.value = 0;
+		this.oscillatorGains.forEach((oscGain) => {
+			oscGain.gain.value = 0;
+		});
 		this.masterVolume.gain.value = 0.5;
 
 
 		this.scuzz.frequency.value = 400;
-		this.scuzz.type = 'sine';
+		this.scuzz.type = Defaults.Sliders.scuzz.waveform;
 
 		// Connect the Scuzz
 		this.scuzz.connect(this.scuzzGain);
@@ -83,104 +86,116 @@ class Audio {
 		// Previously this:
 		// this.scuzzVolume.connect(this.source.frequency);
 		// But changed to this to fix older safari bug
-		this.scuzzGain.connect(<any>this.oscillator.detune);
 
-		this.oscillator.connect(this.oscillatorGain);
-		this.oscillatorGain.connect(this.filter);
-
-		this.filter.connect(this.compressor);
-		this.filter.connect(this.delay);
+		for (let i = 0; i < this.voiceCount; i++) {
+			this.scuzzGain.connect(this.oscillators[i].detune as any);
+			this.oscillators[i].connect(this.oscillatorGains[i]);
+			this.oscillatorGains[i].connect(this.filters[i]);
+			this.filters[i].connect(this.compressor);
+			this.filters[i].connect(this.delay);
+		}
 
 		this.delay.connect(this.feedback);
 		this.delay.connect(this.compressor);
 		this.feedback.connect(this.delay);
+		this.compressor.connect(this.thereminOutput);
 
-		this.compressor.connect(this.masterVolume);
+		this.thereminOutput.connect(this.masterVolume);
+		this.recordingGain.connect(this.masterVolume);
 		this.masterVolume.connect(this.audioAnalyser);
 		this.audioAnalyser.connect(this.context.destination);
 
 		//Start oscillators
 		this.scuzz.start(0);
-		this.oscillator.start(0);
+		this.oscillators.forEach((osc: OscillatorNode) => {
+			osc.start(0);
+		});
 	}
 
-	Start(pos: ICoordinates){
-		this.SetFilterFrequency(pos.y);
-		this.oscillatorGain.gain.value = 1;
-		this.oscillator.frequency.value = pos.x * this.frequencyMultiplier;
+	public Start(pos: ICoordinates = this._defaultCoordinates, index: number = 0): void{
+		console.log(`start osc[${index}]`);
+		if (index < this.voiceCount) {
+			this.SetFilterFrequency(pos.y, index);
+			this.oscillatorGains[index].gain.value = 1;
+			this.oscillators[index].frequency.value = pos.x * this._frequencyMultiplier;
+		}
 	}
-
-	Stop(pos: ICoordinates) {
-		this.oscillator.frequency.value = pos.x * this.frequencyMultiplier;
-		this.oscillatorGain.gain.value = 0;
-	}
-
-	Move(pos: ICoordinates) {
-		this.oscillator.frequency.value = pos.x * this.frequencyMultiplier;
-		this.SetFilterFrequency(pos.y);
-	}
-
-	SliderChange(slider) {
-		switch (slider) {
-			case 'delay':
-				this.delay.delayTime.value = slider.value;
-			case 'feedback':
-				this.feedback.gain.value = slider.value;
-			case 'scuzzVolume':
-				this.scuzzGain.gain.value = slider.value;
-			default:
-				console.log(`Slider name ${slider} not found`);
+	public Stop(pos: ICoordinates = this._defaultCoordinates, index: number = 0): void {
+		console.log(`stop osc[${index}]`);
+		if (index < this.voiceCount) {
+			this.oscillators[index].frequency.value = pos.x * this._frequencyMultiplier;
+			this.oscillatorGains[index].gain.value = 0;
 		}
 	}
 
-	SetWaveform(value) {
-		var waves = ["sine", "square", "sawtooth", "triangle"];
-		this.oscillator.type = waves[value];
+	public StopAll(): void {
+		for (let i = 0; i < this.voiceCount; i++) {
+			this.Stop(this._defaultCoordinates, i);
+		}
+		console.log('stopped all oscillators');
 	}
 
-	SetFilterFrequency(y: number) {
-		this.filter.frequency.value = (this.context.sampleRate / 2) * (y / 100);
+	public Move(pos: ICoordinates = this._defaultCoordinates, index: number = 0): void {
+		console.log(`move osc[${index}]`);
+		if (index < this.voiceCount) {
+			this.oscillators[index].frequency.value = pos.x * this._frequencyMultiplier;
+			this.SetFilterFrequency(pos.y, index);
+		}
 	}
 
-	//private _convertPositionToPitch(pos: ICoordinates) {
-	//	return pos.x * this._pitchMultiplier;
-	//}
-
-
-	animateSpectrum() {
-		this.mySpectrum = requestAnimationFrame(this.animateSpectrum.bind(this));
-		this.drawSpectrum();
+	public SetWaveform(value: string): void {
+		this.oscillators.forEach((osc: OscillatorNode) => {
+			osc.type = value;
+		});
 	}
 
-	drawSpectrum() {
-		//TODO: the size is not drawing correctly - start again from scratch
-		//var canvas: any = document.querySelector('canvas'),
-		//	ctx = canvas.getContext('2d'),
-		//	canvasSize = canvas.width + 30,
-		//	width = canvasSize,
-		//	height = canvasSize,
-		//	freqByteData,
-		//	barCount,
-		//	magnitude,
-		//	i;
-		//
-		//canvas.width = canvasSize - 20;
-		//canvas.height = canvasSize - 10;
-		//
-		//ctx.clearRect(0, 0, width, height);
-		//ctx.fillStyle = STYLE_CONST.BLACK;
-		//
-		//freqByteData = new Uint8Array(this.audioAnalyser.frequencyBinCount);
-		//this.audioAnalyser.getByteFrequencyData(freqByteData);
-		//barCount = Math.round(width / style.barWidth);
-		//
-		//for (i = 0; i < barCount; i += 1) {
-		//	magnitude = freqByteData[i];
-		//	// some values need adjusting to fit on the canvas
-		//	ctx.fillRect(style.barWidth * i * 1.6, height, style.barWidth, -magnitude);
-		//}
+	public SetFilterFrequency(y: number, id: number): void {
+		if (id < this.voiceCount){
+			this.filters[id].frequency.value = (this.tone.context.sampleRate / 2) * (y / 100);
+		}
 	}
+
+	public StartRecorder(): void {
+		console.log('recording...');
+		this.recorder.clear();
+		this.recorder.record();
+	}
+
+	public StopRecorder(): void {
+		this.recorder.stop();
+	}
+
+	public StartPlayback(): void {
+		console.log(this)
+		this.recorder.getBuffer((buffers: Float32Array[]) => {
+			console.log(this);
+			this.recording = this.tone.context.createBufferSource();
+			var newBuffer: AudioBuffer = this.tone.context.createBuffer( 2, buffers[0].length, this.tone.context.sampleRate );
+			newBuffer.getChannelData(0).set(buffers[0]);
+			newBuffer.getChannelData(1).set(buffers[1]);
+			this.recording.buffer = newBuffer;
+			this.recording.connect( this.recordingGain );
+			this.recording.loop = true;
+			this.recording.start(0);
+		});
+		console.log('playing back recording..')
+	}
+
+	public StopPlayback(): void {
+		this.recording.stop(0);
+		console.log('playback stopped.')
+	}
+
+
+	public Download(): void {
+		console.log('downloading recording..');
+		this.recorder.exportWAV((recording: Blob) => {
+			console.log(recording);
+			this.onExportWav(recording);
+		});
+	}
+
+	onExportWav = (recording: Blob) => {};
 
 }
-
-export default Audio;
+export default new Audio();
