@@ -9,7 +9,6 @@ import RangeSliderGroup from './RangeSliderGroup';
 import MultiTouchView from './MultiTouchView';
 import { WAVEFORMS, Defaults } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
-import {ICoordinates} from './MultiTouchView';
 import Audio from '../Audio';
 
 import '../Utils/Recorder/recorder'; //TODO: make recorder js an npm module
@@ -17,6 +16,7 @@ import Visibility from '../Utils/visibility';
 import * as AudioUtils from '../Utils/AudioUtils';
 import * as CanvasUtils from '../Utils/CanvasUtils';
 import {IdentifierIndexMap} from '../Utils/utils';
+import Spectrum from './Spectrum';
 
 
 
@@ -45,23 +45,20 @@ function select(state: IGlobalState) {
 @connect(select)
 class App extends React.Component<any, IState> {
 
-	//private _frequencyMultiplier: number = 15;
-	private _DrawSpectrumLoop: number;
-
-
 	public canvas: HTMLCanvasElement;
+	public spectrumLive: Spectrum;
+	public spectrumRecording: Spectrum;
 	private _isAnimating: boolean = false;
 	private _pixelRatio: number = CanvasUtils.getPixelRatio();
 	private _touchAreaHeight: number;
 	private _touchAreaWidth: number;
 	private hasRecording: boolean = false;
-
+	private _DrawAnimationFrame: number;
 	private touches: IdentifierIndexMap;
 
 
 	constructor(props) {
 		super(props);
-
 
 		this.state = {
 			delayVal: Defaults.Sliders.delay.value,
@@ -77,11 +74,14 @@ class App extends React.Component<any, IState> {
 		this._touchAreaHeight = this.state.windowHeight - (STYLE_CONST.TOP_PANEL_HEIGHT + (STYLE_CONST.PADDING * 2 ) +
 			STYLE_CONST.BOTTOM_PANEL_HEIGHT);
 		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
+
 		//Create canvas with the device resolution.
 		this.canvas = CanvasUtils.createCanvas(this._touchAreaWidth, this._touchAreaHeight);
 		this._pixelRatio = CanvasUtils.getPixelRatio();
 
 		this.touches = new IdentifierIndexMap();
+		this.spectrumLive = new Spectrum(this.canvas, Audio.liveAnalyser);
+		this.spectrumRecording = new Spectrum(this.canvas, Audio.recordingAnalyser);
 
 		this.Start = this.Start.bind(this);
 		this.Stop = this.Stop.bind(this);
@@ -139,7 +139,7 @@ class App extends React.Component<any, IState> {
 				    onDown={this.Start}
 				    onUp={this.Stop}
 				    onMove={this.Move}
-				    onLeave={this.Move}
+				    onLeave={this.Stop}
 				    onFirstTouch={() => AudioUtils.startIOSAudio(Audio.context)}
 				/>
 				<RangeSliderGroup
@@ -166,19 +166,21 @@ class App extends React.Component<any, IState> {
 
 
 
-	public Start(pos: ICoordinates = {x:0,y:0}, identifier: number = 0){
+	public Start(e: Event, identifier: number = 0): void {
 		//console.log('start', pos, id)
 		const index = this.touches.Add(identifier);
+		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
 		//Only start animating when the touch is down
 		//TODO: move this to after render function
 		if (this._isAnimating === false) {
-			this._DrawSpectrum();
+			this.Draw();
 		}
 
 		Audio.Start(pos, index);
 	}
-	public Stop(pos: ICoordinates = {x:0,y:0}, identifier: number = 0) {
+	public Stop(e: Event, identifier: number = 0): void {
 		const index = this.touches.GetIndexFromIdentifier(identifier);
+		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
 		Audio.Stop(pos, index);
 
 		//Remove from list of touch ids
@@ -187,9 +189,9 @@ class App extends React.Component<any, IState> {
 
 
 
-	public Move(pos: ICoordinates = {x:0,y:0}, id: number = 0) {
-		//console.log('move', pos, id);
+	public Move(e: Event, id: number = 0) {
 		const index = this.touches.GetIndexFromIdentifier(id);
+		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
 		Audio.Move(pos, index);
 	}
 
@@ -210,11 +212,9 @@ class App extends React.Component<any, IState> {
 		console.log('changed ', slider, 'to', value);
 	}
 
-
 	public SetWaveform(value) {
 		Audio.SetWaveform(value);
 	}
-
 
 	public Record(isRecording: boolean){
 		if (isRecording){
@@ -261,32 +261,23 @@ class App extends React.Component<any, IState> {
 		Audio.Download();
 	}
 
-	private _DrawSpectrum() {
+	private Draw() {
 		this._isAnimating = true;
-		this._DrawSpectrumLoop = requestAnimationFrame(this._DrawSpectrum.bind(this));
+		this._DrawAnimationFrame = requestAnimationFrame(this.Draw.bind(this));
 
-		const ctx = this.canvas.getContext('2d');
-		const pixelRatio = this._pixelRatio;
-		const width = this.canvas.width/pixelRatio;
-		const height = this.canvas.height/pixelRatio;
-		const barWidth = 6;
-		const maxHeight = height - 2;
-		const barSpacing = 9;
-		// Calculate number of bars needed to fill canvas width
-		const barCount: number = (width / (barSpacing + barWidth));
-		const maxMag = 255;
-
-		const freqByteData = new Uint8Array(Audio.audioAnalyser.frequencyBinCount);
-		Audio.audioAnalyser.getByteFrequencyData(freqByteData);
+		const ctx: CanvasRenderingContext2D = this.canvas.getContext('2d');
+		const width: number = this.canvas.width / this._pixelRatio;
+		const height: number = this.canvas.height / this._pixelRatio;
 
 		ctx.clearRect(0, 0, width, height);
-		ctx.fillStyle = STYLE_CONST.BLACK;
 
-		for (let i = 0; i < barCount; i++) {
-			// Calculate the magnitude based on byte data and max bar height
-			const magnitude = freqByteData[i] / (maxMag / maxHeight);
-			ctx.fillRect((barWidth + barSpacing) * i, height, barWidth, -magnitude);
-		}
+		this.spectrumRecording.Draw({
+			color: STYLE_CONST.GREY
+		});
+		this.spectrumLive.Draw({
+			color: this.props.isRecording ? STYLE_CONST.RED : STYLE_CONST.BLACK
+		});
+
 	}
 
 }

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-const _round = require('lodash/round');
 import { connect } from 'react-redux';
 
 import { IGlobalState } from '../Constants/GlobalState';
@@ -8,25 +7,20 @@ import { noOp } from '../Utils/utils';
 import { style } from './Styles/styles';
 import TouchEvent = __React.TouchEvent;
 
-export interface ICoordinates {
-	x: number;
-	y: number;
-}
-
 interface IProps {
 	width: number;
 	height: number;
 	canvas: HTMLCanvasElement;
-	onDown(pos: ICoordinates, identifier: number): void;
-	onMove(pos: ICoordinates, identifier: number): void;
-	onUp(pos: ICoordinates, identifier: number): void;
-	onLeave(pos: ICoordinates, identifier: number): void;
+	onDown(event: Event, identifier: number): void;
+	onMove(event: Event, identifier: number): void;
+	onUp(event: Event, identifier: number): void;
+	onLeave(event: Event, identifier: number): void;
 	onFirstTouch(): void;
 }
 
 interface IState {
 	pointerDown?: boolean;
-	touches?: any; //Touch.identifiers
+	//touches?: any; //Touch.identifiers
 }
 
 interface ITouch {
@@ -37,13 +31,13 @@ interface ITouch {
 
 class MultiTouchView extends React.Component<IProps, IState> {
 
-	private currentTouches: ITouch[];
-	hasFirstTouch: boolean = false;
+	//private currentTouches: ITouch[];
+	private hasBeenTouched: boolean = false;
 
 	constructor() {
 		super();
 		this.state = {pointerDown: false}
-		this.currentTouches = [];
+		//this.currentTouches = [];
 	}
 
 	componentDidMount() {
@@ -89,20 +83,21 @@ class MultiTouchView extends React.Component<IProps, IState> {
 	}
 
 	private onMouseDown(e, callback = noOp) {
-		console.log('mousedown')
+		console.log('mousedown');
 		e.preventDefault();
 		this.setState({
 			pointerDown: true,
 		})
-		const pos: ICoordinates = this.getPositionAsPercentage(e);
-		callback(pos);
+
+		callback(e);
 	}
 
 	private onMouseMove(e, callback = noOp) {
 		//only do something if we have pointers down
-		if (this.state.pointerDown || (this.state.touches && this.state.touches.length)){
-			const pos: ICoordinates = this.getPositionAsPercentage(e);
-			callback(pos);
+		if (this.state.pointerDown){
+			//const pos: ICoordinates = this.getPositionAsPercentage(e);
+			e.preventDefault();
+			callback(e);
 		}
 	}
 
@@ -111,17 +106,17 @@ class MultiTouchView extends React.Component<IProps, IState> {
 		this.setState({
 			pointerDown: false,
 		})
-		const pos: ICoordinates = this.getPositionAsPercentage(e);
-		callback(pos);
+		//const pos: ICoordinates = this.getPositionAsPercentage(e);
+		callback(e);
 	}
 
 
-	copyTouch(touch: Touch, pos: ICoordinates) {
-		//return { id: touch.identifier, pageX: touch.pageX, pageY: touch.pageY };
-		//TODO: copyTouch shouldn't care about touch positions as a percentage. It should just copy pageX and pageY
-
-		return { identifier: touch.identifier, x: pos.x, y: pos.y };
-	}
+	//copyTouch(touch: Touch, pos: ICoordinates) {
+	//	//return { id: touch.identifier, pageX: touch.pageX, pageY: touch.pageY };
+	//	//TODO: copyTouch shouldn't care about touch positions as a percentage. It should just copy pageX and pageY
+	//
+	//	return { identifier: touch.identifier, x: pos.x, y: pos.y };
+	//}
 
 	private onTouchStart(e: TouchEvent, callback = noOp) {
 		console.log('touchstart')
@@ -132,15 +127,14 @@ class MultiTouchView extends React.Component<IProps, IState> {
 			const touch = touches[i];
 
 			//TODO: remove this:
-			const pos: ICoordinates = this.getPositionAsPercentage(touch);
+			//const pos: ICoordinates = this.getPositionAsPercentage(touch);
 
 			//Add this touch to list of touches
-			this.currentTouches.push(this.copyTouch(touch, pos));
+			//this.currentTouches.push(this.copyTouch(touch, pos));
 
 			console.log('starting touch', touch.identifier);
-			callback(pos, touch.identifier);
+			callback(touch, touch.identifier);
 		}
-		this.updateTouchesState();
 	}
 
 
@@ -149,88 +143,53 @@ class MultiTouchView extends React.Component<IProps, IState> {
 		const touches = e.changedTouches;
 		for (let i = 0; i < touches.length; i++) {
 			const touch = touches[i];
-			const pos: ICoordinates = this.getPositionAsPercentage(touch); //TODO: remove
+			//const pos: ICoordinates = this.getPositionAsPercentage(touch); //TODO: remove
 
-			const idx = this.getCurrentTouchIndexById(touch.identifier);
+			//const idx = this.getCurrentTouchIndexById(touch.identifier);
 
-			if (idx >= 0){
-				console.log('moving touch', touch.identifier);
-				const currentTouch = this.currentTouches[idx];
+			//if (idx >= 0){
+			console.log('moving touch', touch.identifier);
+			//const currentTouch = this.currentTouches[idx];
 
-				// Update the touch record.
-				currentTouch.x = pos.x;
-				currentTouch.y = pos.y;
+			// Update the touch record.
+			//currentTouch.x = pos.x;
+			//currentTouch.y = pos.y;
 
-				// Update this touches pitch
-				callback(pos, touch.identifier)
+			// Update this touches pitch
+			callback(touch, touch.identifier)
 
-				// Store the record.
-				this.currentTouches.splice(idx, 1, this.copyTouch(touch, pos));
-			} else {
-				console.log(`no touch to continue found`);
-			}
+			// Store the record.
+			//this.currentTouches.splice(idx, 1, this.copyTouch(touch, pos));
+			//} else {
+			//	console.log(`no touch to continue found`);
+			//}
 		}
-		this.updateTouchesState();
+
 	}
 
 	private onTouchEnd(e: TouchEvent, callback = noOp) {
-		if (!this.hasFirstTouch)	{
-			// play empty buffer to unmute audio
+		if (this.hasBeenTouched === false)	{
+			// play empty buffer to unmute audio (ios needs this)
 			this.props.onFirstTouch();
-			this.hasFirstTouch = true;
+			this.hasBeenTouched = true;
 		}
 		console.log('touch end')
 		e.preventDefault();
 		const touches = e.changedTouches;
 		for (let i = 0; i < touches.length; i++) {
 			const touch = touches[i];
-			const pos: ICoordinates = this.getPositionAsPercentage(touch); // TODO: Remove
+			//const pos: ICoordinates = this.getPositionAsPercentage(touch); // TODO: Remove
 
-			const idx = this.getCurrentTouchIndexById(touch.identifier);
+			//const idx = this.getCurrentTouchIndexById(touch.identifier);
 
-			if (idx >= 0) {
+			//if (idx >= 0) {
 				console.log('ending touch', touch.identifier);
-				callback(pos, touch.identifier)
-				this.currentTouches.splice(idx, 1); // Remove it, touch ended
-			} else {
-				console.log('No touch to end found');
-			}
+				callback(touch, touch.identifier)
+				//this.currentTouches.splice(idx, 1); // Remove it, touch ended
+			//} else {
+			//	console.log('No touch to end found');
+			//}
 		}
-		this.updateTouchesState();
-	}
-
-	private onMouseLeave(e, callback = noOp) {
-		e.preventDefault();
-		if (this.state.pointerDown) {
-			this.setState({
-				pointerDown: false,
-			})
-			const pos: ICoordinates = this.getPositionAsPercentage(e);
-			callback(pos)
-		}
-	}
-
-	private getPositionAsPercentage(e): ICoordinates {
-		return {
-			x: _round(((e.pageX - e.target.offsetLeft) / e.target.offsetWidth) * 100, 2),
-			y: _round((100 - ((e.pageY - e.target.offsetTop) / e.target.offsetHeight) * 100), 2),
-		}
-	}
-
-	private updateTouchesState(){
-		this.setState({
-			touches: this.currentTouches,
-		});
-	}
-
-	private getCurrentTouchIndexById(identifier: number) {
-		for (let i = 0; i < this.currentTouches.length; i++) {
-			if (this.currentTouches[i].identifier === identifier) {
-				//return this.currentTouches[i].index;
-				return i;
-			}
-		}
-		return -1; // Not found
 	}
 }
 

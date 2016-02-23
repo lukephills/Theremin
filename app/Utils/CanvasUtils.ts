@@ -1,3 +1,5 @@
+import TouchEvent = __React.TouchEvent;
+import EventHandler = __React.EventHandler;
 /**
  * Gets the devices pixel ratio
  * @type {number}
@@ -32,4 +34,20 @@ export function canvasResize(canvas: HTMLCanvasElement, width: number, height: n
 export function createCanvas(width: number, height: number): HTMLCanvasElement {
 	const canvas: HTMLCanvasElement = document.createElement('canvas');
 	return canvasResize(canvas, width, height);
+}
+
+
+
+export interface ICoordinates {
+	x: number;
+	y: number;
+}
+
+
+export function getPercentagePosition(e: any): ICoordinates {
+	const _round = require('lodash/round');
+	return {
+		x: _round(((e.pageX - e.target.offsetLeft) / e.target.offsetWidth) * 100, 2),
+		y: _round((100 - ((e.pageY - e.target.offsetTop) / e.target.offsetHeight) * 100), 2),
+	}
 }

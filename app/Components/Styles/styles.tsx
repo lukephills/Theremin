@@ -10,6 +10,7 @@ export const STYLE_CONST: any = {
 	SLIDER_FONT_SIZE: 28,
 	YELLOW: 'rgb(211,198,101)',
 	GREEN: 'rgb(76,126,130)',
+	RED: 'red',
 	GREEN_VALUES: '76,126,130',
 	BROWN: 'rgb(52,40,0)',
 	WHITE: 'white',

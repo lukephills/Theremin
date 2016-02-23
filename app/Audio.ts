@@ -1,4 +1,4 @@
-import {ICoordinates} from './Components/MultiTouchView';
+//import {ICoordinates} from './Components/MultiTouchView';
 import { WAVEFORMS, Defaults } from './Constants/Defaults';
 import Recorder from './Utils/Recorder/recorder';
 import Visibility from './Utils/visibility';
@@ -27,15 +27,16 @@ class Audio {
 	public feedback: GainNode = this.context.createGain();
 	public filters: BiquadFilterNode[] = [];
 
-	// Analyser
-	public audioAnalyser: AnalyserNode = this.context.createAnalyser();
+	// Analysers
+	public liveAnalyser: AnalyserNode = this.context.createAnalyser();
+	public recordingAnalyser: AnalyserNode = this.context.createAnalyser();
 
 	// Oscillators
 	public oscillators: OscillatorNode[] = [];
 	public scuzz: OscillatorNode = this.context.createOscillator();
 
 	private _frequencyMultiplier: number = 15;
-	private _defaultCoordinates: ICoordinates = {x: 0, y: 0};
+	private _defaultCoordinates: CanvasUtils.ICoordinates = {x: 0, y: 0};
 
 	constructor() {
 		// AUDIO NODE SETUP
@@ -47,13 +48,21 @@ class Audio {
 
 		this._routeSounds();
 
+		this.setupAnalysers();
 
-		this.audioAnalyser.maxDecibels = -25;
-		this.audioAnalyser.minDecibels = -100;
-		this.audioAnalyser.smoothingTimeConstant = 0.85;
 
 		this.recorder = new Recorder(this.thereminOutput);
 
+	}
+
+	private setupAnalysers() {
+		//TODO: refactor into loop
+		this.liveAnalyser.maxDecibels = -25;
+		this.liveAnalyser.minDecibels = -100;
+		this.liveAnalyser.smoothingTimeConstant = 0.85;
+		this.recordingAnalyser.maxDecibels = -25;
+		this.recordingAnalyser.minDecibels = -100;
+		this.recordingAnalyser.smoothingTimeConstant = 0.85;
 	}
 
 	private _routeSounds() {
@@ -100,10 +109,16 @@ class Audio {
 		this.feedback.connect(this.delay);
 		this.compressor.connect(this.thereminOutput);
 
-		this.thereminOutput.connect(this.masterVolume);
-		this.recordingGain.connect(this.masterVolume);
-		this.masterVolume.connect(this.audioAnalyser);
-		this.audioAnalyser.connect(this.context.destination);
+		// Theremin route
+		this.thereminOutput.connect(this.liveAnalyser);
+		this.liveAnalyser.connect(this.masterVolume);
+
+		//Recording route
+		this.recordingGain.connect(this.recordingAnalyser);
+		this.recordingAnalyser.connect(this.masterVolume)
+
+		//OUTPUT
+		this.masterVolume.connect(this.context.destination);
 
 		//Start oscillators
 		this.scuzz.start(0);
@@ -112,7 +127,7 @@ class Audio {
 		});
 	}
 
-	public Start(pos: ICoordinates = this._defaultCoordinates, index: number = 0): void{
+	public Start(pos: CanvasUtils.ICoordinates = this._defaultCoordinates, index: number = 0): void{
 		console.log(`start osc[${index}]`);
 		if (index < this.voiceCount) {
 			this.SetFilterFrequency(pos.y, index);
@@ -120,7 +135,7 @@ class Audio {
 			this.oscillators[index].frequency.value = pos.x * this._frequencyMultiplier;
 		}
 	}
-	public Stop(pos: ICoordinates = this._defaultCoordinates, index: number = 0): void {
+	public Stop(pos: CanvasUtils.ICoordinates = this._defaultCoordinates, index: number = 0): void {
 		console.log(`stop osc[${index}]`);
 		if (index < this.voiceCount) {
 			this.oscillators[index].frequency.value = pos.x * this._frequencyMultiplier;
@@ -135,7 +150,7 @@ class Audio {
 		console.log('stopped all oscillators');
 	}
 
-	public Move(pos: ICoordinates = this._defaultCoordinates, index: number = 0): void {
+	public Move(pos: CanvasUtils.ICoordinates = this._defaultCoordinates, index: number = 0): void {
 		console.log(`move osc[${index}]`);
 		if (index < this.voiceCount) {
 			this.oscillators[index].frequency.value = pos.x * this._frequencyMultiplier;
@@ -174,7 +189,7 @@ class Audio {
 			newBuffer.getChannelData(0).set(buffers[0]);
 			newBuffer.getChannelData(1).set(buffers[1]);
 			this.recording.buffer = newBuffer;
-			this.recording.connect( this.recordingGain );
+			this.recording.connect(this.recordingGain);
 			this.recording.loop = true;
 			this.recording.start(0);
 		});
