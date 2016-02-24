@@ -39,20 +39,17 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 			<section style={this.props.style}>
 				<ToggleButton
 					onDown={(e) => this.record(e)}
-					isOn={this.props.isRecording}
-					buttonValue={recordButtonValue}/>
+					isOn={this.props.isRecording}>{recordButtonValue}</ToggleButton>
 
 				<ToggleButton
 					disabled={this.props.isPlaybackDisabled}
 					onDown={(e) => this.play(e)}
-					isOn={this.props.isPlaying}
-					buttonValue={playButtonValue}/>
+					isOn={this.props.isPlaying}>{playButtonValue}</ToggleButton>
 
 				<ToggleButton
 					disabled={this.props.isPlaybackDisabled}
 					onDown={this.props.onDownloadButtonChange}
-					isOn={true}
-					buttonValue="Download"/>
+					isOn={true}>Download</ToggleButton>
 			</section>
 		);
 	}
