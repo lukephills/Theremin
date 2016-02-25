@@ -115,23 +115,39 @@ class App extends React.Component<any, IState> {
 	}
 
 	public render(): React.ReactElement<{}> {
+		const mobileSizeSmall = this.state.windowWidth < 400;
+		const mobileSizeLarge = this.state.windowWidth < 600;
+		const buttonSize = this.state.windowWidth > 600 ? 50 : this.state.windowWidth/10;
+
+		const titleStyle = Object.assign({},
+			style.title.h1,
+			mobileSizeLarge && style.title.h1_mobile
+		);
 
 		return (
 			<div id='body-wrapper'>
-				<div style={style.title.container}>
-					<span style={style.title.h1}>{Defaults.Title.toUpperCase()}</span>
+				<div style={style.topPanel}>
+					<div style={Object.assign({},style.title.container,
+					(this.state.windowWidth < 400) && style.title.container_mobile)}>
+						<span style={titleStyle}>{Defaults.Title.toUpperCase()}</span>
+					</div>
+					<RecordPlayButtonGroup
+						style={Object.assign({},style.recordPlayButtonGroup.container,
+							mobileSizeSmall && style.recordPlayButtonGroup.container_mobile)}
+						onRecordButtonChange={this.Record}
+						onPlaybackButtonChange={this.Playback}
+						isPlaybackDisabled={!this.hasRecording}
+						onDownloadButtonChange={this.Download}
+					    buttonSize={buttonSize}
+					/>
+					<WaveformSelectGroup
+						style={Object.assign({},style.waveformSelectGroup.container,
+							mobileSizeSmall && style.waveformSelectGroup.container_mobile)}
+						waveformChange={this.SetWaveform}
+						buttonSize={buttonSize}
+					/>
 				</div>
-				<RecordPlayButtonGroup
-					style={style.recordPlayButtonGroup.container}
-				    onRecordButtonChange={this.Record}
-				    onPlaybackButtonChange={this.Playback}
-				    isPlaybackDisabled={!this.hasRecording}
-				    onDownloadButtonChange={this.Download}
-				/>
-				<WaveformSelectGroup
-					style={style.waveformSelectGroup.container}
-				    waveformChange={this.SetWaveform}
-				/>
+
 				<MultiTouchView
 					canvas={this.canvas}
 					width={this._touchAreaWidth}
@@ -160,11 +176,8 @@ class App extends React.Component<any, IState> {
 
 		// Resize the canvas element
 		CanvasUtils.canvasResize(this.canvas, this._touchAreaWidth, this._touchAreaHeight);
+		this.forceUpdate();
 	}
-
-
-
-
 
 	public Start(e: Event, identifier: number = 0): void {
 		//console.log('start', pos, id)

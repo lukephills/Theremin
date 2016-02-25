@@ -20,62 +20,67 @@ export const STYLE_CONST: any = {
 }
 
 export const style: any = {
+	topPanel: {
+		height: `${STYLE_CONST.TOP_PANEL_HEIGHT}px`,
+		display: `flex`,
+		flexDirection: 'row',
+	},
 	title: {
 		container: {
-			display: 'block',
-			float: 'left',
+			flexGrow: 11,
 			height: STYLE_CONST.TOP_PANEL_HEIGHT,
+		},
+		container_mobile: {
+			position: 'absolute',
 		},
 		h1: {
 			fontSize: STYLE_CONST.TITLE_FONT_SIZE,
 			lineHeight: `${STYLE_CONST.TOP_PANEL_HEIGHT}px`,
 			margin: 0,
 			marginLeft: 20,
-			fontWeight: 300,
+			fontWeight: 400,
 		},
+		h1_mobile: {
+			fontSize: 16,
+			lineHeight: 2,
+			marginLeft: 3,
+		}
 	},
 	recordPlayButtonGroup: {
 		container: {
-			display: 'inline-block',
-			float: 'right',
-			//marginLeft: 10,
-			borderLeft: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
+			flexGrow: 1,
+			display: `flex`,
+			justifyContent: 'space-around',
 		},
+		container_mobile: {
+			paddingTop: 18,
+		}
 	},
-	noteGuideButton: {
-		container: {
-			display: 'inline-block',
-			float: 'right',
-			//marginLeft: 10,
-			borderLeft: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
-		},
-	},
+
 	waveformSelectGroup: {
 		container: {
-			display: 'inline-block',
-			float: 'right',
-			//marginLeft: 10,
-			borderLeft: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
+			marginLeft: '4vw',
+			flexGrow: 1,
+			display: `flex`,
+			justifyContent: 'space-around',
 		},
+		container_mobile: {
+			paddingTop: 18,
+		}
 	},
+
 	button: {
-		backgroundColor: 'white',
-		//TODO: Delete the border - use icons with whitespace, no outlines
-		//border: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
-		lineHeight: `${STYLE_CONST.TOP_PANEL_HEIGHT}px`,
-		textAlign: 'center',
-		fontSize: 12,
-		color: STYLE_CONST.BLACK,
-		width: STYLE_CONST.TOP_PANEL_HEIGHT,
-		height: STYLE_CONST.TOP_PANEL_HEIGHT,
-		display: 'inline-block',
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'center',
 		cursor: 'pointer',
 	},
 	buttonActive: {
+		//TODO: delete this
 		color: STYLE_CONST.GREEN,
 	},
 	buttonDisabled: {
-		color: STYLE_CONST.WHITE,
+		cursor: 'initial',
 	},
 	touchArea: {
 		background: STYLE_CONST.YELLOW,
