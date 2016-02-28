@@ -83,8 +83,6 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		var cy = height/2;
 		ctx.lineWidth = Math.floor(width/15);
 
-		console.log('draw')
-
 		switch (options.id) {
 			case 'record':
 				if (this.props.isRecording) {
@@ -121,15 +119,21 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 					ctx.strokeStyle = STYLE_CONST.GREY;
 				}
 				ctx.beginPath();
-				ctx.moveTo(cx - (6*units), cy - (6 * units));
+
+				// Base
+				ctx.moveTo(cx - (6*units), cy + (1 * units));
 				ctx.lineTo(cx - (6*units), cy + (6*units));
 				ctx.lineTo(cx + (6*units), cy + (6*units));
-				ctx.lineTo(cx + (6*units), cy - (3*units));
-				ctx.lineTo(cx + (3*units), cy - (6*units));
-				ctx.closePath();
+				ctx.lineTo(cx + (6*units), cy + (1 *units));
 
-				//Inner square
-				ctx.rect(cx - (3*units), cy - (6 * units), (5*units),  (5*units));
+				// Arrow line
+				ctx.moveTo(cx, cy - (8*units));
+				ctx.lineTo(cx, cy + (3*units));
+
+				// Arrow head
+				ctx.moveTo(cx - (4*units), cy - (1*units));
+				ctx.lineTo(cx, cy + (3*units));
+				ctx.lineTo(cx + (4*units), cy - (1*units));
 				ctx.stroke();
 				break;
 		}

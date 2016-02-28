@@ -109,12 +109,18 @@ class Audio {
 		this.feedback.connect(this.delay);
 		this.compressor.connect(this.thereminOutput);
 
-		// Theremin route
+		// THEREMIN ROUTE
 		this.thereminOutput.connect(this.liveAnalyser);
 		this.liveAnalyser.connect(this.masterVolume);
 
-		//Recording route
-		this.recordingGain.connect(this.recordingAnalyser);
+		// RECORDING ROUTE
+		// NOTE: the filter here is because of the 'frozen byte data when stopping' bug in analyser
+		// http://stackoverflow.com/questions/24355656/web-audio-analyser-frequency-data-not-0-during-silence
+		var filter = this.context.createBiquadFilter();
+		filter.type = "highpass";
+		filter.frequency.value = 0.0001;
+		filter.connect(this.recordingAnalyser);
+		this.recordingGain.connect(filter);
 		this.recordingAnalyser.connect(this.masterVolume)
 
 		//OUTPUT
@@ -181,9 +187,7 @@ class Audio {
 	}
 
 	public StartPlayback(): void {
-		console.log(this)
 		this.recorder.getBuffer((buffers: Float32Array[]) => {
-			console.log(this);
 			this.recording = this.tone.context.createBufferSource();
 			var newBuffer: AudioBuffer = this.tone.context.createBuffer( 2, buffers[0].length, this.tone.context.sampleRate );
 			newBuffer.getChannelData(0).set(buffers[0]);

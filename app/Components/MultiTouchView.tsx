@@ -59,8 +59,6 @@ class MultiTouchView extends React.Component<IProps, IState> {
 			<div
 				style={this.getStyles()}
 				id="touchArea"
-				width={this.props.width}
-				height={this.props.height}
 			    onMouseDown={(e) => this.onMouseDown(e, onDown)}
 				onMouseUp={(e) => this.onMouseUp(e, onUp)}
 				onMouseMove={(e) => this.onMouseMove(e, onMove)}
@@ -76,7 +74,9 @@ class MultiTouchView extends React.Component<IProps, IState> {
 	private getStyles() {
 		return Object.assign(
 			{
-				display: 'inline-block'
+				display: 'inline-block',
+				width: this.props.width,
+				height: this.props.height,
 			},
 			style.touchArea
 		);

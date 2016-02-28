@@ -51,6 +51,7 @@ export const style: any = {
 			flexGrow: 1,
 			display: `flex`,
 			justifyContent: 'space-around',
+			zIndex: 1,
 		},
 		container_mobile: {
 			paddingTop: 18,

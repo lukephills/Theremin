@@ -22,6 +22,7 @@ class Spectrum {
 	}
 
 	Draw(options: ISpectrumOptions = this.defaultOptions): void {
+
 		const ctx: CanvasRenderingContext2D = this.canvas.getContext('2d');
 		const pixelRatio: number = this.pixelRatio;
 		const width: number = this.canvas.width / pixelRatio;
@@ -37,7 +38,6 @@ class Spectrum {
 		const freqByteData: Uint8Array = new Uint8Array(this.analyserNode.frequencyBinCount);
 		this.analyserNode.getByteFrequencyData(freqByteData);
 
-
 		ctx.fillStyle = options.color;
 
 		for (let i = 0; i < barCount; i++) {
@@ -45,6 +45,9 @@ class Spectrum {
 			const magnitude: number = freqByteData[i] / (maxMag / maxHeight);
 			ctx.fillRect((barWidth + barSpacing) * i, height, barWidth, -magnitude);
 		}
+
+		console.log(freqByteData)
+
 	}
 }
 export default Spectrum;
