@@ -222,7 +222,6 @@ class App extends React.Component<any, IState> {
 			default:
 				console.log(`Slider name ${slider} not found`);
 		}
-		console.log('changed ', slider, 'to', value);
 	}
 
 	public SetWaveform(value) {

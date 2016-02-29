@@ -1,5 +1,3 @@
-import {STYLE_CONST} from './Styles/styles';
-//import Audio from '../Audio';
 import * as CanvasUtils from '../Utils/CanvasUtils';
 
 export interface ISpectrumOptions {
@@ -13,7 +11,7 @@ class Spectrum {
 	private analyserNode: AnalyserNode;
 	private defaultOptions: ISpectrumOptions = {
 		color: 'black'
-	}
+	};
 
 	constructor(canvas: HTMLCanvasElement, analyserNode: AnalyserNode) {
 		this.canvas = canvas;
@@ -40,13 +38,11 @@ class Spectrum {
 
 		ctx.fillStyle = options.color;
 
-		for (let i = 0; i < barCount; i++) {
+		for (let i: number = 0; i < barCount; i++) {
 			// Calculate the magnitude based on byte data and max bar height
 			const magnitude: number = freqByteData[i] / (maxMag / maxHeight);
 			ctx.fillRect((barWidth + barSpacing) * i, height, barWidth, -magnitude);
 		}
-
-		console.log(freqByteData)
 
 	}
 }

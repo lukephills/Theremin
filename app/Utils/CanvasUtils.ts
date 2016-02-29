@@ -51,3 +51,13 @@ export function getPercentagePosition(e: any): ICoordinates {
 		y: _round((100 - ((e.pageY - e.target.offsetTop) / e.target.offsetHeight) * 100), 2),
 	}
 }
+
+
+export function hitTest(x: number, y: number, targetX: number, targetY: number, targetWidth: number, targetHeight: number) {
+	return (
+		x >= targetX &&
+		x <= targetX + targetWidth &&
+		y >= targetY &&
+		y <= targetY + targetHeight
+	);
+}

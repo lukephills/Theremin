@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "document-visibility": "^1.0.1",
+    "inline-style-prefixer": "^0.6.7",
     "inline-worker": "^1.0.0",
     "lodash": "^4.3.0",
     "normalize.css": "^3.0.3",
