@@ -12,12 +12,16 @@ interface IProps {
 }
 
 class ToggleButton extends React.Component<IProps, {}> {
+	constructor(props){
+		super(props);
+		this.onDown = this.onDown.bind(this);
+	}
 
 	public render(): React.ReactElement<{}> {
 
 		const props = {
-			onClick: this.props.disabled ? false : this.props.onDown,
-			onTouchStart: this.props.disabled ? false : this.props.onDown,
+			onClick: this.onDown,
+			onTouchStart: this.onDown,
 			style: this.getStyles(),
 			value: this.props.buttonValue,
 		};
@@ -27,6 +31,11 @@ class ToggleButton extends React.Component<IProps, {}> {
 				{this.props.children}
 			</div>
 		);
+	}
+
+	private onDown(e) {
+		e.preventDefault();
+		this.props.disabled ? false : this.props.onDown(e);
 	}
 
 	private getStyles() {

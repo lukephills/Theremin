@@ -32,13 +32,14 @@ interface ITouch {
 
 class MultiTouchView extends React.Component<IProps, IState> {
 
-	//private currentTouches: ITouch[];
+	private _touchIdentifiers: any;
 	private hasBeenTouched: boolean = false;
 
 	constructor() {
 		super();
 		this.state = {pointerDown: false}
 		//this.currentTouches = [];
+		this._touchIdentifiers = {}
 	}
 
 	componentDidMount() {
@@ -112,15 +113,14 @@ class MultiTouchView extends React.Component<IProps, IState> {
 	private onTouchStart(e: TouchEvent, callback = noOp) {
 		console.log('touchstart')
 		e.preventDefault();
-		//const touches = e.changedTouches;
 		const touches = e.changedTouches;
 		for (let i = 0; i < touches.length; i++) {
 			const touch = touches[i];
 			console.log('starting touch', touch.identifier);
+			this._touchIdentifiers[touch.identifier] = true;
 			callback(touch, touch.identifier);
 		}
 	}
-
 
 	private onTouchMove(e: TouchEvent, callback = noOp) {
 		e.preventDefault();
@@ -128,15 +128,14 @@ class MultiTouchView extends React.Component<IProps, IState> {
 		for (let i = 0; i < touches.length; i++) {
 			const touch: any = touches[i];
 			const isTouchInBounds: boolean = CanvasUtils.hitTest(touch.clientX, touch.clientY, touch.target.offsetLeft, touch.target.offsetTop, touch.target.clientWidth, touch.target.clientHeight);
-			if (isTouchInBounds) {
+			//TODO: test in bounds function doesn't seem to be working properly
+			if (isTouchInBounds && this._touchIdentifiers[touch.identifier]) {
 				console.log('moving touch', touch.identifier);
 				callback(touch, touch.identifier)
 			} else {
 				this.touchLeft(e);
 			}
-
 		}
-
 	}
 
 	private onTouchEnd(e: TouchEvent, callback = noOp) {
@@ -150,6 +149,7 @@ class MultiTouchView extends React.Component<IProps, IState> {
 		const touches = e.changedTouches;
 		for (let i = 0; i < touches.length; i++) {
 			const touch = touches[i];
+			delete this._touchIdentifiers[touch.identifier]
 			console.log('ending touch', touch.identifier);
 			callback(touch, touch.identifier)
 		}
