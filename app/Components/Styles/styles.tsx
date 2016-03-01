@@ -116,5 +116,47 @@ export const style: any = prefixer.prefix({
 		lineHeight: `${STYLE_CONST.BOTTOM_PANEL_HEIGHT/3}px`,
 		marginRight: 20,
 		pointerEvents: 'none',
+	},
+
+	recordOverlay: {
+		overlay: {
+			zIndex: 99,
+		},
+		content: {
+			background: STYLE_CONST.GREEN,
+			color: STYLE_CONST.WHITE,
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			border: 0,
+			borderRadius: 0,
+		},
+		title: {
+			display:'flex',
+			justifyContent: 'center',
+			fontSize: '18px',
+			textTransform: 'uppercase',
+		},
+		input: {
+			display:'flex',
+			justifyContent: 'center',
+			fontSize: '36px',
+			border: 'none',
+			background: 'transparent',
+			color: STYLE_CONST.WHITE,
+			borderBottom: `3px solid ${STYLE_CONST.WHITE}`,
+			margin: '40px 0',
+			textAlign: 'center',
+			width: '100%',
+		},
+		button: {
+			display:'flex',
+			justifyContent: 'center',
+			textAlign: 'center',
+			fontSize: '28px',
+			border: `3px solid ${STYLE_CONST.WHITE}`,
+			padding: 10,
+		},
+
 	}
 });

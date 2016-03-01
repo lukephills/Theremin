@@ -11,7 +11,7 @@ import RecordOverlay from './RecordOverlay';
 import { WAVEFORMS, Defaults } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
 import Audio from '../Audio';
-import { modal } from '../Actions/actions';
+import { modalChange } from '../Actions/actions';
 
 import '../Utils/Recorder/recorder'; //TODO: make recorder js an npm module
 import Visibility from '../Utils/visibility';
@@ -170,6 +170,7 @@ class App extends React.Component<any, IState> {
 			    />
 				<RecordOverlay
 					isActive={this.props.isModalOpen}
+				    style={Object.assign({}, style.recordOverlay)}
 				/>
 			</div>
 		);
@@ -261,7 +262,7 @@ class App extends React.Component<any, IState> {
 	}
 
 	public Download() {
-		this.props.dispatch(modal(true));
+		this.props.dispatch(modalChange(true));
 		this.setState({isRecordOverlayActive: true})
 	}
 

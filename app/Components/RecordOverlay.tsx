@@ -3,8 +3,10 @@ import { connect } from 'react-redux';
 var Modal = require('react-modal');
 import Audio from '../Audio';
 import Downloader from '../Downloader';
-import { modal } from '../Actions/actions';
+import ToggleButton from './ToggleButton'
+import { modalChange } from '../Actions/actions';
 import {IGlobalState} from '../Constants/GlobalState';
+import {STYLE_CONST} from './Styles/styles';
 
 function select(state: IGlobalState): any {
 	return {
@@ -20,6 +22,7 @@ class RecordOverlay extends React.Component<any, any> {
 		this.onDownloadClick = this.onDownloadClick.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.handleChange = this.handleChange.bind(this);
+		this.onFocus = this.onFocus.bind(this);
 
 		this.state = {
 			modalIsOpen: this.props.isActive,
@@ -28,23 +31,47 @@ class RecordOverlay extends React.Component<any, any> {
 	}
 
 	public render(): React.ReactElement<{}> {
+		const {overlay, title, input, button} = this.props.style;
+		let {content} = this.props.style;
+		const contentPadding = window.innerWidth / 14;
+		content = Object.assign({}, content, {
+			top: contentPadding,
+			left: contentPadding,
+			right: contentPadding,
+			bottom: contentPadding,
+		})
 		return (
 			<Modal isOpen={this.props.isOpen}
-			       onRequestClose={this.closeModal}>
-				<h1><span>{this.state.filename}.wav</span></h1>
-				<input type="text" placeholder="Theremin" onChange={this.handleChange}/>
-				<button onClick={this.onDownloadClick}>Download</button>
+			       onRequestClose={this.closeModal}
+			       style={{content, overlay}}>
+				<div>
+					<span style={title}>Choose a filename</span>
+					<input type="text"
+					       placeholder={this.state.filename || 'Theremin'}
+					       onChange={this.handleChange}
+					       onFocus={this.onFocus}
+					       style={input}/>
+					<ToggleButton onDown={this.onDownloadClick}
+					              style={button}>
+						<div>Save {this.state.filename}.wav</div>
+					</ToggleButton>
+				</div>
 			</Modal>
 		);
 	}
 
 	handleChange(e){
-		this.setState({filename: e.target.value})
+		const val = e.target.value ? e.target.value : 'theremin';
+		this.setState({filename: val})
+	}
+
+	onFocus(e){
+		e.target.style.outline = 'none'
 	}
 
 	closeModal(){
 		console.log('close')
-		this.props.dispatch(modal(false));
+		this.props.dispatch(modalChange(false));
 	}
 
 	onDownloadClick(){
@@ -52,7 +79,7 @@ class RecordOverlay extends React.Component<any, any> {
 			this.SaveWav(wav);
 			console.log('saved wav: ', this.state.filename, wav);
 		});
-		this.props.dispatch(modal(false));
+		this.props.dispatch(modalChange(false));
 	}
 
 	private sanitizeFilename(filename: string): string {

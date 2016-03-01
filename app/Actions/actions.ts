@@ -40,7 +40,7 @@ export function SliderAction(sliderName: string, value: number): any {
 	};
 }
 
-export function modal(value: boolean): any {
+export function modalChange(value: boolean): any {
 	return {
 		type: MODAL_CHANGE,
 		value,

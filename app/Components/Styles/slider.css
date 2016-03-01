@@ -45,8 +45,3 @@ html {
     margin: auto 0 auto -3px;
     background: black;
 }
-
-
-.ReactModal__Overlay{
-    z-index: 100;
-}

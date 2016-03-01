@@ -9,6 +9,7 @@ interface IProps {
 	onDown?: any;
 	buttonValue?: string;
 	children?: any;
+	style?: any;
 }
 
 class ToggleButton extends React.Component<IProps, {}> {
@@ -43,7 +44,8 @@ class ToggleButton extends React.Component<IProps, {}> {
 			{},
 			style.button,
 			this.props.isOn && style.buttonActive,
-			this.props.disabled && style.buttonDisabled
+			this.props.disabled && style.buttonDisabled,
+			this.props.style || {}
 		);
 	}
 }
