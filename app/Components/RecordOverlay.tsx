@@ -19,22 +19,27 @@ class RecordOverlay extends React.Component<any, any> {
 		super(props);
 		this.onDownloadClick = this.onDownloadClick.bind(this);
 		this.closeModal = this.closeModal.bind(this);
+		this.handleChange = this.handleChange.bind(this);
+
 		this.state = {
-			modalIsOpen: this.props.isActive
+			modalIsOpen: this.props.isActive,
+			filename: 'theremin',
 		};
 	}
 
 	public render(): React.ReactElement<{}> {
-		console.log(this.state.modalIsOpen);
-		console.log(this.props.isActive);
 		return (
 			<Modal isOpen={this.props.isOpen}
 			       onRequestClose={this.closeModal}>
-				<h1>Modal Content</h1>
-				<p>Etc.</p>
+				<h1><span>{this.state.filename}.wav</span></h1>
+				<input type="text" placeholder="Theremin" onChange={this.handleChange}/>
 				<button onClick={this.onDownloadClick}>Download</button>
 			</Modal>
 		);
+	}
+
+	handleChange(e){
+		this.setState({filename: e.target.value})
 	}
 
 	closeModal(){
@@ -44,10 +49,14 @@ class RecordOverlay extends React.Component<any, any> {
 
 	onDownloadClick(){
 		Audio.Download((wav: Blob) => {
-			//this.SaveWav(wav);
-			console.log('saved wav:', wav);
+			this.SaveWav(wav);
+			console.log('saved wav: ', this.state.filename, wav);
 		});
 		this.props.dispatch(modal(false));
+	}
+
+	private sanitizeFilename(filename: string): string {
+		return filename;
 	}
 
 
@@ -58,7 +67,7 @@ class RecordOverlay extends React.Component<any, any> {
 
 		const downloadAttrSupported: boolean = ('download' in link);
 		if (downloadAttrSupported) {
-			link.setAttribute('download', 'theremin.wav');
+			link.setAttribute('download', `${this.sanitizeFilename(this.state.filename)}.wav`);
 			let click = document.createEvent("Event");
 			click.initEvent("click", true, true);
 			link.dispatchEvent(click);
