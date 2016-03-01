@@ -85,11 +85,12 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 		switch (options.id) {
 			case 'record':
-				if (this.props.isRecording) {
-					ctx.strokeStyle = STYLE_CONST.RED;
-				}
+				//if (this.props.isRecorderDisabled) {
+				//	ctx.strokeStyle = STYLE_CONST.GREY;
+				//}
 				ctx.beginPath();
 				if (this.props.isRecording) {
+					ctx.strokeStyle = STYLE_CONST.RED;
 					ctx.rect(cx - (6*units), cy - (6 * units), (12.2*units),  (12.2*units));
 				} else {
 					ctx.arc(cx, cy, (6*units), 0, 2 * Math.PI, false);

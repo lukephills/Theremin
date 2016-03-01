@@ -59,16 +59,14 @@ var _touchIdentifiers = {
 }
 
 function getTouchPosition(e) {
-    var touches = e.changedTouches;
+    var touches = e.touches;
     for (let i = 0; i < touches.length; i++) {
         var touch = touches[i];
         if (_touchIdentifiers[touch.identifier]) {
-            console.log(touch.identifier);
             return touch.pageX;
         }
     }
-
-    //only if identifier matches
+    // no identifier matches
     return e.changedTouches[0].pageX;
 }
 

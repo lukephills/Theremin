@@ -1,15 +1,17 @@
+require('normalize.css');
 import * as React from 'react';
 import { connect } from 'react-redux';
-require('normalize.css');
 
 import {style, STYLE_CONST} from './Styles/styles';
 import RecordPlayButtonGroup from './RecordPlayButtonGroup';
 import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
 import MultiTouchView from './MultiTouchView';
+import RecordOverlay from './RecordOverlay';
 import { WAVEFORMS, Defaults } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
 import Audio from '../Audio';
+import { modal } from '../Actions/actions';
 
 import '../Utils/Recorder/recorder'; //TODO: make recorder js an npm module
 import Visibility from '../Utils/visibility';
@@ -17,6 +19,7 @@ import * as AudioUtils from '../Utils/AudioUtils';
 import * as CanvasUtils from '../Utils/CanvasUtils';
 import {IdentifierIndexMap} from '../Utils/utils';
 import Spectrum from './Spectrum';
+import Downloader from '../Downloader';
 
 
 
@@ -25,6 +28,7 @@ interface IState {
 	feedbackVal?: number;
 	isPlayingBack?: boolean;
 	isRecording?: boolean;
+	isRecordOverlayActive?: boolean;
 	scuzzVal?: number;
 	waveform?: string;
 	windowHeight?: number;
@@ -39,6 +43,7 @@ function select(state: IGlobalState) {
 		delayVal: state.Slider.delay,
 		feedbackVal: state.Slider.feedback,
 		scuzzVal: state.Slider.scuzz,
+		isModalOpen: state.Modal.isOpen,
 	};
 }
 
@@ -53,6 +58,7 @@ class App extends React.Component<any, IState> {
 	private _touchAreaHeight: number;
 	private _touchAreaWidth: number;
 	private hasRecording: boolean = false;
+	private isPlayingBack: boolean = false;
 	private _DrawAnimationFrame: number;
 	private touches: IdentifierIndexMap;
 
@@ -65,6 +71,7 @@ class App extends React.Component<any, IState> {
 			feedbackVal: Defaults.Sliders.feedback.value,
 			isPlayingBack: false,
 			isRecording: false,
+			isRecordOverlayActive: false,
 			scuzzVal: Defaults.Sliders.scuzz.value,
 			waveform: WAVEFORMS[Defaults.Waveform],
 			windowHeight: window.innerHeight,
@@ -161,6 +168,9 @@ class App extends React.Component<any, IState> {
 				<RangeSliderGroup
 					sliderChange={this.SliderChange}
 			    />
+				<RecordOverlay
+					isActive={this.props.isModalOpen}
+				/>
 			</div>
 		);
 	}
@@ -246,31 +256,13 @@ class App extends React.Component<any, IState> {
 			} else {
 				Audio.StopPlayback();
 			}
+			this.isPlayingBack = isPlayingBack;
 		}
 	}
 
 	public Download() {
-		console.log('downloading recording..');
-
-		Audio.onExportWav = (recording: Blob) => {
-			const url = (window.URL || (window as any).webkitURL).createObjectURL(recording);
-			const link: HTMLAnchorElement = document.createElement('a');
-			link.href = url;
-
-			const downloadAttrSupported: boolean = ('download' in link);
-			if (downloadAttrSupported) {
-				link.setAttribute('download', 'theremin.wav');
-				let click = document.createEvent("Event");
-				click.initEvent("click", true, true);
-				link.dispatchEvent(click);
-			} else {
-				// Show the anchor link with instructions to 'right click save as'
-				link.innerHTML = 'right click save as'
-				document.body.appendChild(link); //FIXME: append to a pop up box instead of body
-				//TODO: could use this to trigger a saveAs() https://github.com/koffsyrup/FileSaver.js
-			}
-		}
-		Audio.Download();
+		this.props.dispatch(modal(true));
+		this.setState({isRecordOverlayActive: true})
 	}
 
 	private Draw() {
@@ -284,10 +276,12 @@ class App extends React.Component<any, IState> {
 		ctx.clearRect(0, 0, width, height);
 
 		this.spectrumRecording.Draw({
-			color: STYLE_CONST.GREY
+			color: STYLE_CONST.GREY,
+			isActive: this._isAnimating && this.props.isPlayingBack,
 		});
 		this.spectrumLive.Draw({
-			color: this.props.isRecording ? STYLE_CONST.RED : STYLE_CONST.BLACK
+			color: this.props.isRecording ? STYLE_CONST.RED : STYLE_CONST.BLACK,
+			isActive: this._isAnimating,
 		});
 
 	}

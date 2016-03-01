@@ -5,6 +5,7 @@ import {Defaults, WAVEFORMS} from '../Constants/Defaults';
 import ToggleButton from './ToggleButton';
 import StaticCanvas from './StaticCanvas';
 import { IGlobalState } from '../Constants/GlobalState';
+import {STYLE_CONST} from './Styles/styles';
 
 interface IProps {
 	buttonSize: number
@@ -61,7 +62,7 @@ class WaveformSelectGroup extends React.Component<IProps, IState> {
 		var cx = width/2;
 		var cy = height/2;
 		ctx.lineWidth = Math.floor(width/15);
-		ctx.strokeStyle = this.props.waveform === options.waveform ? 'green' : 'black';
+		ctx.strokeStyle = this.props.waveform === options.waveform ? STYLE_CONST.GREEN : STYLE_CONST.BLACK;
 
 		switch (options.waveform) {
 			case 'sine':

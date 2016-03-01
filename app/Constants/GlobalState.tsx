@@ -3,6 +3,7 @@ export interface IGlobalState {
 	Player?: IPlayer;
 	Recorder?: IRecorder;
 	Slider?: ISlider;
+	Modal?: IModal;
 }
 
 export interface IWaveform {
@@ -21,4 +22,8 @@ export interface ISlider {
 	delay?: number;
 	feedback?: number;
 	scuzz?: number;
+}
+
+export interface IModal {
+	isOpen?: boolean;
 }

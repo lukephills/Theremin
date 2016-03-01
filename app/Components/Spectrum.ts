@@ -1,7 +1,8 @@
 import * as CanvasUtils from '../Utils/CanvasUtils';
 
 export interface ISpectrumOptions {
-	color: string;
+	color?: string;
+	isActive?: boolean;
 }
 
 class Spectrum {
@@ -10,7 +11,8 @@ class Spectrum {
 	private pixelRatio: number;
 	private analyserNode: AnalyserNode;
 	private defaultOptions: ISpectrumOptions = {
-		color: 'black'
+		color: 'black',
+		isActive: true,
 	};
 
 	constructor(canvas: HTMLCanvasElement, analyserNode: AnalyserNode) {
@@ -20,30 +22,29 @@ class Spectrum {
 	}
 
 	Draw(options: ISpectrumOptions = this.defaultOptions): void {
+		if (options.isActive) {
+			const ctx: CanvasRenderingContext2D = this.canvas.getContext('2d');
+			const pixelRatio: number = this.pixelRatio;
+			const width: number = this.canvas.width / pixelRatio;
+			const height: number = this.canvas.height / pixelRatio;
+			const barWidth: number = 6;
+			const maxHeight: number = height - 2;
+			const barSpacing: number = 9;
 
-		const ctx: CanvasRenderingContext2D = this.canvas.getContext('2d');
-		const pixelRatio: number = this.pixelRatio;
-		const width: number = this.canvas.width / pixelRatio;
-		const height: number = this.canvas.height / pixelRatio;
-		const barWidth: number = 6;
-		const maxHeight: number = height - 2;
-		const barSpacing: number = 9;
+			// Calculate number of bars needed to fill canvas width
+			const barCount: number = (width / (barSpacing + barWidth));
+			const maxMag: number = 255;
 
-		// Calculate number of bars needed to fill canvas width
-		const barCount: number = (width / (barSpacing + barWidth));
-		const maxMag: number = 255;
+			const freqByteData: Uint8Array = new Uint8Array(this.analyserNode.frequencyBinCount);
+			this.analyserNode.getByteFrequencyData(freqByteData);
 
-		const freqByteData: Uint8Array = new Uint8Array(this.analyserNode.frequencyBinCount);
-		this.analyserNode.getByteFrequencyData(freqByteData);
-
-		ctx.fillStyle = options.color;
-
-		for (let i: number = 0; i < barCount; i++) {
-			// Calculate the magnitude based on byte data and max bar height
-			const magnitude: number = freqByteData[i] / (maxMag / maxHeight);
-			ctx.fillRect((barWidth + barSpacing) * i, height, barWidth, -magnitude);
+			ctx.fillStyle = options.color;
+			for (let i: number = 0; i < barCount; i++) {
+				// Calculate the magnitude based on byte data and max bar height
+				const magnitude: number = freqByteData[i] / (maxMag / maxHeight);
+				ctx.fillRect((barWidth + barSpacing) * i, height, barWidth, -magnitude);
+			}
 		}
-
 	}
 }
 export default Spectrum;

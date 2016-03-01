@@ -46,3 +46,7 @@ html {
     background: black;
 }
 
+
+.ReactModal__Overlay{
+    z-index: 100;
+}

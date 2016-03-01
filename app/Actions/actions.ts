@@ -4,6 +4,7 @@ import {
 	RECORDER_TOGGLE,
 	PLAYER_TOGGLE,
 	SLIDER_CHANGE,
+	MODAL_CHANGE,
 } from '../Constants/ActionTypes';
 
 export interface IAction {
@@ -38,3 +39,11 @@ export function SliderAction(sliderName: string, value: number): any {
 		value,
 	};
 }
+
+export function modal(value: boolean): any {
+	return {
+		type: MODAL_CHANGE,
+		value,
+	};
+}
+

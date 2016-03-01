@@ -47,12 +47,8 @@ class Audio {
 		}
 
 		this._routeSounds();
-
 		this.setupAnalysers();
-
-
 		this.recorder = new Recorder(this.thereminOutput);
-
 	}
 
 	private setupAnalysers() {
@@ -116,11 +112,12 @@ class Audio {
 		// RECORDING ROUTE
 		// NOTE: the filter here is because of the 'frozen byte data when stopping' bug in analyser
 		// http://stackoverflow.com/questions/24355656/web-audio-analyser-frequency-data-not-0-during-silence
-		var filter = this.context.createBiquadFilter();
-		filter.type = "highpass";
-		filter.frequency.value = 0.0001;
-		filter.connect(this.recordingAnalyser);
-		this.recordingGain.connect(filter);
+		//var filter = this.context.createBiquadFilter();
+		//filter.type = "highpass";
+		//filter.frequency.value = 0.0001;
+		//filter.connect(this.recordingAnalyser);
+
+		this.recordingGain.connect(this.recordingAnalyser);
 		this.recordingAnalyser.connect(this.masterVolume)
 
 		//OUTPUT
@@ -177,7 +174,6 @@ class Audio {
 	}
 
 	public StartRecorder(): void {
-		console.log('recording...');
 		this.recorder.clear();
 		this.recorder.record();
 	}
@@ -197,24 +193,17 @@ class Audio {
 			this.recording.loop = true;
 			this.recording.start(0);
 		});
-		console.log('playing back recording..')
 	}
 
 	public StopPlayback(): void {
 		this.recording.stop(0);
-		console.log('playback stopped.')
 	}
 
 
-	public Download(): void {
-		console.log('downloading recording..');
+	public Download(cb: Function): void {
 		this.recorder.exportWAV((recording: Blob) => {
-			console.log(recording);
-			this.onExportWav(recording);
+			cb(recording);
 		});
 	}
-
-	onExportWav = (recording: Blob) => {};
-
 }
 export default new Audio();
