@@ -60,34 +60,33 @@ class RecordOverlay extends React.Component<any, any> {
 		);
 	}
 
-	handleChange(e){
+	private handleChange(e){
 		const val = e.target.value ? e.target.value : 'theremin';
 		this.setState({filename: val})
 	}
 
-	onFocus(e){
+	private onFocus(e){
 		e.target.style.outline = 'none'
 	}
 
-	closeModal(){
+	private closeModal(){
 		console.log('close')
 		this.props.dispatch(modalChange(false));
 	}
 
-	onDownloadClick(){
+	private onDownloadClick(){
 		Audio.Download((wav: Blob) => {
-			this.SaveWav(wav);
+			this.saveWav(wav);
 			console.log('saved wav: ', this.state.filename, wav);
 		});
 		this.props.dispatch(modalChange(false));
 	}
 
-	private sanitizeFilename(filename: string): string {
-		return filename;
+	private sanitizeFilename(s: string): string {
+		return s.replace(/[^a-z0-9_\-]/gi, '_');
 	}
 
-
-	SaveWav(wav: Blob){
+	private saveWav(wav: Blob){
 		const url = (window.URL || (window as any).webkitURL).createObjectURL(wav);
 		const link: HTMLAnchorElement = document.createElement('a');
 		link.href = url;
@@ -98,12 +97,13 @@ class RecordOverlay extends React.Component<any, any> {
 			let click = document.createEvent("Event");
 			click.initEvent("click", true, true);
 			link.dispatchEvent(click);
-		} else {
-			// Show the anchor link with instructions to 'right click save as'
-			link.innerHTML = 'right click save as'
-			document.body.appendChild(link); //FIXME: append to a pop up box instead of body
-			//TODO: could use this to trigger a saveAs() https://github.com/koffsyrup/FileSaver.js
 		}
+		//else {
+		//	// Show the anchor link with instructions to 'right click save as'
+		//	link.innerHTML = 'right click save as'
+		//	document.body.appendChild(link); //FIXME: append to a pop up box instead of body
+		//	//TODO: could use this to trigger a saveAs() https://github.com/koffsyrup/FileSaver.js
+		//}
 	}
 }
 export default RecordOverlay;
