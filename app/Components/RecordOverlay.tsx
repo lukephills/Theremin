@@ -77,7 +77,7 @@ class RecordOverlay extends React.Component<any, any> {
 	private onDownloadClick(){
 		Audio.Download((wav: Blob) => {
 			this.saveWav(wav);
-			console.log('saved wav: ', this.state.filename, wav);
+			console.log('saved wav: ', this.sanitizeFilename(this.state.filename), wav);
 		});
 		this.props.dispatch(modalChange(false));
 	}
