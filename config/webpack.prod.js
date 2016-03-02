@@ -49,6 +49,10 @@ module.exports = {
     }),
     new CopyWebpackPlugin([
       { from: 'index.html', to: '../' },
+      { from: 'manifest.json', to: '../' },
+      { from: 'background.js', to: '../' },
+      { from: 'icon-16.png', to: '../' },
+      { from: 'icon-128.png', to: '../' },
     ]),
     // plugin to replace /static/app.js to static/app-[hash].js in the build index file
     // check here for a nicer version in the future: https://github.com/webpack/webpack/issues/86
