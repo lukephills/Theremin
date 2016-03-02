@@ -66,18 +66,16 @@ class RecordOverlay extends React.Component<any, any> {
 	}
 
 	private onFocus(e){
-		e.target.style.outline = 'none'
+		e.target.style.outline = 'none';
 	}
 
 	private closeModal(){
-		console.log('close')
 		this.props.dispatch(modalChange(false));
 	}
 
 	private onDownloadClick(){
 		Audio.Download((wav: Blob) => {
 			this.saveWav(wav);
-			console.log('saved wav: ', this.sanitizeFilename(this.state.filename), wav);
 		});
 		this.props.dispatch(modalChange(false));
 	}

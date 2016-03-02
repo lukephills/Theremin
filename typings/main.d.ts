@@ -4,5 +4,5 @@
 /// <reference path="main/ambient/react-redux/react-redux.d.ts" />
 /// <reference path="main/ambient/react/react.d.ts" />
 /// <reference path="main/ambient/redux/redux.d.ts" />
-/// <reference path="tone.d.ts" />
 /// <reference path="recorder.d.ts" />
+/// <reference path="tone.d.ts" />

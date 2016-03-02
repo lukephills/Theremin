@@ -1,23 +1,27 @@
 //import {ICoordinates} from './Components/MultiTouchView';
-import { WAVEFORMS, Defaults } from './Constants/Defaults';
+import { DEFAULTS } from './Constants/Defaults';
 import Recorder from './Utils/Recorder/recorder';
-import Visibility from './Utils/visibility';
-import * as AudioUtils from './Utils/AudioUtils';
 import * as CanvasUtils from './Utils/CanvasUtils';
-const Tone = require("Tone/core/Tone.js");
+import {WaveformStringType} from './Constants/AppTypings';
+const Tone: any = require('Tone/core/Tone.js');
+
+interface IAnalysers {
+	live: AnalyserNode;
+	recording: AnalyserNode;
+}
 
 class Audio {
 
 	public tone: Tone = new Tone();
 	public context: AudioContext = this.tone.context;
-	public voiceCount: number = Defaults.VoiceCount;
+	public voiceCount: number = DEFAULTS.VoiceCount;
 	public recorder: Recorder;
 	public recording: AudioBufferSourceNode;
 
 	// Gains
 	public masterVolume: GainNode = this.context.createGain();
 	public thereminOutput: GainNode = this.context.createGain();
-	public oscillatorGains: GainNode[] = []
+	public oscillatorGains: GainNode[] = [];
 	public scuzzGain: GainNode = this.context.createGain();
 	public recordingGain: GainNode = this.context.createGain();
 
@@ -28,8 +32,10 @@ class Audio {
 	public filters: BiquadFilterNode[] = [];
 
 	// Analysers
-	public liveAnalyser: AnalyserNode = this.context.createAnalyser();
-	public recordingAnalyser: AnalyserNode = this.context.createAnalyser();
+	public analysers: IAnalysers = {
+		live: this.context.createAnalyser(),
+		recording: this.context.createAnalyser(),
+	}
 
 	// Oscillators
 	public oscillators: OscillatorNode[] = [];
@@ -40,106 +46,26 @@ class Audio {
 
 	constructor() {
 		// AUDIO NODE SETUP
-		for (let i = 0; i < this.voiceCount; i++) {
+		for (let i: number = 0; i < this.voiceCount; i++) {
 			this.oscillators.push(this.context.createOscillator());
 			this.filters.push(this.context.createBiquadFilter());
 			this.oscillatorGains.push(this.context.createGain());
 		}
 
-		this._routeSounds();
+		this.routeSounds();
 		this.setupAnalysers();
 		this.recorder = new Recorder(this.thereminOutput);
 	}
 
-	private setupAnalysers() {
-		//TODO: refactor into loop
-		this.liveAnalyser.maxDecibels = -25;
-		this.liveAnalyser.minDecibels = -100;
-		this.liveAnalyser.smoothingTimeConstant = 0.85;
-		this.recordingAnalyser.maxDecibels = -25;
-		this.recordingAnalyser.minDecibels = -100;
-		this.recordingAnalyser.smoothingTimeConstant = 0.85;
-	}
-
-	private _routeSounds() {
-
-		this.oscillators.forEach((oscillator: OscillatorNode) => {
-			oscillator.type = 'square';
-		});
-		this.filters.forEach((filter: BiquadFilterNode) => {
-			filter.type = 'lowpass';
-		});
-
-		// Set slider values
-		this.delay.delayTime.value = Defaults.Sliders.delay.value;
-		this.feedback.gain.value = Defaults.Sliders.feedback.value;
-		this.scuzzGain.gain.value = Defaults.Sliders.scuzz.value;
-
-		this.oscillatorGains.forEach((oscGain) => {
-			oscGain.gain.value = 0;
-		});
-		this.masterVolume.gain.value = 0.5;
-
-
-		this.scuzz.frequency.value = 400;
-		this.scuzz.type = Defaults.Sliders.scuzz.waveform;
-
-		// Connect the Scuzz
-		this.scuzz.connect(this.scuzzGain);
-
-		//TODO: CHECK THIS
-		// Previously this:
-		// this.scuzzVolume.connect(this.source.frequency);
-		// But changed to this to fix older safari bug
-
-		for (let i = 0; i < this.voiceCount; i++) {
-			this.scuzzGain.connect(this.oscillators[i].detune as any);
-			this.oscillators[i].connect(this.oscillatorGains[i]);
-			this.oscillatorGains[i].connect(this.filters[i]);
-			this.filters[i].connect(this.compressor);
-			this.filters[i].connect(this.delay);
-		}
-
-		this.delay.connect(this.feedback);
-		this.delay.connect(this.compressor);
-		this.feedback.connect(this.delay);
-		this.compressor.connect(this.thereminOutput);
-
-		// THEREMIN ROUTE
-		this.thereminOutput.connect(this.liveAnalyser);
-		this.liveAnalyser.connect(this.masterVolume);
-
-		// RECORDING ROUTE
-		// NOTE: the filter here is because of the 'frozen byte data when stopping' bug in analyser
-		// http://stackoverflow.com/questions/24355656/web-audio-analyser-frequency-data-not-0-during-silence
-		//var filter = this.context.createBiquadFilter();
-		//filter.type = "highpass";
-		//filter.frequency.value = 0.0001;
-		//filter.connect(this.recordingAnalyser);
-
-		this.recordingGain.connect(this.recordingAnalyser);
-		this.recordingAnalyser.connect(this.masterVolume)
-
-		//OUTPUT
-		this.masterVolume.connect(this.context.destination);
-
-		//Start oscillators
-		this.scuzz.start(0);
-		this.oscillators.forEach((osc: OscillatorNode) => {
-			osc.start(0);
-		});
-	}
-
-	public Start(pos: CanvasUtils.ICoordinates = this._defaultCoordinates, index: number = 0): void{
-		console.log(`start osc[${index}]`);
+	public Start(pos: CanvasUtils.ICoordinates = this._defaultCoordinates, index: number = 0): void {
 		if (index < this.voiceCount) {
 			this.SetFilterFrequency(pos.y, index);
 			this.oscillatorGains[index].gain.value = 1;
 			this.oscillators[index].frequency.value = pos.x * this._frequencyMultiplier;
 		}
 	}
+
 	public Stop(pos: CanvasUtils.ICoordinates = this._defaultCoordinates, index: number = 0): void {
-		console.log(`stop osc[${index}]`);
 		if (index < this.voiceCount) {
 			this.oscillators[index].frequency.value = pos.x * this._frequencyMultiplier;
 			this.oscillatorGains[index].gain.value = 0;
@@ -147,28 +73,26 @@ class Audio {
 	}
 
 	public StopAll(): void {
-		for (let i = 0; i < this.voiceCount; i++) {
+		for (let i: number = 0; i < this.voiceCount; i++) {
 			this.Stop(this._defaultCoordinates, i);
 		}
-		console.log('stopped all oscillators');
 	}
 
 	public Move(pos: CanvasUtils.ICoordinates = this._defaultCoordinates, index: number = 0): void {
-		console.log(`move osc[${index}]`);
 		if (index < this.voiceCount) {
 			this.oscillators[index].frequency.value = pos.x * this._frequencyMultiplier;
 			this.SetFilterFrequency(pos.y, index);
 		}
 	}
 
-	public SetWaveform(value: string): void {
+	public SetWaveform(value: WaveformStringType): void {
 		this.oscillators.forEach((osc: OscillatorNode) => {
 			osc.type = value;
 		});
 	}
 
 	public SetFilterFrequency(y: number, id: number): void {
-		if (id < this.voiceCount){
+		if (id < this.voiceCount) {
 			this.filters[id].frequency.value = (this.tone.context.sampleRate / 2) * (y / 100);
 		}
 	}
@@ -185,7 +109,7 @@ class Audio {
 	public StartPlayback(): void {
 		this.recorder.getBuffer((buffers: Float32Array[]) => {
 			this.recording = this.tone.context.createBufferSource();
-			var newBuffer: AudioBuffer = this.tone.context.createBuffer( 2, buffers[0].length, this.tone.context.sampleRate );
+			const newBuffer: AudioBuffer = this.tone.context.createBuffer( 2, buffers[0].length, this.tone.context.sampleRate );
 			newBuffer.getChannelData(0).set(buffers[0]);
 			newBuffer.getChannelData(1).set(buffers[1]);
 			this.recording.buffer = newBuffer;
@@ -199,11 +123,75 @@ class Audio {
 		this.recording.stop(0);
 	}
 
-
 	public Download(cb: Function): void {
 		this.recorder.exportWAV((recording: Blob) => {
 			cb(recording);
 		});
 	}
+
+	private setupAnalysers(): void {
+		if (this.analysers) {
+			for (const analyser in this.analysers) {
+				this.analysers[analyser].maxDecibels = DEFAULTS.Analyser.maxDecibels;
+				this.analysers[analyser].minDecibels = DEFAULTS.Analyser.minDecibels;
+				this.analysers[analyser].smoothingTimeConstant = DEFAULTS.Analyser.smoothingTimeConstant;
+			}
+		}
+	}
+
+	private routeSounds(): void {
+		this.oscillators.forEach((oscillator: OscillatorNode) => {
+			oscillator.type = 'square';
+		});
+		this.filters.forEach((filter: BiquadFilterNode) => {
+			filter.type = 'lowpass';
+		});
+
+		// Set slider values
+		this.delay.delayTime.value = DEFAULTS.Sliders.delay.value;
+		this.feedback.gain.value = DEFAULTS.Sliders.feedback.value;
+		this.scuzzGain.gain.value = DEFAULTS.Sliders.scuzz.value;
+
+		this.oscillatorGains.forEach((oscGain: GainNode) => {
+			oscGain.gain.value = 0;
+		});
+		this.masterVolume.gain.value = 0.5;
+
+		this.scuzz.frequency.value = 400;
+		this.scuzz.type = DEFAULTS.Sliders.scuzz.waveform;
+
+		// Connect the Scuzz
+		this.scuzz.connect(this.scuzzGain);
+
+		for (let i: number = 0; i < this.voiceCount; i++) {
+			this.scuzzGain.connect(this.oscillators[i].detune as any);
+			this.oscillators[i].connect(this.oscillatorGains[i]);
+			this.oscillatorGains[i].connect(this.filters[i]);
+			this.filters[i].connect(this.compressor);
+			this.filters[i].connect(this.delay);
+		}
+
+		this.delay.connect(this.feedback);
+		this.delay.connect(this.compressor);
+		this.feedback.connect(this.delay);
+		this.compressor.connect(this.thereminOutput);
+
+		// THEREMIN ROUTE
+		this.thereminOutput.connect(this.analysers.live);
+		this.analysers.live.connect(this.masterVolume);
+
+		this.recordingGain.connect(this.analysers.recording);
+		this.analysers.recording.connect(this.masterVolume);
+
+		//OUTPUT
+		this.masterVolume.connect(this.context.destination);
+
+		//Start oscillators
+		this.scuzz.start(0);
+		this.oscillators.forEach((osc: OscillatorNode) => {
+			osc.start(0);
+		});
+	}
+
 }
 export default new Audio();

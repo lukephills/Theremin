@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { style } from './Styles/styles';
+import { STYLE } from './Styles/styles';
 
 interface IProps {
 	disabled?: boolean;
@@ -13,14 +13,14 @@ interface IProps {
 }
 
 class ToggleButton extends React.Component<IProps, {}> {
-	constructor(props){
+	constructor(props: IProps) {
 		super(props);
 		this.onDown = this.onDown.bind(this);
 	}
 
 	public render(): React.ReactElement<{}> {
 
-		const props = {
+		const props: any = {
 			onClick: this.onDown,
 			onTouchStart: this.onDown,
 			style: this.getStyles(),
@@ -34,17 +34,19 @@ class ToggleButton extends React.Component<IProps, {}> {
 		);
 	}
 
-	private onDown(e) {
+	private onDown(e: Event): void {
 		e.preventDefault();
-		this.props.disabled ? false : this.props.onDown(e);
+		if (!this.props.disabled) {
+			this.props.onDown(e);
+		}
 	}
 
-	private getStyles() {
+	private getStyles(): any {
 		return Object.assign(
 			{},
-			style.button,
-			this.props.isOn && style.buttonActive,
-			this.props.disabled && style.buttonDisabled,
+			STYLE.button,
+			this.props.isOn && STYLE.buttonActive,
+			this.props.disabled && STYLE.buttonDisabled,
 			this.props.style || {}
 		);
 	}

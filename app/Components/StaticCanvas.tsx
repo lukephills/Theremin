@@ -7,13 +7,13 @@ import * as ReactDOM from 'react-dom';
  */
 class StaticCanvas extends React.Component<any, any> {
 
-	canvas: any;
+	private canvas: HTMLCanvasElement | any;
 
-	componentDidMount() {
+	public componentDidMount(): void {
 		this.drawOnce();
 	}
 
-	componentWillReceiveProps() {
+	public componentWillReceiveProps(): void {
 		this.drawOnce();
 	}
 
@@ -23,15 +23,13 @@ class StaticCanvas extends React.Component<any, any> {
 		);
 	}
 
-	drawOnce(){
+	private drawOnce(): void {
 		const {width, height} = this.props;
-		const options = this.props.options || {};
-		var canvas: HTMLCanvasElement | any = this.canvas || ReactDOM.findDOMNode(this);
+		const options: any = this.props.options || {};
+		const canvas: HTMLCanvasElement | any = this.canvas || ReactDOM.findDOMNode(this);
 		CanvasUtils.canvasResize(canvas, width, height);
-		const ctx = canvas.getContext('2d');
+		const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
 		this.props.draw(ctx, width, height, options);
 	}
-
-
 }
 export default StaticCanvas;

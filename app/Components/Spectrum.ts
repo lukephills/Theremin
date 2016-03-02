@@ -21,7 +21,7 @@ class Spectrum {
 		this.pixelRatio = CanvasUtils.getPixelRatio();
 	}
 
-	Draw(options: ISpectrumOptions = this.defaultOptions): void {
+	public Draw(options: ISpectrumOptions = this.defaultOptions): void {
 		if (options.isActive) {
 			const ctx: CanvasRenderingContext2D = this.canvas.getContext('2d');
 			const pixelRatio: number = this.pixelRatio;

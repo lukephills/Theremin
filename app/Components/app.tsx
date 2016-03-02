@@ -1,14 +1,14 @@
-require('normalize.css');
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import {style, STYLE_CONST} from './Styles/styles';
+import {STYLE, STYLE_CONST} from './Styles/styles';
 import RecordPlayButtonGroup from './RecordPlayButtonGroup';
 import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
 import MultiTouchView from './MultiTouchView';
 import RecordOverlay from './RecordOverlay';
-import { WAVEFORMS, Defaults } from '../Constants/Defaults';
+import {WaveformStringType} from '../Constants/AppTypings';
+import { WAVEFORMS, DEFAULTS } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
 import Audio from '../Audio';
 import { modalChange } from '../Actions/actions';
@@ -67,13 +67,13 @@ class App extends React.Component<any, IState> {
 		super(props);
 
 		this.state = {
-			delayVal: Defaults.Sliders.delay.value,
-			feedbackVal: Defaults.Sliders.feedback.value,
+			delayVal: DEFAULTS.Sliders.delay.value,
+			feedbackVal: DEFAULTS.Sliders.feedback.value,
 			isPlayingBack: false,
 			isRecording: false,
 			isRecordOverlayActive: false,
-			scuzzVal: Defaults.Sliders.scuzz.value,
-			waveform: WAVEFORMS[Defaults.Waveform],
+			scuzzVal: DEFAULTS.Sliders.scuzz.value,
+			waveform: WAVEFORMS[DEFAULTS.Waveform],
 			windowHeight: window.innerHeight,
 			windowWidth: window.innerWidth,
 		};
@@ -87,8 +87,8 @@ class App extends React.Component<any, IState> {
 		this._pixelRatio = CanvasUtils.getPixelRatio();
 
 		this.touches = new IdentifierIndexMap();
-		this.spectrumLive = new Spectrum(this.canvas, Audio.liveAnalyser);
-		this.spectrumRecording = new Spectrum(this.canvas, Audio.recordingAnalyser);
+		this.spectrumLive = new Spectrum(this.canvas, Audio.analysers.live);
+		this.spectrumRecording = new Spectrum(this.canvas, Audio.analysers.recording);
 
 		this.Start = this.Start.bind(this);
 		this.Stop = this.Stop.bind(this);
@@ -107,13 +107,11 @@ class App extends React.Component<any, IState> {
 		// Make sure all sounds stop when app is awoken.
 		Visibility.onVisible = () => {
 			Audio.StopAll();
-			console.log('onVisible called!');
 		}
 
 		// Stop when switch to another tab in browser
 		Visibility.onInvisible = () => {
 			Audio.StopAll();
-			console.log('onInvisible called!');
 		}
 	}
 
@@ -127,20 +125,20 @@ class App extends React.Component<any, IState> {
 		const buttonSize = this.state.windowWidth > 600 ? 50 : this.state.windowWidth/10;
 
 		const titleStyle = Object.assign({},
-			style.title.h1,
-			mobileSizeLarge && style.title.h1_mobile
+			STYLE.title.h1,
+			mobileSizeLarge && STYLE.title.h1_mobile
 		);
 
 		return (
 			<div id='body-wrapper'>
-				<div style={style.topPanel}>
-					<div style={Object.assign({},style.title.container,
-					(this.state.windowWidth < 400) && style.title.container_mobile)}>
-						<span style={titleStyle}>{Defaults.Title.toUpperCase()}</span>
+				<div style={STYLE.topPanel}>
+					<div style={Object.assign({},STYLE.title.container,
+					(this.state.windowWidth < 400) && STYLE.title.container_mobile)}>
+						<span style={titleStyle}>{DEFAULTS.Title.toUpperCase()}</span>
 					</div>
 					<RecordPlayButtonGroup
-						style={Object.assign({},style.recordPlayButtonGroup.container,
-							mobileSizeSmall && style.recordPlayButtonGroup.container_mobile)}
+						style={Object.assign({},STYLE.recordPlayButtonGroup.container,
+							mobileSizeSmall && STYLE.recordPlayButtonGroup.container_mobile)}
 						onRecordButtonChange={this.Record}
 						onPlaybackButtonChange={this.Playback}
 						isPlaybackDisabled={!this.hasRecording}
@@ -148,8 +146,8 @@ class App extends React.Component<any, IState> {
 					    buttonSize={buttonSize}
 					/>
 					<WaveformSelectGroup
-						style={Object.assign({},style.waveformSelectGroup.container,
-							mobileSizeSmall && style.waveformSelectGroup.container_mobile)}
+						style={Object.assign({},STYLE.waveformSelectGroup.container,
+							mobileSizeSmall && STYLE.waveformSelectGroup.container_mobile)}
 						waveformChange={this.SetWaveform}
 						buttonSize={buttonSize}
 					/>
@@ -170,7 +168,7 @@ class App extends React.Component<any, IState> {
 			    />
 				<RecordOverlay
 					isActive={this.props.isModalOpen}
-				    style={Object.assign({}, style.recordOverlay)}
+				    style={Object.assign({}, STYLE.recordOverlay)}
 				/>
 			</div>
 		);
@@ -191,11 +189,9 @@ class App extends React.Component<any, IState> {
 	}
 
 	public Start(e: Event, identifier: number = 0): void {
-		//console.log('start', pos, id)
 		const index = this.touches.Add(identifier);
 		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
 		//Only start animating when the touch is down
-		//TODO: move this to after render function
 		if (this._isAnimating === false) {
 			this.Draw();
 		}
@@ -231,22 +227,21 @@ class App extends React.Component<any, IState> {
 				Audio.scuzzGain.gain.value = value;
 				break;
 			default:
-				console.log(`Slider name ${slider} not found`);
+				console.error(`Slider name ${slider} not found`);
+				break;
 		}
 	}
 
-	public SetWaveform(value) {
+	public SetWaveform(value: WaveformStringType) {
 		Audio.SetWaveform(value);
 	}
 
 	public Record(isRecording: boolean){
 		if (isRecording){
-			console.log('recording...');
 			Audio.StartRecorder();
 		} else {
 			this.hasRecording = true;
 			Audio.StopRecorder();
-			console.log('stopped recording');
 		}
 	}
 

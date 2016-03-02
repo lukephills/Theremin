@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Waveform } from '../Actions/actions';
-import {Defaults, WAVEFORMS} from '../Constants/Defaults';
+import {WAVEFORMS} from '../Constants/Defaults';
 import ToggleButton from './ToggleButton';
 import StaticCanvas from './StaticCanvas';
 import { IGlobalState } from '../Constants/GlobalState';
 import {STYLE_CONST} from './Styles/styles';
+import {WaveformStringType} from '../Constants/AppTypings';
 
 interface IProps {
-	buttonSize: number
+	buttonSize: number;
 	dispatch?: Function;
 	style?: any;
 	waveform?: string;
@@ -28,7 +29,7 @@ function select(state: IGlobalState): any {
 @connect(select)
 class WaveformSelectGroup extends React.Component<IProps, IState> {
 
-	constructor(props){
+	constructor(props: IProps) {
 		super(props);
 		this.onButtonClick = this.onButtonClick.bind(this);
 		this.draw = this.draw.bind(this);
@@ -37,7 +38,7 @@ class WaveformSelectGroup extends React.Component<IProps, IState> {
 	public render(): React.ReactElement<{}> {
 		return (
 			<div style={this.props.style}>
-				{WAVEFORMS.map((waveform: string, id: number) => {
+				{WAVEFORMS.map((waveform: WaveformStringType, id: number) => {
 					return (
 						<ToggleButton
 							id={waveform}
@@ -58,9 +59,9 @@ class WaveformSelectGroup extends React.Component<IProps, IState> {
 	}
 
 	public draw(ctx: CanvasRenderingContext2D, width: number, height: number, options: any) {
-		var units = width/22;
-		var cx = width/2;
-		var cy = height/2;
+		const units = width/22;
+		const cx = width/2;
+		const cy = height/2;
 		ctx.lineWidth = Math.floor(width/15);
 		ctx.strokeStyle = this.props.waveform === options.waveform ? STYLE_CONST.GREEN : STYLE_CONST.BLACK;
 
@@ -97,8 +98,6 @@ class WaveformSelectGroup extends React.Component<IProps, IState> {
 				ctx.stroke();
 				break;
 		}
-
-
 	}
 
 	private onButtonClick(e, waveform: string) {

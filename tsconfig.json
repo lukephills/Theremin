@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "sourceMap": true,
+    "target": "ES6", // running on node v5
     "jsx": "preserve",
-    "noEmit": true,
+    "allowJs": true,
     "experimentalDecorators": true,
-    "sourceMap": true
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true
   },
   "exclude": [
     "node_modules",

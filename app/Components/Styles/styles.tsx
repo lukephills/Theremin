@@ -3,8 +3,6 @@ import * as React from 'react';
 const Prefixer  = require('inline-style-prefixer');
 export const prefixer = new Prefixer();
 
-//TODO: find StyleSheet typings
-
 export const STYLE_CONST: any = prefixer.prefix({
 	TOP_PANEL_HEIGHT: 70,
 	BORDER_WIDTH: 0,
@@ -22,7 +20,7 @@ export const STYLE_CONST: any = prefixer.prefix({
 	PADDING: 5,
 })
 
-export const style: any = prefixer.prefix({
+export const STYLE: any = prefixer.prefix({
 	topPanel: {
 		height: `${STYLE_CONST.TOP_PANEL_HEIGHT}px`,
 		display: `flex`,
@@ -80,7 +78,6 @@ export const style: any = prefixer.prefix({
 		cursor: 'pointer',
 	},
 	buttonActive: {
-		//TODO: delete this
 		color: STYLE_CONST.GREEN,
 	},
 	buttonDisabled: {

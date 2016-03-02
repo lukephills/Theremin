@@ -8,13 +8,12 @@ interface IHotModule {
 };
 
 // List all middleware for development
-const middleware = [Logger]
-//const middleware = []
+//const middleware = [Logger]
+const middleware = []
 
 const enhancer = compose(
 	applyMiddleware(...middleware)
 );
-
 
 // Create the store
 export default function configureStore(initialState) {

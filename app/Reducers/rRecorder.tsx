@@ -1,4 +1,4 @@
-import { Defaults } from '../Constants/Defaults';
+import { DEFAULTS } from '../Constants/Defaults';
 import { IRecorder } from '../Constants/GlobalState';
 import {RECORDER_TOGGLE} from '../Constants/ActionTypes';
 

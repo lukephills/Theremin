@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import * as CanvasUtils from '../Utils/CanvasUtils';
 import { IGlobalState } from '../Constants/GlobalState';
 import { noOp } from '../Utils/utils';
-import { style } from './Styles/styles';
+import { STYLE } from './Styles/styles';
 import TouchEvent = __React.TouchEvent;
 
 interface IProps {
@@ -80,12 +80,11 @@ class MultiTouchView extends React.Component<IProps, IState> {
 				width: this.props.width,
 				height: this.props.height,
 			},
-			style.touchArea
+			STYLE.touchArea
 		);
 	}
 
 	private onMouseDown(e, callback = noOp) {
-		console.log('mousedown');
 		e.preventDefault();
 		this.setState({
 			pointerDown: true,
@@ -111,12 +110,10 @@ class MultiTouchView extends React.Component<IProps, IState> {
 	}
 
 	private onTouchStart(e: TouchEvent, callback = noOp) {
-		console.log('touchstart')
 		e.preventDefault();
 		const touches = e.changedTouches;
 		for (let i = 0; i < touches.length; i++) {
 			const touch = touches[i];
-			console.log('starting touch', touch.identifier);
 			this._touchIdentifiers[touch.identifier] = true;
 			callback(touch, touch.identifier);
 		}
@@ -130,7 +127,6 @@ class MultiTouchView extends React.Component<IProps, IState> {
 			const isTouchInBounds: boolean = CanvasUtils.hitTest(touch.clientX, touch.clientY, touch.target.offsetLeft, touch.target.offsetTop, touch.target.clientWidth, touch.target.clientHeight);
 			//TODO: test in bounds function doesn't seem to be working properly
 			if (isTouchInBounds && this._touchIdentifiers[touch.identifier]) {
-				console.log('moving touch', touch.identifier);
 				callback(touch, touch.identifier)
 			} else {
 				this.touchLeft(e);
@@ -144,31 +140,25 @@ class MultiTouchView extends React.Component<IProps, IState> {
 			this.props.onFirstTouch();
 			this.hasBeenTouched = true;
 		}
-		console.log('touch end');
 		e.preventDefault();
 		const touches = e.changedTouches;
 		for (let i = 0; i < touches.length; i++) {
 			const touch = touches[i];
-			delete this._touchIdentifiers[touch.identifier]
-			console.log('ending touch', touch.identifier);
-			callback(touch, touch.identifier)
+			delete this._touchIdentifiers[touch.identifier];
+			callback(touch, touch.identifier);
 		}
 	}
 
 	private onTouchCancel(e: TouchEvent, callback = noOp) {
-		console.log('touch cancelled')
 		e.preventDefault();
 		const touches = e.changedTouches;
 		for (let i = 0; i < touches.length; i++) {
 			const touch = touches[i];
-			console.log('cancelling touch', touch.identifier);
-			callback(touch, touch.identifier)
+			callback(touch, touch.identifier);
 		}
 	}
 
 	private touchLeft(e) {
-		//TODO: not needed
-		console.log('touch left');
 	}
 }
 

@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import "babel-polyfill";
+require('normalize.css');
 
 import configureStore from './configureStore';
 import App from './Components/App';

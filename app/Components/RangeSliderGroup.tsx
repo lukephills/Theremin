@@ -4,8 +4,8 @@ import { connect } from 'react-redux';
 //require('rc-slider/assets/index.css');
 require('./Styles/slider.css');
 
-import { Defaults } from '../Constants/Defaults';
-import { style, STYLE_CONST } from './Styles/styles';
+import { DEFAULTS } from '../Constants/Defaults';
+import { STYLE, STYLE_CONST } from './Styles/styles';
 import {SliderAction} from '../Actions/actions'
 import {IGlobalState, ISlider} from '../Constants/GlobalState';
 
@@ -25,7 +25,7 @@ class RangeSliderGroup extends React.Component<any, any> {
 	constructor(props){
 		super(props);
 
-		this.sliders = Defaults.Sliders;
+		this.sliders = DEFAULTS.Sliders;
 	}
 
 	public componentDidMount() {
@@ -35,7 +35,7 @@ class RangeSliderGroup extends React.Component<any, any> {
 	public render(): React.ReactElement<{}> {
 
 		return (
-			<div style={style.sliderGroup}>
+			<div style={STYLE.sliderGroup}>
 				{Object.keys(this.sliders).map((sliderName: any, id: number) => {
 					return (
 						<div key={id} style={this.getSliderStyles()}>
@@ -67,7 +67,7 @@ class RangeSliderGroup extends React.Component<any, any> {
 	private getWaveformTitleStyles(slider) {
 		return Object.assign(
 			{},
-			style.sliderToolTip,
+			STYLE.sliderToolTip,
 			{
 				marginLeft: this.props[slider.name]
 			}
@@ -77,7 +77,7 @@ class RangeSliderGroup extends React.Component<any, any> {
 	private getSliderStyles(){
 		return Object.assign(
 			{},
-			style.sliderContainer,
+			STYLE.sliderContainer,
 			{
 				display: 'flex',
 				flexDirection: 'row-reverse',
@@ -90,14 +90,14 @@ class RangeSliderGroup extends React.Component<any, any> {
 	private setSliderStyles() {
 		const sliders: any = document.querySelectorAll('.rc-slider');
 		for (var i = 0; i < sliders.length; i++) {
-			sliders[i].style.height = `${style.slider.height}px`;
+			sliders[i].style.height = `${STYLE.slider.height}px`;
 			sliders[i].style.backgroundColor = STYLE_CONST.WHITE;
 		}
 
 		const sliderTracks: any = document.querySelectorAll('.rc-slider-track');
 		for (var i = 0; i < sliderTracks.length; i++) {
 			sliderTracks[i].style.backgroundColor = `rgba(${STYLE_CONST.GREEN_VALUES},${1-(i*0.2)})`;
-			sliderTracks[i].style.height = `${style.slider.height}px`;
+			sliderTracks[i].style.height = `${STYLE.slider.height}px`;
 		}
 	}
 

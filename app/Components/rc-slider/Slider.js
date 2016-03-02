@@ -48,12 +48,6 @@ var _Marks2 = _interopRequireDefault(_Marks);
 
 function noop() {}
 
-function isNotTouchEvent(e) {
-    //return e.touches.length > 1 || e.type.toLowerCase() === 'touchend' && e.touches.length > 0;
-    //TODO: only end if this touch indentifier exists
-    return false;
-}
-
 var _touchIdentifiers = {
 
 }
@@ -185,11 +179,6 @@ var Slider = (function (_React$Component) {
     }, {
         key: 'onTouchMove',
         value: function onTouchMove(e) {
-            if (isNotTouchEvent(e)) {
-                this.end('touch');
-                return;
-            }
-
             var position = getTouchPosition(e);
             this.onMove(e, position);
         }
@@ -230,8 +219,6 @@ var Slider = (function (_React$Component) {
         key: 'onTouchStart',
         value: function onTouchStart(e) {
             _touchIdentifiers[e.changedTouches[0].identifier] = true;
-            if (isNotTouchEvent(e)) return;
-
             var position = getTouchPosition(e);
             this.onStart(position);
             this.addDocumentEvents('touch');
@@ -430,7 +417,6 @@ var Slider = (function (_React$Component) {
                 var touch = touches[i];
                 if (_touchIdentifiers[touch.identifier]) {
                     delete _touchIdentifiers[touch.identifier]
-                    console.log(touch.identifier, 'end');
                 }
             }
             this.removeEvents(type);

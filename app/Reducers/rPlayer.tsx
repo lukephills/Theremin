@@ -1,5 +1,5 @@
 import { PLAYER_TOGGLE } from '../Constants/ActionTypes';
-import { Defaults } from '../Constants/Defaults';
+import { DEFAULTS } from '../Constants/Defaults';
 import { IPlayer } from '../Constants/GlobalState';
 
 export const Player = (state = { isPlaying: false }, action): IPlayer => {

@@ -1,8 +1,8 @@
 import { WAVEFORM_CHANGE } from '../Constants/ActionTypes';
-import { Defaults, WAVEFORMS } from '../Constants/Defaults'
+import { DEFAULTS, WAVEFORMS } from '../Constants/Defaults'
 import {IWaveform} from '../Constants/GlobalState';
 
-export const Waveform = (state = { wave: WAVEFORMS[Defaults.Waveform] }, action): IWaveform => {
+export const Waveform = (state = { wave: WAVEFORMS[DEFAULTS.Waveform] }, action): IWaveform => {
 	switch (action.type) {
 		case WAVEFORM_CHANGE:
 			return Object.assign({},

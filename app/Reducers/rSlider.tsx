@@ -1,16 +1,15 @@
-import { Defaults, WAVEFORMS } from '../Constants/Defaults'
+import { DEFAULTS, WAVEFORMS } from '../Constants/Defaults'
 import {ISlider} from '../Constants/GlobalState';
 import {SLIDER_CHANGE} from '../Constants/ActionTypes';
 
 let originalState:any = {};
 
 // Set the original state dynamically based on Defaults.Sliders
-for (let slider in Defaults.Sliders) {
-	console.log(slider);
+for (let slider in DEFAULTS.Sliders) {
 	originalState = Object.assign(
 		originalState,
 		{
-			[slider]: Defaults.Sliders[slider].value
+			[slider]: DEFAULTS.Sliders[slider].value
 		}
 	);
 }
