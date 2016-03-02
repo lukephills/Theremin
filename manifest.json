@@ -1,0 +1,12 @@
+{
+  "name": "Theremin",
+  "description": "A touch musical synthesizer modelled on the classic Moog theremin. Play along with your recording and save the audio to your device for use with other audio programs. Multi touch enables you to play up to a eight notes at once whilst also changing the delay, feedback and scuzz effects simultaneously.",
+  "version": "0.1",
+  "manifest_version": 2,
+  "app": {
+    "background": {
+      "scripts": ["background.js"]
+    }
+  },
+  "icons": { "16": "icon-16.png", "128": "icon-128.png" }
+}
