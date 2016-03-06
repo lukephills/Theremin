@@ -1,15 +1,12 @@
 import * as React from 'react';
 const Slider = require('rc-slider');
 import { connect } from 'react-redux';
-//require('rc-slider/assets/index.css');
 require('./Styles/slider.css');
 
 import { DEFAULTS } from '../Constants/Defaults';
 import { STYLE, STYLE_CONST } from './Styles/styles';
 import {SliderAction} from '../Actions/actions'
 import {IGlobalState, ISlider} from '../Constants/GlobalState';
-
-
 
 function select(state: IGlobalState): any {
 	return {

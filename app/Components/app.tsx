@@ -20,14 +20,14 @@ import * as CanvasUtils from '../Utils/CanvasUtils';
 import {IdentifierIndexMap} from '../Utils/utils';
 import Spectrum from './Spectrum';
 import Downloader from '../Downloader';
-
+import {RecordStateType} from '../Constants/AppTypings';
 
 
 interface IState {
 	delayVal?: number;
 	feedbackVal?: number;
 	isPlayingBack?: boolean;
-	isRecording?: boolean;
+	recordState?: RecordStateType;
 	isRecordOverlayActive?: boolean;
 	scuzzVal?: number;
 	waveform?: string;
@@ -39,7 +39,7 @@ function select(state: IGlobalState) {
 	return {
 		waveform: state.Waveform.wave,
 		isPlayingBack: state.Player.isPlaying,
-		isRecording: state.Recorder.isRecording,
+		recordState: state.Recorder.recordState,
 		delayVal: state.Slider.delay,
 		feedbackVal: state.Slider.feedback,
 		scuzzVal: state.Slider.scuzz,
@@ -70,7 +70,7 @@ class App extends React.Component<any, IState> {
 			delayVal: DEFAULTS.Sliders.delay.value,
 			feedbackVal: DEFAULTS.Sliders.feedback.value,
 			isPlayingBack: false,
-			isRecording: false,
+			recordState: 'stopped',
 			isRecordOverlayActive: false,
 			scuzzVal: DEFAULTS.Sliders.scuzz.value,
 			waveform: WAVEFORMS[DEFAULTS.Waveform],
@@ -141,7 +141,7 @@ class App extends React.Component<any, IState> {
 							mobileSizeSmall && STYLE.recordPlayButtonGroup.container_mobile)}
 						onRecordButtonChange={this.Record}
 						onPlaybackButtonChange={this.Playback}
-						isPlaybackDisabled={!this.hasRecording}
+						isPlaybackDisabled={false}
 						onDownloadButtonChange={this.Download}
 					    buttonSize={buttonSize}
 					/>
@@ -236,24 +236,26 @@ class App extends React.Component<any, IState> {
 		Audio.SetWaveform(value);
 	}
 
-	public Record(isRecording: boolean){
-		if (isRecording){
-			Audio.StartRecorder();
-		} else {
-			this.hasRecording = true;
-			Audio.StopRecorder();
-		}
+	public Record(recordState: RecordStateType){
+		Audio.onRecordPress();
+		//if (isRecording){
+		//	Audio.StartRecorder();
+		//} else {
+		//	this.hasRecording = true;
+		//	Audio.StopRecorder();
+		//}
 	}
 
 	public Playback(isPlayingBack: boolean) {
-		if (this.hasRecording) {
-			if (isPlayingBack){
-				Audio.StartPlayback();
-			} else {
-				Audio.StopPlayback();
-			}
-			this.isPlayingBack = isPlayingBack;
-		}
+		Audio.onPlaybackPress();
+		//if (this.hasRecording) {
+		//	if (isPlayingBack){
+		//		Audio.StartPlayback();
+		//	} else {
+		//		Audio.StopPlayback();
+		//	}
+		//	this.isPlayingBack = isPlayingBack;
+		//}
 	}
 
 	public Download() {
@@ -272,12 +274,12 @@ class App extends React.Component<any, IState> {
 		ctx.clearRect(0, 0, width, height);
 
 		this.spectrumRecording.Draw({
-			color: STYLE_CONST.GREY,
 			isActive: this._isAnimating && this.props.isPlayingBack,
 		});
+
 		this.spectrumLive.Draw({
-			color: this.props.isRecording ? STYLE_CONST.RED : STYLE_CONST.BLACK,
 			isActive: this._isAnimating,
+			recordState: this.props.recordingState,
 		});
 
 	}

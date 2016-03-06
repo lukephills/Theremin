@@ -11139,14 +11139,14 @@ declare module _ {
 
     interface LoDashImplicitWrapperBase<T, TWrapper> {
         /**
-         * @see _.isEmpty
+         * @see _.hasRecordings
          */
         isEmpty(): boolean;
     }
 
     interface LoDashExplicitWrapperBase<T, TWrapper> {
         /**
-         * @see _.isEmpty
+         * @see _.hasRecordings
          */
         isEmpty(): LoDashExplicitWrapper<boolean>;
     }

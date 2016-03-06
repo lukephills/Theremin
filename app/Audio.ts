@@ -5,6 +5,8 @@ import * as CanvasUtils from './Utils/CanvasUtils';
 import {WaveformStringType} from './Constants/AppTypings';
 const Tone: any = require('Tone/core/Tone.js');
 
+import Looper from './Utils/Recorder/Looper'
+
 interface IAnalysers {
 	live: AnalyserNode;
 	recording: AnalyserNode;
@@ -17,6 +19,8 @@ class Audio {
 	public voiceCount: number = DEFAULTS.VoiceCount;
 	public recorder: Recorder;
 	public recording: AudioBufferSourceNode;
+	public looper: Looper;
+
 
 	// Gains
 	public masterVolume: GainNode = this.context.createGain();
@@ -55,6 +59,7 @@ class Audio {
 		this.routeSounds();
 		this.setupAnalysers();
 		this.recorder = new Recorder(this.thereminOutput);
+		this.looper = new Looper(this.thereminOutput, this.recordingGain)
 	}
 
 	public Start(pos: CanvasUtils.ICoordinates = this._defaultCoordinates, index: number = 0): void {
@@ -97,13 +102,21 @@ class Audio {
 		}
 	}
 
-	public StartRecorder(): void {
-		this.recorder.clear();
-		this.recorder.record();
+	onRecordPress() {
+		this.looper.onRecordPress();
 	}
 
-	public StopRecorder(): void {
-		this.recorder.stop();
+	//public StartRecorder(): void {
+	//	this.recorder.clear();
+	//	this.recorder.record();
+	//}
+	//
+	//public StopRecorder(): void {
+	//	this.recorder.stop();
+	//}
+
+	onPlaybackPress() {
+		this.looper.onPlaybackPress();
 	}
 
 	public StartPlayback(): void {

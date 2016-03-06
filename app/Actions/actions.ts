@@ -1,11 +1,12 @@
 import {
 	ActionType,
 	WAVEFORM_CHANGE,
-	RECORDER_TOGGLE,
+	RECORDER_STATE_CHANGE,
 	PLAYER_TOGGLE,
 	SLIDER_CHANGE,
 	MODAL_CHANGE,
 } from '../Constants/ActionTypes';
+import {RecordStateType} from '../Constants/AppTypings';
 
 export interface IAction {
 	type: ActionType;
@@ -25,10 +26,10 @@ export function Player(isPlaying: boolean): any {
 	};
 }
 
-export function Recorder(isRecording: boolean): any {
+export function RecorderStateChange(recordState: RecordStateType): any {
 	return {
-		type: RECORDER_TOGGLE,
-		isRecording,
+		type: RECORDER_STATE_CHANGE,
+		recordState,
 	};
 }
 

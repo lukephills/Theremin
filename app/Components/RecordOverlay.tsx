@@ -19,10 +19,11 @@ class RecordOverlay extends React.Component<any, any> {
 
 	constructor(props){
 		super(props);
-		this.onDownloadClick = this.onDownloadClick.bind(this);
+		this.onDownloadSubmit = this.onDownloadSubmit.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.handleChange = this.handleChange.bind(this);
 		this.onFocus = this.onFocus.bind(this);
+		this.keyDown = this.keyDown.bind(this);
 
 		this.state = {
 			modalIsOpen: this.props.isActive,
@@ -49,9 +50,10 @@ class RecordOverlay extends React.Component<any, any> {
 					<input type="text"
 					       placeholder={this.state.filename || 'Theremin'}
 					       onChange={this.handleChange}
+					       onKeyDown={this.keyDown}
 					       onFocus={this.onFocus}
 					       style={input}/>
-					<ToggleButton onDown={this.onDownloadClick}
+					<ToggleButton onDown={this.onDownloadSubmit}
 					              style={button}>
 						<div>Save {this.state.filename}.wav</div>
 					</ToggleButton>
@@ -69,11 +71,17 @@ class RecordOverlay extends React.Component<any, any> {
 		e.target.style.outline = 'none';
 	}
 
+	private keyDown(e: KeyboardEvent) {
+		if (e.keyCode === 13) { //Enter
+			this.onDownloadSubmit();
+		}
+	}
+
 	private closeModal(){
 		this.props.dispatch(modalChange(false));
 	}
 
-	private onDownloadClick(){
+	private onDownloadSubmit(){
 		Audio.Download((wav: Blob) => {
 			this.saveWav(wav);
 		});

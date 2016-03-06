@@ -1,3 +1,5 @@
+import {RecordStateType} from './AppTypings';
+
 export interface IGlobalState {
 	Waveform?: IWaveform;
 	Player?: IPlayer;
@@ -15,7 +17,7 @@ export interface IPlayer {
 }
 
 export interface IRecorder {
-	isRecording?: boolean;
+	recordState?: RecordStateType | string; //FIXME: weird typescript error without adding string type here
 }
 
 export interface ISlider {

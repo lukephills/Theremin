@@ -42,11 +42,11 @@ module.exports = {
         'NODE_ENV': JSON.stringify('production')
       }
     }),
-    new webpack.optimize.UglifyJsPlugin({
-      compressor: {
-        warnings: false
-      }
-    }),
+    //new webpack.optimize.UglifyJsPlugin({
+    //  compressor: {
+    //    warnings: false
+    //  }
+    //}),
     new CopyWebpackPlugin([
       { from: 'index.html', to: '../' },
       { from: 'manifest.json', to: '../' },

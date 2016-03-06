@@ -1,29 +1,33 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import ToggleButton from './ToggleButton';
+import MultiStateSwitch from './MultiStateSwitch';
 import {IGlobalState, IPlayer, IRecorder} from '../Constants/GlobalState';
-import { Player, Recorder } from '../Actions/actions';
+import { Player, RecorderStateChange } from '../Actions/actions';
 import StaticCanvas from './StaticCanvas';
 import {STYLE_CONST} from './Styles/styles';
+import {RecordStateType} from '../Constants/AppTypings';
+import {ActionType} from '../Constants/ActionTypes';
+import {STATE} from '../Constants/AppTypings';
 
 interface IProps extends IPlayer, IRecorder {
 	buttonSize: number;
 	dispatch?: Function;
 	style?: any;
 	isPlaybackDisabled: boolean;
-	onRecordButtonChange(value: boolean): void;
+	onRecordButtonChange(recordState: RecordStateType): void;
 	onPlaybackButtonChange(value: boolean): void;
 	onDownloadButtonChange(): void;
 }
 interface  IState {
-	isRecording: boolean;
+	recordState: RecordStateType;
 	isPlaying: boolean;
 }
 
 function select(state: IGlobalState): any {
 	return {
 		isPlaying: state.Player.isPlaying,
-		isRecording: state.Recorder.isRecording,
+		recordState: state.Recorder.recordState,
 	};
 }
 
@@ -38,16 +42,15 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 	public render(): React.ReactElement<{}> {
 		return (
 			<section style={this.props.style}>
-				<ToggleButton
-					onDown={(e) => this.record(e)}
-					isOn={this.props.isRecording}>
+				<MultiStateSwitch
+					onDown={(e) => this.record(e)}>
 					<StaticCanvas
 						height={this.props.buttonSize}
 						width={this.props.buttonSize}
 						draw={this.draw}
 						options={{id: 'record'}}
 					/>
-				</ToggleButton>
+				</MultiStateSwitch>
 
 				<ToggleButton
 					disabled={this.props.isPlaybackDisabled}
@@ -85,15 +88,27 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 		switch (options.id) {
 			case 'record':
-				//if (this.props.isRecorderDisabled) {
-				//	ctx.strokeStyle = STYLE_CONST.GREY;
-				//}
 				ctx.beginPath();
-				if (this.props.isRecording) {
-					ctx.strokeStyle = STYLE_CONST.RED;
-					ctx.rect(cx - (6*units), cy - (6 * units), (12.2*units),  (12.2*units));
-				} else {
-					ctx.arc(cx, cy, (6*units), 0, 2 * Math.PI, false);
+				switch (this.props.recordState) {
+					case STATE.STOPPED:
+						// Record icon
+						ctx.arc(cx, cy, (6*units), 0, 2 * Math.PI, false);
+						break;
+					case STATE.RECORDING:
+						//TODO: Overdub icon
+						ctx.strokeStyle = STYLE_CONST.RED;
+						ctx.arc(cx, cy, (6*units), 0, 2 * Math.PI, false);
+
+						ctx.moveTo(cx + (6*units),cy)
+						ctx.lineTo(cx - (4*units), cy + (6*units));
+						ctx.lineTo(cx - (4*units), cy - (6*units));
+						ctx.closePath();
+						break;
+					case STATE.OVERDUBBING:
+						// Stop icon
+						ctx.strokeStyle = STYLE_CONST.RED;
+						ctx.rect(cx - (6*units), cy - (6 * units), (12.2*units),  (12.2*units));
+						break;
 				}
 
 				ctx.stroke();
@@ -153,14 +168,24 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 	}
 
 	private record(e) {
+		console.log(this.props.recordState);
 		e.preventDefault();
-		if (this.props.isRecording) {
-			this.props.dispatch(Recorder(false));
-			this.props.onRecordButtonChange(false);
-		} else {
-			this.props.dispatch(Recorder(true));
-			this.props.onRecordButtonChange(true);
+		switch (this.props.recordState) {
+			case STATE.RECORDING:
+				this.props.dispatch(RecorderStateChange(STATE.OVERDUBBING));
+				this.props.onRecordButtonChange(STATE.OVERDUBBING);
+				break;
+			case STATE.OVERDUBBING:
+				this.props.dispatch(RecorderStateChange(STATE.STOPPED));
+				this.props.onRecordButtonChange(STATE.STOPPED);
+				break;
+			case STATE.STOPPED:
+				this.props.dispatch(RecorderStateChange(STATE.RECORDING));
+				this.props.onRecordButtonChange(STATE.RECORDING);
+				break;
+
 		}
+
 	}
 }
 export default RecordPlayButtonGroup;

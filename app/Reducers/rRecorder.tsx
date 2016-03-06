@@ -1,12 +1,14 @@
 import { DEFAULTS } from '../Constants/Defaults';
 import { IRecorder } from '../Constants/GlobalState';
-import {RECORDER_TOGGLE} from '../Constants/ActionTypes';
+import {RECORDER_STATE_CHANGE} from '../Constants/ActionTypes';
 
-export const Recorder = (state = { isRecording: false }, action): IRecorder => {
+const defaultState = { recordState: 'stopped' }
+
+export const Recorder = (state = defaultState, action): IRecorder => {
 	switch (action.type) {
-		case RECORDER_TOGGLE:
+		case RECORDER_STATE_CHANGE:
 			return Object.assign({}, state, {
-				isRecording: action.isRecording
+				recordState: action.recordState
 			});
 		default:
 			return state;
