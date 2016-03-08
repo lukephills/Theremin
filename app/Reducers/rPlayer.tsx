@@ -1,12 +1,15 @@
-import { PLAYER_TOGGLE } from '../Constants/ActionTypes';
+import { PLAYER_STATE_CHANGE } from '../Constants/ActionTypes';
 import { DEFAULTS } from '../Constants/Defaults';
 import { IPlayer } from '../Constants/GlobalState';
+import { STATE } from '../Constants/AppTypings';
 
-export const Player = (state = { isPlaying: false }, action): IPlayer => {
+const defaultState = { playerState: STATE.STOPPED }
+
+export const Player = (state = defaultState, action): IPlayer => {
 	switch (action.type) {
-		case PLAYER_TOGGLE:
+		case PLAYER_STATE_CHANGE:
 			return Object.assign({}, state, {
-				isPlaying: action.isPlaying
+				playerState: action.playerState
 			});
 		default:
 			return state;

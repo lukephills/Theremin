@@ -61,10 +61,8 @@ class Looper {
 		if (!this.isRecording) {
 			return;
 		}
-
 		// current recording
 		let recording = this.recordings[this.currentLoopId];
-
 
 		// update recording with new audio event information
 		if (recording == null) {
@@ -73,7 +71,6 @@ class Looper {
 		} else {
 			recording = this.appendBuffer(recording, e.inputBuffer);
 		}
-
 		//console.log(`updating recorded buffer ${recording}, duration ${recording.duration}`);
 
 		// Save the updated recording
@@ -87,16 +84,58 @@ class Looper {
 		}
 	};
 
+	// WHEN RECORD/PLAY IS PRESSED //action
+	onRecordPress() {
+		console.log(`onRecordPress`);
+		// if already recording,
+
+		if (this.isOverdubbing) {
+			this.stopPlaying();
+			this.stopRecording();
+		}
+
+		else if (this.isRecording && !this.isOverdubbing) {
+			// start overdubbing
+			this.startOverdubbing();
+		}
+
+		else if (this.isPlaying) {
+			console.log('start recording whilst playing');
+			this.startRecording();
+		}
+		// not recording / overdubbing / playing. Start new recording
+		else {
+			this.reset();
+			this.startRecording();
+		}
+	}
+
+	// play/stop button
+	onPlaybackPress() {
+		// if playing, stop playing
+		if (this.isPlaying) {
+			this.stopPlaying();
+		}
+
+		// if we're recording and we click play/stop, stop recording
+		else if (this.isRecording && this.hasRecordings) {
+			console.log('pressed play whilst recording/overdubbing');
+			this.stopRecording();
+			this.startPlaying();
+		}
+
+		// if we're not playing and not recording but there are recordings *to* play start playing them
+		else if (this.hasRecordings) {
+			this.startPlaying();
+		}
+	}
+
 	// schedule recording on first beat
 	startRecording() {
 		console.log(`startRecording`)
 		// add a new track and set current loop
 		this.incrementTrack();
-
-		// start recording
 		this.isRecording = true;
-
-		// set audio process callback
 		this.processor.onaudioprocess = this.onaudioprocess.bind(this);
 	}
 
@@ -108,92 +147,36 @@ class Looper {
 
 	stopRecording() {
 		console.log('stop recording');
-		//window.clearTimeout(this.timer);
 		this.isRecording = false;
-
 		this.processor.onaudioprocess = null;
-
-		// current track
-		//const track = this.getCurrentTrack();
-
-		// track min duration
-		//if (track && track.duration < this.minDuration) {
-		//	// remove last track
-		//	this.recordings.splice(-1, 1);
-		//	this.currentTrack--;
-		//}
 	}
 
-	//getCurrentTrack() {
-	//	return this.recordings[this.currentTrack] || null;
-	//}
-
-
-	newTrack() {
-		this.recordings.push(null);
-	}
-
-	incrementTrack() {
-		console.log(`increment track`);
-		console.log(this.recordings);
-		this.setCurrentLoopId(this.recordings.length);
-		this.newTrack();
-	}
-
-	//setCurrentId(id) {
-	//	this.currentTrack = id;
-	//}
-
-
-	// start/stop playing
 	startPlaying() {
 		this.nextLoopStartTime = this.context.currentTime;
 		// run scheduler
 		this.scheduler();
-		//// play loop as soon as possible
-		//this.playLoop(this.nextBeatTime);
-
-		// start playing
 		this.isPlaying = true;
-
-
 	}
-
-
 
 	stopPlaying() {
 		// stop playing
 		this.isPlaying = false;
 
-		// for each scheduled track
-		for (var i in this.scheduledTracks) {
-			// stop playing
-			this.scheduledTracks[i].sound.stop();
-		}
-
-		// reset scheduled tracks
-		this.scheduledTracks = [];
-
-
-		// clear timer
-		window.clearTimeout(this.timer);
-
-		// reset
-		//this.reset();
+		this.stopLoop();
 	}
 
 	//TODO: schedule these. Call this function at the right time to play the loops
 	// plays all recorded tracks in sync together as one loop
 	playLoop(time: number) {
 		// for each track
-
+		console.log('scheduled tracks', this.scheduledTracks);
 		for (var i in this.recordings) {
 			// buffer
 			var recording = this.recordings[i];
 			// remove played tracks
-			while (this.scheduledTracks.length && this.scheduledTracks[0].time < this.context.currentTime - 0.1) {
-				this.scheduledTracks.splice(0, 1);
-			}
+			//while (this.scheduledTracks.length && this.scheduledTracks[0].time < this.context.currentTime - 0.1) {
+			//	this.scheduledTracks.splice(0, 1);
+			//}
 
 			// track not null
 			if (recording !== null) {
@@ -210,108 +193,41 @@ class Looper {
 		}
 
 		console.log('scheduled tracks', this.scheduledTracks);
+		console.log('this recordings', this.recordings);
 	}
 
-	// WHEN RECORD/PLAY IS PRESSED //action
-	onRecordPress() {
-		console.log(`onRecordPress`);
-		// if already recording,
+	stopLoop() {
+		// clear timer
+		window.clearTimeout(this.timer);
 
-		if (this.isOverdubbing) {
-			this.stopRecording();
-			this.stopPlaying();
+		console.log('stop loop');
+		// for each scheduled track
+		for (var i in this.scheduledTracks) {
+			// stop playing
+			this.scheduledTracks[i].sound.stop();
 		}
 
-		else if (this.isRecording && !this.isOverdubbing) {
-			// start overdubbing
-			this.startOverdubbing();
-		}
-		// not recording/ overdubbing, start recording
-		else {
-			this.startRecording();
-		}
+		// reset scheduled tracks
+		this.scheduledTracks = [];
+
+
+		console.log('scheduled tracks', this.scheduledTracks);
 	}
 
-	// play/stop button
-	onPlaybackPress() {
-		// if playing, stop playing
-		if (this.isPlaying) {
-			this.stopPlaying();
-		}
-
-		// if we're recording and we click play/stop, stop recording
-		else if (this.isRecording && this.hasRecordings) {
-			this.stopRecording();
-			this.startPlaying();
-		}
-
-		// if we're not playing and not recording but there are recordings *to* play start playing them
-		else if (this.hasRecordings) {
-			this.startPlaying();
-		}
+	newTrack() {
+		this.recordings.push(null);
 	}
 
-
-	// LOOPS
-	addLoop(loop) {
-		this.loops.push(loop);
-		return loop;
-	}
-
-	getLoop(id): Loop | boolean {
-		for (var i in this.loops) {
-			if (this.loops[i].id == id) {
-				return this.loops[i];
-			}
-		}
-		return false;
-	}
-
-	getCurrentLoop(): Loop | boolean {
-		return this.getLoop(this.currentLoopId);
+	incrementTrack() {
+		console.log(`increment track`);
+		console.log(this.recordings);
+		this.setCurrentLoopId(this.recordings.length);
+		this.newTrack();
 	}
 
 	setCurrentLoopId(id: number) {
 		this.currentLoopId = id;
 	}
-
-
-
-	getLoopPosition(loop) {
-		// for each filters
-		for (var id in this.loops) {
-			// this is the target -> return
-			if (this.loops[id].id == loop.id) {
-				return parseInt(id);
-			}
-		}
-
-		// not found
-		return null;
-	}
-
-	removeLoop(loop) {
-		// stop playing/recording loop
-		loop.stop();
-
-		// get filter position
-		var loopPosition = this.getLoopPosition(loop);
-
-		// remove loop from array
-		this.loops.splice(loopPosition, 1);
-	}
-
-	// Schedules all the loops to play ath the next beat time
-	//schedulePlay() {
-	//	console.log(`schedule the loops ${this.loops} to start at ${this.nextBeatTime}`);
-	//	// for each loop
-	//	this.loops.forEach((loop) => {
-	//		// is playing and one beat or is first beat
-	//		if (loop.isPlaying() && (loop.beats == 1 || this.beatsCount % loop.beats == 1)) {
-	//			loop.play(this.nextBeatTime);
-	//		}
-	//	});
-	//}
 
 	// scheduler is constantly called
 	scheduler() {
@@ -323,14 +239,6 @@ class Looper {
 
 			// shedule play
 			this.playLoop(this.loopLength);
-			//
-			//// push note in queue
-			//this.beatsQueue.push({
-			//	time: this.nextBeatTime,
-			//	num: this.beatsCount
-			//});
-			//
-			//
 			// next beat time
 			this.nextLoopStartTime += this.loopLength;
 		}
@@ -342,14 +250,12 @@ class Looper {
 	}
 
 
-	//reset() {
-	//	this.running = false;
-	//	this.firstBeat = false;
-	//	this.timer = null;
-	//	this.nextBeatTime = null;
-	//	this.beatsQueue = [];
-	//	this.beatsCount = 0;
-	//}
+	reset() {
+		this.recordings = [];
+		this.loopLength = this.maxLoopDuration;
+		this.nextLoopStartTime = null;
+		this.timer = null;
+	}
 
 	/**
 	 * Joins to buffers together. If one buffer is empty, return the other.

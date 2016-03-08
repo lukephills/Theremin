@@ -21,12 +21,14 @@ import {IdentifierIndexMap} from '../Utils/utils';
 import Spectrum from './Spectrum';
 import Downloader from '../Downloader';
 import {RecordStateType} from '../Constants/AppTypings';
+import {STATE} from '../Constants/AppTypings';
+import {PlayerStateType} from '../Constants/AppTypings';
 
 
 interface IState {
 	delayVal?: number;
 	feedbackVal?: number;
-	isPlayingBack?: boolean;
+	playerState?: PlayerStateType;
 	recordState?: RecordStateType;
 	isRecordOverlayActive?: boolean;
 	scuzzVal?: number;
@@ -38,7 +40,7 @@ interface IState {
 function select(state: IGlobalState) {
 	return {
 		waveform: state.Waveform.wave,
-		isPlayingBack: state.Player.isPlaying,
+		playerState: state.Player.playerState,
 		recordState: state.Recorder.recordState,
 		delayVal: state.Slider.delay,
 		feedbackVal: state.Slider.feedback,
@@ -69,8 +71,8 @@ class App extends React.Component<any, IState> {
 		this.state = {
 			delayVal: DEFAULTS.Sliders.delay.value,
 			feedbackVal: DEFAULTS.Sliders.feedback.value,
-			isPlayingBack: false,
-			recordState: 'stopped',
+			playerState: STATE.STOPPED,
+			recordState: STATE.STOPPED,
 			isRecordOverlayActive: false,
 			scuzzVal: DEFAULTS.Sliders.scuzz.value,
 			waveform: WAVEFORMS[DEFAULTS.Waveform],
@@ -274,12 +276,12 @@ class App extends React.Component<any, IState> {
 		ctx.clearRect(0, 0, width, height);
 
 		this.spectrumRecording.Draw({
-			isActive: this._isAnimating && this.props.isPlayingBack,
+			isActive: this._isAnimating && (this.props.playerState === STATE.PLAYING),
 		});
 
 		this.spectrumLive.Draw({
 			isActive: this._isAnimating,
-			recordState: this.props.recordingState,
+			recordState: this.props.recordState,
 		});
 
 	}

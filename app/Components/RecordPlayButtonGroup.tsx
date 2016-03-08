@@ -3,12 +3,13 @@ import { connect } from 'react-redux';
 import ToggleButton from './ToggleButton';
 import MultiStateSwitch from './MultiStateSwitch';
 import {IGlobalState, IPlayer, IRecorder} from '../Constants/GlobalState';
-import { Player, RecorderStateChange } from '../Actions/actions';
+import { PlayerStateChange, RecorderStateChange } from '../Actions/actions';
 import StaticCanvas from './StaticCanvas';
 import {STYLE_CONST} from './Styles/styles';
 import {RecordStateType} from '../Constants/AppTypings';
 import {ActionType} from '../Constants/ActionTypes';
 import {STATE} from '../Constants/AppTypings';
+import {PlayerStateType} from '../Constants/AppTypings';
 
 interface IProps extends IPlayer, IRecorder {
 	buttonSize: number;
@@ -21,12 +22,12 @@ interface IProps extends IPlayer, IRecorder {
 }
 interface  IState {
 	recordState: RecordStateType;
-	isPlaying: boolean;
+	playerState: PlayerStateType;
 }
 
 function select(state: IGlobalState): any {
 	return {
-		isPlaying: state.Player.isPlaying,
+		playerState: state.Player.playerState,
 		recordState: state.Recorder.recordState,
 	};
 }
@@ -52,17 +53,15 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 					/>
 				</MultiStateSwitch>
 
-				<ToggleButton
-					disabled={this.props.isPlaybackDisabled}
-					onDown={(e) => this.play(e)}
-					isOn={this.props.isPlaying}>
+				<MultiStateSwitch
+					onDown={(e) => this.play(e)}>
 					<StaticCanvas
 						height={this.props.buttonSize}
 						width={this.props.buttonSize}
 						draw={this.draw}
 						options={{id: 'play'}}
 					/>
-				</ToggleButton>
+				</MultiStateSwitch>
 
 				<ToggleButton
 					disabled={this.props.isPlaybackDisabled}
@@ -88,47 +87,41 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 		switch (options.id) {
 			case 'record':
+				console.log(this.props.recordState)
 				ctx.beginPath();
 				switch (this.props.recordState) {
 					case STATE.STOPPED:
-						// Record icon
-						ctx.arc(cx, cy, (6*units), 0, 2 * Math.PI, false);
+						this.drawIconRecord(ctx, cx, cy, units);
 						break;
 					case STATE.RECORDING:
-						//TODO: Overdub icon
-						ctx.strokeStyle = STYLE_CONST.RED;
-						ctx.arc(cx, cy, (6*units), 0, 2 * Math.PI, false);
-
-						ctx.moveTo(cx + (6*units),cy)
-						ctx.lineTo(cx - (4*units), cy + (6*units));
-						ctx.lineTo(cx - (4*units), cy - (6*units));
-						ctx.closePath();
+						this.drawIconOverdub(ctx, cx, cy, units);
+						break;
+					case STATE.PLAYING:
+						this.drawIconOverdub(ctx, cx, cy, units);
 						break;
 					case STATE.OVERDUBBING:
-						// Stop icon
-						ctx.strokeStyle = STYLE_CONST.RED;
-						ctx.rect(cx - (6*units), cy - (6 * units), (12.2*units),  (12.2*units));
+						this.drawIconStop(ctx, cx, cy, units);
 						break;
 				}
-
 				ctx.stroke();
-				break;
+			break;
 
 			case 'play':
 				if (this.props.isPlaybackDisabled) {
 					ctx.strokeStyle = STYLE_CONST.GREY;
 				}
 				ctx.beginPath();
-				if (this.props.isPlaying) {
-					ctx.rect(cx - (6*units), cy - (6 * units), (12.2*units),  (12.2*units));
-				} else {
-					ctx.moveTo(cx + (6*units),cy)
-					ctx.lineTo(cx - (4*units), cy + (6*units));
-					ctx.lineTo(cx - (4*units), cy - (6*units));
-					ctx.closePath();
+
+				switch (this.props.playerState) {
+					case STATE.PLAYING:
+						this.drawIconStop(ctx, cx, cy, units)
+					break;
+					case STATE.STOPPED:
+						this.drawIconPlay(ctx, cx, cy, units)
+					break;
 				}
 				ctx.stroke();
-				break;
+			break;
 
 			case 'download':
 				if (this.props.isPlaybackDisabled) {
@@ -136,56 +129,113 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 				}
 				ctx.beginPath();
 
-				// Base
-				ctx.moveTo(cx - (6*units), cy + (1 * units));
-				ctx.lineTo(cx - (6*units), cy + (6*units));
-				ctx.lineTo(cx + (6*units), cy + (6*units));
-				ctx.lineTo(cx + (6*units), cy + (1 *units));
-
-				// Arrow line
-				ctx.moveTo(cx, cy - (8*units));
-				ctx.lineTo(cx, cy + (3*units));
-
-				// Arrow head
-				ctx.moveTo(cx - (4*units), cy - (1*units));
-				ctx.lineTo(cx, cy + (3*units));
-				ctx.lineTo(cx + (4*units), cy - (1*units));
-				ctx.stroke();
-				break;
+				this.drawIconDownload(ctx, cx, cy, units);
+			break;
 		}
+	}
+
+	private drawIconRecord(ctx, cx, cy, units) {
+		ctx.arc(cx, cy, (6*units), 0, 2 * Math.PI, false);
+	}
+
+	private drawIconPlay(ctx, cx, cy, units) {
+		ctx.moveTo(cx + (6*units),cy)
+		ctx.lineTo(cx - (4*units), cy + (6*units));
+		ctx.lineTo(cx - (4*units), cy - (6*units));
+		ctx.closePath();
+	}
+
+	private drawIconOverdub(ctx, cx, cy, units){
+		//TODO: Overdub icon
+		ctx.strokeStyle = STYLE_CONST.RED;
+		ctx.arc(cx, cy, (6*units), 0, 2 * Math.PI, false);
+
+		ctx.moveTo(cx + (3*units), cy)
+		ctx.lineTo(cx - (3*units), cy);
+		ctx.lineTo(cx, cy);
+		ctx.lineTo(cx, cy + (3*units));
+		ctx.lineTo(cx, cy - (3*units));
+		ctx.lineTo(cx, cy);
+
+		ctx.closePath();
+	}
+
+	private drawIconStop(ctx, cx, cy, units) {
+		ctx.strokeStyle = STYLE_CONST.RED;
+		ctx.rect(cx - (6*units), cy - (6 * units), (12.2*units),  (12.2*units));
+	}
+
+	private drawIconDownload(ctx, cx, cy, units) {
+		// Base
+		ctx.moveTo(cx - (6*units), cy + (1 * units));
+		ctx.lineTo(cx - (6*units), cy + (6*units));
+		ctx.lineTo(cx + (6*units), cy + (6*units));
+		ctx.lineTo(cx + (6*units), cy + (1 *units));
+
+		// Arrow line
+		ctx.moveTo(cx, cy - (8*units));
+		ctx.lineTo(cx, cy + (3*units));
+
+		// Arrow head
+		ctx.moveTo(cx - (4*units), cy - (1*units));
+		ctx.lineTo(cx, cy + (3*units));
+		ctx.lineTo(cx + (4*units), cy - (1*units));
+		ctx.stroke();
 	}
 
 	private play(e) {
 		e.preventDefault();
-		if (this.props.isPlaying) {
-			this.props.dispatch(Player(false));
-			this.props.onPlaybackButtonChange(false);
-		} else {
-			this.props.dispatch(Player(true));
-			this.props.onPlaybackButtonChange(true);
-		}
 
+		// Stop recording if play is pressed whilst recording/overdubbing
+		if (this.props.recordState === (STATE.OVERDUBBING || STATE.RECORDING)) {
+			this.recorderChangeDispatch(STATE.STOPPED);
+		}
+		switch (this.props.playerState) {
+			case STATE.PLAYING:
+				this.playerChangeDispatch(STATE.STOPPED);
+				this.recorderChangeDispatch(STATE.STOPPED);
+			break;
+			case STATE.STOPPED:
+				this.playerChangeDispatch(STATE.PLAYING);
+				if (this.props.recordState === STATE.STOPPED) {
+					this.recorderChangeDispatch(STATE.PLAYING);
+				}
+			break;
+		}
 	}
 
 	private record(e) {
 		console.log(this.props.recordState);
 		e.preventDefault();
+
+		//if (this.props.playerState === STATE.PLAYING) {
+		//	this.playerChangeDispatch(STATE.OVERDUBBING);
+		//}
+
 		switch (this.props.recordState) {
 			case STATE.RECORDING:
-				this.props.dispatch(RecorderStateChange(STATE.OVERDUBBING));
-				this.props.onRecordButtonChange(STATE.OVERDUBBING);
+				this.recorderChangeDispatch(STATE.OVERDUBBING);
 				break;
 			case STATE.OVERDUBBING:
-				this.props.dispatch(RecorderStateChange(STATE.STOPPED));
-				this.props.onRecordButtonChange(STATE.STOPPED);
+				this.recorderChangeDispatch(STATE.STOPPED);
 				break;
 			case STATE.STOPPED:
-				this.props.dispatch(RecorderStateChange(STATE.RECORDING));
-				this.props.onRecordButtonChange(STATE.RECORDING);
+				this.recorderChangeDispatch(STATE.RECORDING);
 				break;
-
+			case STATE.PLAYING:
+				this.recorderChangeDispatch(STATE.OVERDUBBING);
+				break;
 		}
+	}
 
+	recorderChangeDispatch(newState){
+		this.props.dispatch(RecorderStateChange(newState));
+		this.props.onRecordButtonChange(newState);
+	}
+
+	playerChangeDispatch(newState){
+		this.props.dispatch(PlayerStateChange(newState));
+		this.props.onPlaybackButtonChange(newState);
 	}
 }
 export default RecordPlayButtonGroup;
