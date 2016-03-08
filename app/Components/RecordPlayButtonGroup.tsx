@@ -15,7 +15,7 @@ interface IProps extends IPlayer, IRecorder {
 	buttonSize: number;
 	dispatch?: Function;
 	style?: any;
-	isPlaybackDisabled: boolean;
+	//isPlaybackDisabled: boolean;
 	onRecordButtonChange(recordState: RecordStateType): void;
 	onPlaybackButtonChange(value: boolean): void;
 	onDownloadButtonChange(): void;
@@ -34,6 +34,8 @@ function select(state: IGlobalState): any {
 
 @connect(select)
 class RecordPlayButtonGroup extends React.Component<IProps, IState> {
+
+	playButtonDisabled: boolean = true;
 
 	constructor(props) {
 		super(props);
@@ -54,7 +56,9 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 				</MultiStateSwitch>
 
 				<MultiStateSwitch
-					onDown={(e) => this.play(e)}>
+					onDown={(e) => this.play(e)}
+				    disabled={this.playButtonDisabled}
+				>
 					<StaticCanvas
 						height={this.props.buttonSize}
 						width={this.props.buttonSize}
@@ -64,7 +68,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 				</MultiStateSwitch>
 
 				<ToggleButton
-					disabled={this.props.isPlaybackDisabled}
+					disabled={this.playButtonDisabled}
 					onDown={this.props.onDownloadButtonChange}
 					isOn={true}>
 					<StaticCanvas
@@ -107,7 +111,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 			break;
 
 			case 'play':
-				if (this.props.isPlaybackDisabled) {
+				if (this.playButtonDisabled) {
 					ctx.strokeStyle = STYLE_CONST.GREY;
 				}
 				ctx.beginPath();
@@ -124,7 +128,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 			break;
 
 			case 'download':
-				if (this.props.isPlaybackDisabled) {
+				if (this.playButtonDisabled) {
 					ctx.strokeStyle = STYLE_CONST.GREY;
 				}
 				ctx.beginPath();
@@ -208,6 +212,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		console.log(this.props.recordState);
 		e.preventDefault();
 
+		this.playButtonDisabled = false;
 		//if (this.props.playerState === STATE.PLAYING) {
 		//	this.playerChangeDispatch(STATE.OVERDUBBING);
 		//}
@@ -218,6 +223,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 				break;
 			case STATE.OVERDUBBING:
 				this.recorderChangeDispatch(STATE.STOPPED);
+				this.playerChangeDispatch(STATE.STOPPED);
 				break;
 			case STATE.STOPPED:
 				this.recorderChangeDispatch(STATE.RECORDING);

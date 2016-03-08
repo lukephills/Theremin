@@ -143,7 +143,6 @@ class App extends React.Component<any, IState> {
 							mobileSizeSmall && STYLE.recordPlayButtonGroup.container_mobile)}
 						onRecordButtonChange={this.Record}
 						onPlaybackButtonChange={this.Playback}
-						isPlaybackDisabled={false}
 						onDownloadButtonChange={this.Download}
 					    buttonSize={buttonSize}
 					/>
@@ -238,26 +237,12 @@ class App extends React.Component<any, IState> {
 		Audio.SetWaveform(value);
 	}
 
-	public Record(recordState: RecordStateType){
+	public Record(){
 		Audio.onRecordPress();
-		//if (isRecording){
-		//	Audio.StartRecorder();
-		//} else {
-		//	this.hasRecording = true;
-		//	Audio.StopRecorder();
-		//}
 	}
 
-	public Playback(isPlayingBack: boolean) {
+	public Playback() {
 		Audio.onPlaybackPress();
-		//if (this.hasRecording) {
-		//	if (isPlayingBack){
-		//		Audio.StartPlayback();
-		//	} else {
-		//		Audio.StopPlayback();
-		//	}
-		//	this.isPlayingBack = isPlayingBack;
-		//}
 	}
 
 	public Download() {

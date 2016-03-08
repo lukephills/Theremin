@@ -7,5 +7,3 @@ export function startIOSAudio(context: AudioContext): void {
 	source.buffer = buffer;	source.connect(context.destination);
 	source.start(0);
 }
-
-

@@ -8,8 +8,8 @@ interface IHotModule {
 };
 
 // List all middleware for development
-const middleware = [Logger]
-//const middleware = []
+//const middleware = [Logger]
+const middleware = []
 
 const enhancer = compose(
 	applyMiddleware(...middleware)

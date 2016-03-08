@@ -53,6 +53,7 @@
     "inline-style-prefixer": "^0.6.7",
     "inline-worker": "^1.0.0",
     "lodash": "^4.3.0",
+    "merge-audio-buffers": "^1.0.0",
     "normalize.css": "^3.0.3",
     "object-assign": "^4.0.1",
     "rc-slider": "^3.3.2",

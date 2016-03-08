@@ -86,9 +86,8 @@ class Looper {
 
 	// WHEN RECORD/PLAY IS PRESSED //action
 	onRecordPress() {
-		console.log(`onRecordPress`);
-		// if already recording,
 
+		// if already recording,
 		if (this.isOverdubbing) {
 			this.stopPlaying();
 			this.stopRecording();
@@ -161,7 +160,6 @@ class Looper {
 	stopPlaying() {
 		// stop playing
 		this.isPlaying = false;
-
 		this.stopLoop();
 	}
 
@@ -198,9 +196,10 @@ class Looper {
 
 	stopLoop() {
 		// clear timer
-		window.clearTimeout(this.timer);
-
 		console.log('stop loop');
+
+		window.clearInterval(this.timer);
+
 		// for each scheduled track
 		for (var i in this.scheduledTracks) {
 			// stop playing
@@ -231,7 +230,7 @@ class Looper {
 
 	// scheduler is constantly called
 	scheduler() {
-		//console.log('scheduler')
+		if (this.isRecording || this.isPlaying) return;
 		// next note soon
 		while (this.nextLoopStartTime < this.context.currentTime) {
 
@@ -244,17 +243,17 @@ class Looper {
 		}
 
 		// runner...
-		this.timer = setTimeout(() => {
+		this.timer = setInterval(() => {
 			this.scheduler();
 		}, 25);
 	}
 
 
 	reset() {
-		this.recordings = [];
-		this.loopLength = this.maxLoopDuration;
-		this.nextLoopStartTime = null;
-		this.timer = null;
+		//this.recordings = [];
+		//this.loopLength = this.maxLoopDuration;
+		//this.nextLoopStartTime = null;
+		//this.timer = null;
 	}
 
 	/**
