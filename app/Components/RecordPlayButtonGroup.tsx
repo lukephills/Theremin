@@ -91,7 +91,6 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 		switch (options.id) {
 			case 'record':
-				console.log(this.props.recordState)
 				ctx.beginPath();
 				switch (this.props.recordState) {
 					case STATE.STOPPED:
@@ -209,7 +208,6 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 	}
 
 	private record(e) {
-		console.log(this.props.recordState);
 		e.preventDefault();
 
 		this.playButtonDisabled = false;

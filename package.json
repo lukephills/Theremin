@@ -66,6 +66,8 @@
     "tone": "^0.6.1",
     "ts-loader": "^0.8.1",
     "typescript": "^1.8.2",
-    "worker-loader": "^0.7.0"
+    "web-audio-scheduler": "^1.0.0",
+    "worker-loader": "^0.7.0",
+    "worker-timer": "^1.0.0"
   }
 }

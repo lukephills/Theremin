@@ -58,7 +58,7 @@ class Audio {
 
 		this.routeSounds();
 		this.setupAnalysers();
-		this.recorder = new Recorder(this.thereminOutput);
+		//this.recorder = new Recorder(this.thereminOutput);
 		this.looper = new Looper(this.thereminOutput, this.recordingGain)
 	}
 
