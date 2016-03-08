@@ -10,40 +10,50 @@ let __ID = 0;
 
 class Loop {
 	id: number;
-	source: AudioBufferSourceNode;
+	//source: AudioBufferSourceNode;
+	activeBufferSources: AudioBufferSourceNode[] = []
 	buffer: AudioBuffer;
 	output: GainNode;
 	isPlaying: boolean;
 	context: AudioContext;
 	playCount: number = 0;
+	maxPlayCount: number = 3;
 	startOffset: number = 0;
+	disposed: boolean = false;
 
 	constructor(context) {
 		this.isPlaying = false;
 		this.context = context;
-		this.source = this.context.createBufferSource();
 		this.output = this.context.createGain();
-		this.source.connect(this.output);
+		//this.source.connect(this.output);
 		this.buffer = null;
 		this.id = __ID;
 		__ID++;
 	}
 
 	play(time: number = this.context.currentTime){
-		if (this.isPlaying){
-			// If already playing, stop first then restart
-			this.stop(time)
-		}
-		console.log('start loop', this.id)
-		//this.source.start(time, this.startOffset);
-		this.isPlaying = true;
 		this.updateVolume();
-		this.playCount++;
+		if (!this.disposed){
+			console.log('start loop', this.id, 'at time',this.context.currentTime,'. Currently playing?', this.isPlaying)
+
+			// Audiobuffer sources get created and deleted each time
+			let source: AudioBufferSourceNode = this.context.createBufferSource();
+			source.buffer = this.buffer;
+			source.start(this.context.currentTime, this.startOffset);
+			source.connect(this.output)
+			this.activeBufferSources.push(source);
+			this.isPlaying = true;
+			this.playCount++;
+		}
 	}
 
 	stop(time: number = this.context.currentTime) {
-		console.log('stop loop', this.id);
-		//this.source.stop(time);
+		if (this.disposed) return;
+		console.log('stop loop', this.id, 'at time: ', time);
+		this.activeBufferSources = []
+		this.activeBufferSources.forEach((src: AudioBufferSourceNode) => {
+			src.stop(time);
+		})
 		this.isPlaying = false;
 	}
 	//
@@ -51,16 +61,22 @@ class Loop {
 	updateVolume(){
 		this.output.gain.value /= 1.1;
 		// if this output is barely audible remove loop
+		if (this.playCount >= this.maxPlayCount){
+			this.dispose();
+		}
 	}
 
 	dispose() {
 		this.stop();
 		this.output.disconnect();
-		this.source.disconnect();
+		this.activeBufferSources.forEach((src: AudioBufferSourceNode) => {
+			src.disconnect();
+		})
+		this.activeBufferSources = [];
 		this.output = null;
-		this.source = null;
 		this.buffer = null;
 		this.isPlaying = null;
+		this.disposed = true;
 	}
 }
 
@@ -120,7 +136,7 @@ class Looper {
 
 	metronome(e) {
 		this.sched.insert(e.playbackTime + 0.000, this.playLoops, { duration: this.loopLength });
-		this.sched.insert(e.playbackTime + this.loopLength, this.metronome);
+		this.sched.insert(e.playbackTime + this.loopLength + 0.025, this.metronome);
 	}
 
 	playLoops(e) {
@@ -257,42 +273,40 @@ class Looper {
 
 		// start a new loop & connect old loop to output if the loop length reaches the maximum loopLength (minus buffer time)
 		if (newLoop.buffer.duration > this.loopLength - 0.025) {
-			this.loops[this.currentLoopId].source.buffer = newLoop.buffer;
 			this.loops[this.currentLoopId].output.connect(this.output);
 			this.nextLoopStartTime = this.context.currentTime;
 			this.incrementLoop();
 			console.log(`new recorded buffer added, duration ${newLoop.buffer.duration}`, this.loops);
-			//this.startOverdubbing();
 		}
 	};
 
 	//TODO: schedule these. Call this function at the right time to play the loops
 	// plays all recorded tracks in sync together as one loop
-	playLoop(time: number) {
-		// for each track
-		console.log('scheduled tracks', this.scheduledTracks);
-		for (var i in this.loops) {
-			// buffer
-			var loop = this.loops[i];
-			// remove played tracks
-			//while (this.scheduledTracks.length && this.scheduledTracks[0].time < this.context.currentTime - 0.1) {
-			//	this.scheduledTracks.splice(0, 1);
-			//}
-
-			// track not null
-			if (loop !== null) {
-				loop.source.start(time);
-
-				//this.scheduledTracks.push({
-				//	time: time,
-				//	sound: sound
-				//});
-			}
-		}
-
-		console.log('scheduled tracks', this.scheduledTracks);
-		console.log('this recordings', this.loops);
-	}
+	//playLoop(time: number) {
+	//	// for each track
+	//	console.log('scheduled tracks', this.scheduledTracks);
+	//	for (var i in this.loops) {
+	//		// buffer
+	//		var loop = this.loops[i];
+	//		// remove played tracks
+	//		//while (this.scheduledTracks.length && this.scheduledTracks[0].time < this.context.currentTime - 0.1) {
+	//		//	this.scheduledTracks.splice(0, 1);
+	//		//}
+	//
+	//		// track not null
+	//		if (loop !== null) {
+	//			loop.source.start(time);
+	//
+	//			//this.scheduledTracks.push({
+	//			//	time: time,
+	//			//	sound: sound
+	//			//});
+	//		}
+	//	}
+	//
+	//	console.log('scheduled tracks', this.scheduledTracks);
+	//	console.log('this recordings', this.loops);
+	//}
 
 	stopLoop() {
 		// clear timer
@@ -328,23 +342,23 @@ class Looper {
 	}
 
 	// scheduler is constantly called
-	scheduler() {
-		// next note soon
-		while (this.nextLoopStartTime < this.context.currentTime) {
-
-			console.log('in loop at ', this.context.currentTime, 'the next loop start time was: ', this.nextLoopStartTime);
-
-			// shedule play
-			this.playLoop(this.loopLength);
-			// next beat time
-			this.nextLoopStartTime += this.loopLength;
-		}
-
-		// runner...
-		this.timer = setInterval(() => {
-			this.scheduler();
-		}, 25);
-	}
+	//scheduler() {
+	//	// next note soon
+	//	while (this.nextLoopStartTime < this.context.currentTime) {
+	//
+	//		console.log('in loop at ', this.context.currentTime, 'the next loop start time was: ', this.nextLoopStartTime);
+	//
+	//		// shedule play
+	//		this.playLoop(this.loopLength);
+	//		// next beat time
+	//		this.nextLoopStartTime += this.loopLength;
+	//	}
+	//
+	//	// runner...
+	//	this.timer = setInterval(() => {
+	//		this.scheduler();
+	//	}, 25);
+	//}
 
 
 	reset() {
