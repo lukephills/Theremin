@@ -191,17 +191,17 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 		// Stop recording if play is pressed whilst recording/overdubbing
 		if (this.props.recordState === (STATE.OVERDUBBING || STATE.RECORDING)) {
-			this.recorderChangeDispatch(STATE.STOPPED);
+			this.recorderChangeDispatch(STATE.STOPPED, false);
 		}
 		switch (this.props.playerState) {
 			case STATE.PLAYING:
 				this.playerChangeDispatch(STATE.STOPPED);
-				this.recorderChangeDispatch(STATE.STOPPED);
+				this.recorderChangeDispatch(STATE.STOPPED, false);
 			break;
 			case STATE.STOPPED:
 				this.playerChangeDispatch(STATE.PLAYING);
 				if (this.props.recordState === STATE.STOPPED) {
-					this.recorderChangeDispatch(STATE.PLAYING);
+					this.recorderChangeDispatch(STATE.PLAYING, false);
 				}
 			break;
 		}
@@ -221,7 +221,9 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 				break;
 			case STATE.OVERDUBBING:
 				this.recorderChangeDispatch(STATE.STOPPED);
-				this.playerChangeDispatch(STATE.STOPPED);
+				if (this.props.playerState === STATE.PLAYING){
+					this.playerChangeDispatch(STATE.PLAYING, false);
+				}
 				break;
 			case STATE.STOPPED:
 				this.recorderChangeDispatch(STATE.RECORDING);
@@ -232,14 +234,18 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		}
 	}
 
-	recorderChangeDispatch(newState){
+	recorderChangeDispatch(newState, buttonPressed: boolean = true){
 		this.props.dispatch(RecorderStateChange(newState));
-		this.props.onRecordButtonChange(newState);
+		if (buttonPressed) {
+			this.props.onRecordButtonChange(newState);
+		}
 	}
 
-	playerChangeDispatch(newState){
+	playerChangeDispatch(newState, buttonPressed: boolean = true){
 		this.props.dispatch(PlayerStateChange(newState));
-		this.props.onPlaybackButtonChange(newState);
+		if (buttonPressed) {
+			this.props.onPlaybackButtonChange(newState);
+		}
 	}
 }
 export default RecordPlayButtonGroup;

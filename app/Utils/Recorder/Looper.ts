@@ -6,7 +6,7 @@ interface IScheduledTrack {
 	sound: AudioBufferSourceNode;
 }
 
-let __ID = 0;
+let __ID = 0; //TODO: could generate a loop id by using its position in Looper.loops
 
 class Loop {
 	id: number;
@@ -17,7 +17,7 @@ class Loop {
 	isPlaying: boolean;
 	context: AudioContext;
 	playCount: number = 0;
-	maxPlayCount: number = 3;
+	maxPlayCount: number = 30;
 	startOffset: number = 0;
 	disposed: boolean = false;
 
@@ -32,7 +32,6 @@ class Loop {
 	}
 
 	play(time: number = this.context.currentTime){
-		this.updateVolume();
 		if (!this.disposed){
 			console.log('start loop', this.id, 'at time',this.context.currentTime,'. Currently playing?', this.isPlaying)
 
@@ -41,7 +40,8 @@ class Loop {
 			source.buffer = this.buffer;
 			source.start(this.context.currentTime, this.startOffset);
 			source.connect(this.output)
-			this.activeBufferSources.push(source);
+			//this.activeBufferSources.push(source);
+			this.activeBufferSources[0] = source;
 			this.isPlaying = true;
 			this.playCount++;
 		}
@@ -50,16 +50,16 @@ class Loop {
 	stop(time: number = this.context.currentTime) {
 		if (this.disposed) return;
 		console.log('stop loop', this.id, 'at time: ', time);
-		this.activeBufferSources = []
 		this.activeBufferSources.forEach((src: AudioBufferSourceNode) => {
 			src.stop(time);
 		})
+		this.activeBufferSources = [];
 		this.isPlaying = false;
 	}
 	//
 	// Lower the volume of the loop over time and eventually remove it after maxLoopAmount amount
 	updateVolume(){
-		this.output.gain.value /= 1.1;
+		this.output.gain.value /= 1.1; //TODO: calculate this number based on this.maxPlayCount
 		// if this output is barely audible remove loop
 		if (this.playCount >= this.maxPlayCount){
 			this.dispose();
@@ -98,7 +98,7 @@ class Looper {
 	processor: ScriptProcessorNode
 	loops: Loop[] = []; //todo: refactor to array of loops?
 	currentLoopId: number = null;
-	maxLoopDuration: number = 6;
+	maxLoopDuration: number = 30;
 	scheduledTracks: IScheduledTrack[] = [];
 	input: AudioNode;
 	output: AudioNode;
@@ -135,25 +135,37 @@ class Looper {
 	}
 
 	metronome(e) {
-		this.sched.insert(e.playbackTime + 0.000, this.playLoops, { duration: this.loopLength });
-		this.sched.insert(e.playbackTime + this.loopLength + 0.025, this.metronome);
+		this.sched.insert(e.playbackTime, this.playLoops, { duration: this.loopLength });
+		this.sched.insert(e.playbackTime + this.loopLength - 0.025, this.metronome);
 	}
 
 	playLoops(e) {
-		const t0 = e.playbackTime;
-		const t1 = t0 + e.args.duration;
+		//const t0 = e.playbackTime;
+		//const t1 = t0 + e.args.duration;
 		//
+		console.log('playloops called')
 		for (let i in this.loops){
 			if (this.loops[i].buffer !== null){
 				this.loops[i].play();
+				if (this.isOverdubbing){
+					this.loops[i].updateVolume();
+				}
 			}
 		}
 
-		this.sched.nextTick(t1, () => {
-			//for (let i in this.loops){
-			//	this.loops[i].stop();
-			//}
-		});
+		//this.sched.nextTick(t1, () => {
+		//	//for (let i in this.loops){
+		//	//	this.loops[i].stop();
+		//	//}
+		//});
+	}
+
+	stopLoops() {
+		for (let i in this.loops) {
+			if (this.loops[i].buffer !== null) {
+				this.loops[i].stop();
+			}
+		}
 	}
 
 	// WHEN RECORD/PLAY IS PRESSED //action
@@ -174,51 +186,33 @@ class Looper {
 			//this.startRecording();
 		}
 		//OVERDUBBING STATE
-		else {
+		else if (this.isOverdubbing) {
 			this.stopRecording();
+			this.stopPlaying();
 		}
-
-
-		// if already recording,
-		//if (this.isOverdubbing) {
-		//	this.stopPlaying();
-		//	this.stopRecording();
-		//}
-		//
-		//else if (this.isRecording && !this.isOverdubbing) {
-		//	// start overdubbing
-		//	this.startOverdubbing();
-		//}
-		//
-		//else if (this.isPlaying) {
-		//	console.log('start recording whilst playing');
-		//	this.startRecording();
-		//}
-		//// not recording / overdubbing / playing. Start new recording
-		//else {
-		//	this.reset();
-		//	this.startRecording();
-		//}
 	}
 
 	// play/stop button
 	onPlaybackPress() {
 		//// if playing, stop playing
-		if (this.isPlaying) {
+		if (this.isPlaying && !this.isOverdubbing) {
 			this.stopPlaying();
 		}
+
+		// if we're recording and we click play/stop, stop recording
+		else if (this.isRecording && !this.isPlaying) {
+			this.stopRecording();
+			this.startPlaying();
+		}
+
+		else if (this.isRecording && this.isPlaying) {
+			this.stopRecording();
+		}
 		//
-		//// if we're recording and we click play/stop, stop recording
-		//else if (this.isRecording && this.hasRecordings) {
-		//	console.log('pressed play whilst recording/overdubbing');
-		//	this.stopRecording();
-		//	this.startPlaying();
-		//}
-		//
-		//// if we're not playing and not recording but there are recordings *to* play start playing them
-		//else if (this.hasRecordings) {
-		//	this.startPlaying();
-		//}
+		// if we're not playing and not recording but there are recordings *to* play start playing them
+		else if (!this.isRecording && this.hasRecordings) {
+			this.startPlaying();
+		}
 	}
 
 	startRecording() {
@@ -229,21 +223,27 @@ class Looper {
 	}
 
 	stopRecording() {
+		this.setLoopLength(this.loops[0]);
 		console.log(`stopped recording, we have ${this.loops.length} loops`, this.loops);
 		this.isRecording = false;
 		this.processor.onaudioprocess = null;
 	}
 
+	setLoopLength(loop: Loop){
+		this.loopLength = loop.buffer.duration;
+	}
+
 	startOverdubbing() {
-		this.loopLength = this.loops[0].buffer.duration;
+		this.setLoopLength(this.loops[0]);
+
 		console.log(`startOverdubbing, the loop length is ${this.loopLength}`);
 		this.startPlaying();
 	}
 
-
 	startPlaying() {
-		this.nextLoopStartTime = this.context.currentTime;
+		//this.nextLoopStartTime = this.context.currentTime;
 		// run scheduler
+		this.connectLoopToOutput(this.loops[0]);
 		this.sched.start(this.metronome);
 		this.isPlaying = true;
 	}
@@ -252,7 +252,7 @@ class Looper {
 		// stop playing
 		this.isPlaying = false;
 		this.sched.stop(true);
-		//this.stopLoop();
+		this.stopLoops();
 	}
 
 
@@ -273,58 +273,15 @@ class Looper {
 
 		// start a new loop & connect old loop to output if the loop length reaches the maximum loopLength (minus buffer time)
 		if (newLoop.buffer.duration > this.loopLength - 0.025) {
-			this.loops[this.currentLoopId].output.connect(this.output);
+			this.connectLoopToOutput(this.loops[this.currentLoopId]);
 			this.nextLoopStartTime = this.context.currentTime;
 			this.incrementLoop();
 			console.log(`new recorded buffer added, duration ${newLoop.buffer.duration}`, this.loops);
 		}
 	};
 
-	//TODO: schedule these. Call this function at the right time to play the loops
-	// plays all recorded tracks in sync together as one loop
-	//playLoop(time: number) {
-	//	// for each track
-	//	console.log('scheduled tracks', this.scheduledTracks);
-	//	for (var i in this.loops) {
-	//		// buffer
-	//		var loop = this.loops[i];
-	//		// remove played tracks
-	//		//while (this.scheduledTracks.length && this.scheduledTracks[0].time < this.context.currentTime - 0.1) {
-	//		//	this.scheduledTracks.splice(0, 1);
-	//		//}
-	//
-	//		// track not null
-	//		if (loop !== null) {
-	//			loop.source.start(time);
-	//
-	//			//this.scheduledTracks.push({
-	//			//	time: time,
-	//			//	sound: sound
-	//			//});
-	//		}
-	//	}
-	//
-	//	console.log('scheduled tracks', this.scheduledTracks);
-	//	console.log('this recordings', this.loops);
-	//}
-
-	stopLoop() {
-		// clear timer
-		console.log('stop loop');
-
-		window.clearInterval(this.timer);
-
-		// for each scheduled track
-		for (var i in this.scheduledTracks) {
-			// stop playing
-			this.scheduledTracks[i].sound.stop();
-		}
-
-		// reset scheduled tracks
-		this.scheduledTracks = [];
-
-
-		console.log('scheduled tracks', this.scheduledTracks);
+	connectLoopToOutput(loop: Loop){
+		loop.output.connect(this.output);
 	}
 
 	newLoop() {
