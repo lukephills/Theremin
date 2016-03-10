@@ -1,5 +1,6 @@
 const WorkerTimer = require("worker-timer");
 const WebAudioScheduler = require('web-audio-scheduler');
+const mergeBuffers = require('merge-audio-buffers');
 
 interface IScheduledTrack {
 	time: number;
@@ -7,6 +8,7 @@ interface IScheduledTrack {
 }
 
 let __ID = 0; //TODO: could generate a loop id by using its position in Looper.loops
+
 
 class Loop {
 	id: number;
@@ -18,7 +20,7 @@ class Loop {
 	context: AudioContext;
 	playCount: number = 0;
 	maxPlayCount: number = 30;
-	startOffset: number = 0;
+	startOffset: number = 0; //TODO: if start overdubbing whilst playing back give the loop an offset of loop[0].length - newloopLength
 	disposed: boolean = false;
 
 	constructor(context) {
@@ -33,8 +35,7 @@ class Loop {
 
 	play(time: number = this.context.currentTime){
 		if (!this.disposed){
-			console.log('start loop', this.id, 'at time',this.context.currentTime,'. Currently playing?', this.isPlaying)
-
+			//console.log('start loop', this.id, 'at time',this.context.currentTime,'. Currently playing?', this.isPlaying)
 			// Audiobuffer sources get created and deleted each time
 			let source: AudioBufferSourceNode = this.context.createBufferSource();
 			source.buffer = this.buffer;
@@ -49,7 +50,7 @@ class Loop {
 
 	stop(time: number = this.context.currentTime) {
 		if (this.disposed) return;
-		console.log('stop loop', this.id, 'at time: ', time);
+		//console.log('stop loop', this.id, 'at time: ', time);
 		this.activeBufferSources.forEach((src: AudioBufferSourceNode) => {
 			src.stop(time);
 		})
@@ -98,11 +99,11 @@ class Looper {
 	processor: ScriptProcessorNode
 	loops: Loop[] = []; //todo: refactor to array of loops?
 	currentLoopId: number = null;
-	maxLoopDuration: number = 30;
+	maxLoopDuration: number = 300;
 	scheduledTracks: IScheduledTrack[] = [];
 	input: AudioNode;
 	output: AudioNode;
-	minDuration: number = 0.7;
+	//minDuration: number = 0.7;
 	loopLength: number = this.maxLoopDuration;
 	nextLoopStartTime: number;
 	timer: number;
@@ -131,7 +132,29 @@ class Looper {
 		this.playLoops = this.playLoops.bind(this);
 		this.metronome = this.metronome.bind(this);
 		this.onaudioprocess = this.onaudioprocess.bind(this);
+		this.scheduler = this.scheduler.bind(this);
 
+	}
+
+	temp: number = 0;
+
+	// scheduler is constantly called
+	scheduler() {
+		// next note soon
+		while (this.nextLoopStartTime < this.context.currentTime - 0.1) {
+			console.log('in the while loop', this.nextLoopStartTime, '<', this.context.currentTime)
+			this.temp++;
+			if (this.temp > 1){
+				console.log('shit', this.nextLoopStartTime - this.context.currentTime)
+			}
+			//console.log(this.context.currentTime);
+			// shedule play
+			this.playLoops(this.loopLength);
+			// next beat time
+			this.nextLoopStartTime += this.loopLength;
+		}
+		// runner...
+		this.timer = window.setTimeout(this.scheduler, 5);
 	}
 
 	metronome(e) {
@@ -140,10 +163,8 @@ class Looper {
 	}
 
 	playLoops(e) {
-		//const t0 = e.playbackTime;
-		//const t1 = t0 + e.args.duration;
-		//
-		console.log('playloops called')
+		//TODO: Test speed when only playing the most recent and setting all loop buffers.loop = true
+		// This way we will only need to loop all if playing back the first time
 		for (let i in this.loops){
 			if (this.loops[i].buffer !== null){
 				this.loops[i].play();
@@ -152,12 +173,6 @@ class Looper {
 				}
 			}
 		}
-
-		//this.sched.nextTick(t1, () => {
-		//	//for (let i in this.loops){
-		//	//	this.loops[i].stop();
-		//	//}
-		//});
 	}
 
 	stopLoops() {
@@ -173,6 +188,9 @@ class Looper {
 		//TODO: instead of if else, make a switch statement to detect this.recordState
 		//STOPPED STATE
 		if (!this.isRecording && !this.isOverdubbing){
+			if (this.isPlaying){
+				this.stopPlaying();
+			}
 			this.reset();
 			this.startRecording();
 		}
@@ -182,7 +200,8 @@ class Looper {
 		}
 		//PLAYING BACK STATE
 		else if (this.isPlaying && !this.isRecording) {
-			console.log('start recording whilst playing');
+			//TODO
+			//console.log('start recording whilst playing');
 			//this.startRecording();
 		}
 		//OVERDUBBING STATE
@@ -194,7 +213,7 @@ class Looper {
 
 	// play/stop button
 	onPlaybackPress() {
-		//// if playing, stop playing
+		// if playing, stop playing
 		if (this.isPlaying && !this.isOverdubbing) {
 			this.stopPlaying();
 		}
@@ -230,6 +249,7 @@ class Looper {
 	}
 
 	setLoopLength(loop: Loop){
+		console.log('setLoopLength', loop.buffer.duration)
 		this.loopLength = loop.buffer.duration;
 	}
 
@@ -243,20 +263,24 @@ class Looper {
 	startPlaying() {
 		//this.nextLoopStartTime = this.context.currentTime;
 		// run scheduler
-		this.connectLoopToOutput(this.loops[0]);
-		this.sched.start(this.metronome);
+		//this.sched.start(this.metronome);
+		this.scheduler();
+
 		this.isPlaying = true;
 	}
 
 	stopPlaying() {
 		// stop playing
 		this.isPlaying = false;
-		this.sched.stop(true);
+		//this.sched.stop(true);
+		window.clearTimeout(this.timer);
+
 		this.stopLoops();
 	}
 
 
 	// on audio process loop
+	//TODO: capture in mono to save processing power
 	onaudioprocess(e) {
 		// not recording -> exit
 		if (!this.isRecording && !this.isOverdubbing) {
@@ -272,10 +296,12 @@ class Looper {
 		this.loops[this.currentLoopId] = newLoop;
 
 		// start a new loop & connect old loop to output if the loop length reaches the maximum loopLength (minus buffer time)
-		if (newLoop.buffer.duration > this.loopLength - 0.025) {
-			this.connectLoopToOutput(this.loops[this.currentLoopId]);
+		if (newLoop.buffer.duration > this.loopLength) {
+			this.temp = 0;
+			//this.connectLoopToOutput(this.loops[this.currentLoopId]);
 			this.nextLoopStartTime = this.context.currentTime;
 			this.incrementLoop();
+			console.log('first buffer duration', this.loops[0].buffer.duration)
 			console.log(`new recorded buffer added, duration ${newLoop.buffer.duration}`, this.loops);
 		}
 	};
@@ -286,6 +312,7 @@ class Looper {
 
 	newLoop() {
 		this.loops.push(new Loop(this.context));
+		this.connectLoopToOutput(this.loops[this.currentLoopId]);
 	}
 
 	incrementLoop() {
@@ -298,31 +325,25 @@ class Looper {
 		this.currentLoopId = id;
 	}
 
-	// scheduler is constantly called
-	//scheduler() {
-	//	// next note soon
-	//	while (this.nextLoopStartTime < this.context.currentTime) {
-	//
-	//		console.log('in loop at ', this.context.currentTime, 'the next loop start time was: ', this.nextLoopStartTime);
-	//
-	//		// shedule play
-	//		this.playLoop(this.loopLength);
-	//		// next beat time
-	//		this.nextLoopStartTime += this.loopLength;
-	//	}
-	//
-	//	// runner...
-	//	this.timer = setInterval(() => {
-	//		this.scheduler();
-	//	}, 25);
-	//}
-
 
 	reset() {
 		this.loops = [];
 		this.loopLength = this.maxLoopDuration;
 		//this.nextLoopStartTime = null;
 		//this.timer = null;
+	}
+
+
+	exportWav(callback){
+		let buffers: AudioBuffer[] = [];
+		for (let i in this.loops){
+			buffers.push(this.loops[i].buffer);
+		}
+		let mergedBuffer = mergeBuffers(buffers, this.context);
+		console.log('mergedBuffer', mergedBuffer);
+		let dataView = new DataView(mergedBuffer);
+		let blob = new Blob([dataView], { type: 'audio/wav' });
+		console.log(blob)
 	}
 
 	/**

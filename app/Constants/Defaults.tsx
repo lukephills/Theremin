@@ -32,7 +32,8 @@ export const DEFAULTS: any = {
 			transformValue: (value) => {
 				return (value * 1000).toFixed();
 			},
-			value: 0.225,
+			//value: 0.225,
+			value: 0,
 		},
 		feedback: {
 			max: 1,
@@ -42,7 +43,8 @@ export const DEFAULTS: any = {
 			transformValue: (value) => {
 				return (value * 100).toFixed();
 			},
-			value: 0.5,
+			//value: 0.5,
+			value: 0,
 		},
 		scuzz: {
 			max: 1000,
@@ -52,7 +54,8 @@ export const DEFAULTS: any = {
 			transformValue: (value) => {
 				return value;
 			},
-			value: 50,
+			//value: 50,
+			value: 0,
 			waveform: 'sine',
 		},
 	},

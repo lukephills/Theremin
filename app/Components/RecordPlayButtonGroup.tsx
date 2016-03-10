@@ -201,8 +201,12 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 			case STATE.STOPPED:
 				this.playerChangeDispatch(STATE.PLAYING);
 				if (this.props.recordState === STATE.STOPPED) {
-					this.recorderChangeDispatch(STATE.PLAYING, false);
+					//TODO: for adding additional overdubbing later
+					//this.recorderChangeDispatch(STATE.PLAYING, false);
+				} else {
+					this.recorderChangeDispatch(STATE.STOPPED, false);
 				}
+
 			break;
 		}
 	}
@@ -214,19 +218,24 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		//if (this.props.playerState === STATE.PLAYING) {
 		//	this.playerChangeDispatch(STATE.OVERDUBBING);
 		//}
+		console.log(this.props.recordState);
 
 		switch (this.props.recordState) {
+
 			case STATE.RECORDING:
 				this.recorderChangeDispatch(STATE.OVERDUBBING);
 				break;
 			case STATE.OVERDUBBING:
 				this.recorderChangeDispatch(STATE.STOPPED);
 				if (this.props.playerState === STATE.PLAYING){
-					this.playerChangeDispatch(STATE.PLAYING, false);
+					this.playerChangeDispatch(STATE.STOPPED, false);
 				}
 				break;
 			case STATE.STOPPED:
 				this.recorderChangeDispatch(STATE.RECORDING);
+				if (this.props.playerState === STATE.PLAYING){
+					this.playerChangeDispatch(STATE.STOPPED, false);
+				}
 				break;
 			case STATE.PLAYING:
 				this.recorderChangeDispatch(STATE.OVERDUBBING);

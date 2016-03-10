@@ -137,9 +137,12 @@ class Audio {
 	}
 
 	public Download(cb: Function): void {
-		this.recorder.exportWAV((recording: Blob) => {
+		this.looper.exportWav((recording: Blob) => {
 			cb(recording);
 		});
+		//this.recorder.exportWAV((recording: Blob) => {
+		//	cb(recording);
+		//});
 	}
 
 	private setupAnalysers(): void {
