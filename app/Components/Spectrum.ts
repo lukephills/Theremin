@@ -25,7 +25,7 @@ class Spectrum {
 
 	public Draw(options: ISpectrumOptions = this.defaultOptions): void {
 		if (options.isActive) {
-
+			//TODO reset magnitudes back to 0 on stop playback
 			const ctx: CanvasRenderingContext2D = this.canvas.getContext('2d');
 			const pixelRatio: number = this.pixelRatio;
 			const width: number = this.canvas.width / pixelRatio;
