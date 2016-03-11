@@ -154,7 +154,7 @@ class Looper {
 			this.nextLoopStartTime += this.loopLength;
 		}
 		// runner...
-		this.timer = window.setTimeout(this.scheduler, 5);
+		this.timer = window.setTimeout(this.scheduler, 1);
 	}
 
 	metronome(e) {
