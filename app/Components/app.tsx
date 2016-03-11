@@ -13,7 +13,6 @@ import {IGlobalState} from '../Constants/GlobalState';
 import Audio from '../Audio';
 import { modalChange } from '../Actions/actions';
 
-import '../Utils/Recorder/recorder'; //TODO: make recorder js an npm module
 import Visibility from '../Utils/visibility';
 import * as AudioUtils from '../Utils/AudioUtils';
 import * as CanvasUtils from '../Utils/CanvasUtils';

@@ -1,10 +1,8 @@
 //import {ICoordinates} from './Components/MultiTouchView';
 import { DEFAULTS } from './Constants/Defaults';
-import Recorder from './Utils/Recorder/recorder';
 import * as CanvasUtils from './Utils/CanvasUtils';
 import {WaveformStringType} from './Constants/AppTypings';
 const Tone: any = require('Tone/core/Tone.js');
-
 import Looper from './Utils/Recorder/Looper'
 
 interface IAnalysers {
@@ -17,7 +15,6 @@ class Audio {
 	public tone: Tone = new Tone();
 	public context: AudioContext = this.tone.context;
 	public voiceCount: number = DEFAULTS.VoiceCount;
-	public recorder: Recorder;
 	public recording: AudioBufferSourceNode;
 	public looper: Looper;
 
@@ -106,31 +103,11 @@ class Audio {
 		this.looper.onRecordPress();
 	}
 
-	//public StartRecorder(): void {
-	//	this.recorder.clear();
-	//	this.recorder.record();
-	//}
-	//
-	//public StopRecorder(): void {
-	//	this.recorder.stop();
-	//}
-
 	onPlaybackPress() {
 		this.looper.onPlaybackPress();
 	}
 
-	public StartPlayback(): void {
-		this.recorder.getBuffer((buffers: Float32Array[]) => {
-			this.recording = this.tone.context.createBufferSource();
-			const newBuffer: AudioBuffer = this.tone.context.createBuffer( 2, buffers[0].length, this.tone.context.sampleRate );
-			newBuffer.getChannelData(0).set(buffers[0]);
-			newBuffer.getChannelData(1).set(buffers[1]);
-			this.recording.buffer = newBuffer;
-			this.recording.connect(this.recordingGain);
-			this.recording.loop = true;
-			this.recording.start(0);
-		});
-	}
+
 
 	public StopPlayback(): void {
 		this.recording.stop(0);

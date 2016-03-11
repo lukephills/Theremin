@@ -1,6 +1,7 @@
 const WorkerTimer = require("worker-timer");
 const WebAudioScheduler = require('web-audio-scheduler');
 const mergeBuffers = require('merge-audio-buffers');
+import RecorderWorker from './RecorderWorker';
 
 interface IScheduledTrack {
 	time: number;
@@ -108,6 +109,7 @@ class Looper {
 	nextLoopStartTime: number;
 	timer: number;
 	sched; //TODO: type this
+	recordMono: boolean = true;
 
 
 	constructor(input: AudioNode, output: AudioNode, bufferSize: number = 4096) {
@@ -117,23 +119,25 @@ class Looper {
 		this.bufferSize = bufferSize
 		this.context = this.input.context;
 		// recorder
-		this.processor = this.context.createScriptProcessor(this.bufferSize, 2, 2);
+		this.processor = this.context.createScriptProcessor(this.bufferSize, this.recordMono ? 1 : 2, 2);
 
 		// connection
 		this.input.connect(this.processor);
 		this.processor.connect(this.output);
 
 
-		this.sched = new WebAudioScheduler({
-			timerAPI: WorkerTimer,
-			context: this.context
-		});
-
 		this.playLoops = this.playLoops.bind(this);
-		this.metronome = this.metronome.bind(this);
 		this.onaudioprocess = this.onaudioprocess.bind(this);
 		this.scheduler = this.scheduler.bind(this);
 
+		// initialize the Recorder worker for downloading/encoding WAV's only
+		RecorderWorker.postMessage({
+			command: 'init',
+			config: {
+				sampleRate: 44100,
+				numChannels: this.recordMono ? 1 : 2
+			}
+		});
 	}
 
 	temp: number = 0;
@@ -154,12 +158,8 @@ class Looper {
 			this.nextLoopStartTime += this.loopLength;
 		}
 		// runner...
-		this.timer = window.setTimeout(this.scheduler, 1);
-	}
-
-	metronome(e) {
-		this.sched.insert(e.playbackTime, this.playLoops, { duration: this.loopLength });
-		this.sched.insert(e.playbackTime + this.loopLength - 0.025, this.metronome);
+		this.timer = WorkerTimer.setTimeout(this.scheduler, 1);
+		//this.timer = window.setTimeout(this.scheduler, 1);
 	}
 
 	playLoops(e) {
@@ -263,7 +263,6 @@ class Looper {
 	startPlaying() {
 		//this.nextLoopStartTime = this.context.currentTime;
 		// run scheduler
-		//this.sched.start(this.metronome);
 		this.scheduler();
 
 		this.isPlaying = true;
@@ -273,7 +272,8 @@ class Looper {
 		// stop playing
 		this.isPlaying = false;
 		//this.sched.stop(true);
-		window.clearTimeout(this.timer);
+		//window.clearTimeout(this.timer);
+		WorkerTimer.clearTimeout(this.timer);
 
 		this.stopLoops();
 	}
@@ -289,6 +289,7 @@ class Looper {
 		// current loop
 		let newLoop = this.loops[this.currentLoopId];
 
+		//console.log(e.inputBuffer);
 		// update recording with new audio event information
 		newLoop.buffer = this.appendBuffer(newLoop.buffer, e.inputBuffer);
 
@@ -329,22 +330,44 @@ class Looper {
 	reset() {
 		this.loops = [];
 		this.loopLength = this.maxLoopDuration;
-		//this.nextLoopStartTime = null;
-		//this.timer = null;
+		this.nextLoopStartTime = null;
+		this.timer = null;
 	}
 
 
-	exportWav(callback){
+	exportWav(returnWavCallback: Function){
 		let buffers: AudioBuffer[] = [];
 		for (let i in this.loops){
 			buffers.push(this.loops[i].buffer);
 		}
-		let mergedBuffer = mergeBuffers(buffers, this.context);
-		console.log('mergedBuffer', mergedBuffer);
-		let dataView = new DataView(mergedBuffer);
-		let blob = new Blob([dataView], { type: 'audio/wav' });
-		console.log(blob)
+		let mergedBuffer: AudioBuffer = mergeBuffers(buffers, this.context);
+
+		RecorderWorker.postMessage({
+			command: 'clear',
+		});
+
+		// callback for `exportWAV`
+		RecorderWorker.onmessage = function(e) {
+			// this is would be your WAV blob
+			returnWavCallback(e.data.data);
+		};
+
+		// send the channel data from our buffer to the worker
+		// TODO: update this to allow stereo recording in the future
+		RecorderWorker.postMessage({
+			command: 'record',
+			buffer: [
+				mergedBuffer.getChannelData(0)
+			]
+		});
+
+		// ask the worker for a WAV
+		RecorderWorker.postMessage({
+			command: 'exportWAV',
+			type: 'audio/wav'
+		});
 	}
+
 
 	/**
 	 * Joins to buffers together. If one buffer is empty, return the other.
@@ -373,4 +396,3 @@ class Looper {
 }
 
 export default Looper;
-
