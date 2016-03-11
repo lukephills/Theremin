@@ -259,22 +259,22 @@ class App extends React.Component<any, IState> {
 
 		ctx.clearRect(0, 0, width, height);
 
-		let liveColor = 'black';
+		let liveColor = STYLE_CONST.BLACK;
 		switch (this.props.recordState) {
 			case 'recording':
-				liveColor = 'red'
+				liveColor = STYLE_CONST.RED
 				break;
 			case 'overdubbing':
-				liveColor = 'darkred'
+				liveColor = STYLE_CONST.RED
 				break;
 			case 'stopped':
-				liveColor = 'black'
+				liveColor = STYLE_CONST.BLACK
 				break;
 		}
 
 		this.spectrumRecording.Draw({
 			isActive: this._isAnimating && (this.props.playerState === STATE.PLAYING),
-			color: 'grey',
+			color: STYLE_CONST.GREY,
 		});
 
 		this.spectrumLive.Draw({

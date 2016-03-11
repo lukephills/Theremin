@@ -9,14 +9,13 @@ export const STYLE_CONST: any = prefixer.prefix({
 	BOTTOM_PANEL_HEIGHT: 150,
 	TITLE_FONT_SIZE: 34,
 	SLIDER_FONT_SIZE: 28,
-	YELLOW: 'rgb(211,198,101)',
-	GREEN: 'rgb(76,126,130)',
-	RED: '#ae2a2b',
-	GREEN_VALUES: '76,126,130',
-	BROWN: 'rgb(52,40,0)',
 	WHITE: 'white',
-	BLACK: 'black',
-	GREY: 'grey',
+	BLACK: '#444',
+	GREY: 'rgba(50,50,50,0.5)',
+	YELLOW: '#fff997',
+	GREEN: 'rgb(114,193,165)',
+	RED: '#df6c57',
+	GREEN_VALUES: '114,193,165',
 	PADDING: 5,
 })
 
@@ -40,6 +39,7 @@ export const STYLE: any = prefixer.prefix({
 			margin: 0,
 			marginLeft: 20,
 			fontWeight: 400,
+			color: STYLE_CONST.BLACK,
 		},
 		h1_mobile: {
 			fontSize: 16,
@@ -86,7 +86,7 @@ export const STYLE: any = prefixer.prefix({
 	touchArea: {
 		background: STYLE_CONST.YELLOW,
 		cursor: 'pointer',
-		border: `${STYLE_CONST.BORDER_WIDTH}px solid black`,
+		border: `${STYLE_CONST.BORDER_WIDTH}px solid ${STYLE_CONST.BLACK}`,
 	},
 
 	canvas: {
@@ -113,6 +113,7 @@ export const STYLE: any = prefixer.prefix({
 		lineHeight: `${STYLE_CONST.BOTTOM_PANEL_HEIGHT/3}px`,
 		marginRight: 20,
 		pointerEvents: 'none',
+		color: STYLE_CONST.BLACK,
 	},
 
 	recordOverlay: {

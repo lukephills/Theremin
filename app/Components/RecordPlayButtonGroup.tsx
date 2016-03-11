@@ -88,6 +88,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		var cx = width/2;
 		var cy = height/2;
 		ctx.lineWidth = Math.floor(width/15);
+		ctx.strokeStyle = STYLE_CONST.BLACK;
 
 		switch (options.id) {
 			case 'record':
