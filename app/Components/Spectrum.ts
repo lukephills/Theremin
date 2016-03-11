@@ -26,18 +26,6 @@ class Spectrum {
 	public Draw(options: ISpectrumOptions = this.defaultOptions): void {
 		if (options.isActive) {
 
-			switch (options.recordState) {
-				case 'recording':
-					options.color = 'red'
-					break;
-				case 'overdubbing':
-					options.color = 'darkred'
-					break;
-				case 'stopped':
-					options.color = 'black'
-					break;
-			}
-
 			const ctx: CanvasRenderingContext2D = this.canvas.getContext('2d');
 			const pixelRatio: number = this.pixelRatio;
 			const width: number = this.canvas.width / pixelRatio;

@@ -1,86 +1,9 @@
 const WorkerTimer = require("worker-timer");
-const WebAudioScheduler = require('web-audio-scheduler');
 const mergeBuffers = require('merge-audio-buffers');
 import RecorderWorker from './RecorderWorker';
+import Loop from './Loop';
+import {appendBuffer} from '../AudioUtils';
 
-interface IScheduledTrack {
-	time: number;
-	sound: AudioBufferSourceNode;
-}
-
-let __ID = 0; //TODO: could generate a loop id by using its position in Looper.loops
-
-
-class Loop {
-	id: number;
-	//source: AudioBufferSourceNode;
-	activeBufferSources: AudioBufferSourceNode[] = []
-	buffer: AudioBuffer;
-	output: GainNode;
-	isPlaying: boolean;
-	context: AudioContext;
-	playCount: number = 0;
-	maxPlayCount: number = 30;
-	startOffset: number = 0; //TODO: if start overdubbing whilst playing back give the loop an offset of loop[0].length - newloopLength
-	disposed: boolean = false;
-
-	constructor(context) {
-		this.isPlaying = false;
-		this.context = context;
-		this.output = this.context.createGain();
-		//this.source.connect(this.output);
-		this.buffer = null;
-		this.id = __ID;
-		__ID++;
-	}
-
-	play(time: number = this.context.currentTime){
-		if (!this.disposed){
-			//console.log('start loop', this.id, 'at time',this.context.currentTime,'. Currently playing?', this.isPlaying)
-			// Audiobuffer sources get created and deleted each time
-			let source: AudioBufferSourceNode = this.context.createBufferSource();
-			source.buffer = this.buffer;
-			source.start(this.context.currentTime, this.startOffset);
-			source.connect(this.output)
-			//this.activeBufferSources.push(source);
-			this.activeBufferSources[0] = source;
-			this.isPlaying = true;
-			this.playCount++;
-		}
-	}
-
-	stop(time: number = this.context.currentTime) {
-		if (this.disposed) return;
-		//console.log('stop loop', this.id, 'at time: ', time);
-		this.activeBufferSources.forEach((src: AudioBufferSourceNode) => {
-			src.stop(time);
-		})
-		this.activeBufferSources = [];
-		this.isPlaying = false;
-	}
-	//
-	// Lower the volume of the loop over time and eventually remove it after maxLoopAmount amount
-	updateVolume(){
-		this.output.gain.value /= 1.1; //TODO: calculate this number based on this.maxPlayCount
-		// if this output is barely audible remove loop
-		if (this.playCount >= this.maxPlayCount){
-			this.dispose();
-		}
-	}
-
-	dispose() {
-		this.stop();
-		this.output.disconnect();
-		this.activeBufferSources.forEach((src: AudioBufferSourceNode) => {
-			src.disconnect();
-		})
-		this.activeBufferSources = [];
-		this.output = null;
-		this.buffer = null;
-		this.isPlaying = null;
-		this.disposed = true;
-	}
-}
 
 class Looper {
 
@@ -98,17 +21,14 @@ class Looper {
 	bufferSize: number;
 	context: AudioContext;
 	processor: ScriptProcessorNode
-	loops: Loop[] = []; //todo: refactor to array of loops?
+	loops: Loop[] = [];
 	currentLoopId: number = null;
 	maxLoopDuration: number = 300;
-	scheduledTracks: IScheduledTrack[] = [];
 	input: AudioNode;
 	output: AudioNode;
-	//minDuration: number = 0.7;
 	loopLength: number = this.maxLoopDuration;
 	nextLoopStartTime: number;
 	timer: number;
-	sched; //TODO: type this
 	recordMono: boolean = true;
 
 
@@ -140,7 +60,7 @@ class Looper {
 		});
 	}
 
-	temp: number = 0;
+	temp: number = 0; //TODO: delete this when discovered the bug
 
 	// scheduler is constantly called
 	scheduler() {
@@ -151,9 +71,8 @@ class Looper {
 			if (this.temp > 1){
 				console.log('shit', this.nextLoopStartTime - this.context.currentTime)
 			}
-			//console.log(this.context.currentTime);
 			// shedule play
-			this.playLoops(this.loopLength);
+			this.playLoops();
 			// next beat time
 			this.nextLoopStartTime += this.loopLength;
 		}
@@ -162,9 +81,7 @@ class Looper {
 		//this.timer = window.setTimeout(this.scheduler, 1);
 	}
 
-	playLoops(e) {
-		//TODO: Test speed when only playing the most recent and setting all loop buffers.loop = true
-		// This way we will only need to loop all if playing back the first time
+	playLoops() {
 		for (let i in this.loops){
 			if (this.loops[i].buffer !== null){
 				this.loops[i].play();
@@ -261,7 +178,7 @@ class Looper {
 	}
 
 	startPlaying() {
-		//this.nextLoopStartTime = this.context.currentTime;
+		this.nextLoopStartTime = this.context.currentTime;
 		// run scheduler
 		this.scheduler();
 
@@ -271,7 +188,6 @@ class Looper {
 	stopPlaying() {
 		// stop playing
 		this.isPlaying = false;
-		//this.sched.stop(true);
 		//window.clearTimeout(this.timer);
 		WorkerTimer.clearTimeout(this.timer);
 
@@ -289,9 +205,8 @@ class Looper {
 		// current loop
 		let newLoop = this.loops[this.currentLoopId];
 
-		//console.log(e.inputBuffer);
 		// update recording with new audio event information
-		newLoop.buffer = this.appendBuffer(newLoop.buffer, e.inputBuffer);
+		newLoop.buffer = appendBuffer(newLoop.buffer, e.inputBuffer, this.context);
 
 		// Save the updated loop
 		this.loops[this.currentLoopId] = newLoop;
@@ -326,17 +241,16 @@ class Looper {
 		this.currentLoopId = id;
 	}
 
-
 	reset() {
 		this.loops = [];
 		this.loopLength = this.maxLoopDuration;
-		this.nextLoopStartTime = null;
 		this.timer = null;
 	}
 
-
 	exportWav(returnWavCallback: Function){
 		let buffers: AudioBuffer[] = [];
+		//FIXME: when merging all buffers gain needs to be taken into account
+		//FIXME: THIS IS WHY EXPORTING LOOPS SOUNDS LOWER QUALITY
 		for (let i in this.loops){
 			buffers.push(this.loops[i].buffer);
 		}
@@ -367,32 +281,6 @@ class Looper {
 			type: 'audio/wav'
 		});
 	}
-
-
-	/**
-	 * Joins to buffers together. If one buffer is empty, return the other.
-	 * @param b1 {AudioBuffer}
-	 * @param b2 {AudioBuffer}
-	 * @returns {AudioBuffer}
-	 */
-	private appendBuffer(b1, b2): AudioBuffer {
-		if (b1 === null && b2 !== null){
-			return b2;
-		} else if (b2 === null && b1 !== null) {
-			return b1;
-		}
-		var nc = Math.min(b1.numberOfChannels, b2.numberOfChannels);
-		var b3 = (b1.length + b2.length);
-		var tmp = this.context.createBuffer(nc, b3, b1.sampleRate);
-		// For number of channels
-		for (var i = 0; i < nc; i++) {
-			var channel = tmp.getChannelData(i);
-			channel.set(b1.getChannelData(i), 0);
-			channel.set(b2.getChannelData(i), b1.length);
-		}
-
-		return tmp;
-	};
 }
 
 export default Looper;

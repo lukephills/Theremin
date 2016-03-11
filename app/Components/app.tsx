@@ -259,13 +259,27 @@ class App extends React.Component<any, IState> {
 
 		ctx.clearRect(0, 0, width, height);
 
+		let liveColor = 'black';
+		switch (this.props.recordState) {
+			case 'recording':
+				liveColor = 'red'
+				break;
+			case 'overdubbing':
+				liveColor = 'darkred'
+				break;
+			case 'stopped':
+				liveColor = 'black'
+				break;
+		}
+
 		this.spectrumRecording.Draw({
 			isActive: this._isAnimating && (this.props.playerState === STATE.PLAYING),
+			color: 'grey',
 		});
 
 		this.spectrumLive.Draw({
 			isActive: this._isAnimating,
-			recordState: this.props.recordState,
+			color: liveColor,
 		});
 
 	}
