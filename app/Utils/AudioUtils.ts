@@ -40,6 +40,7 @@ export function appendBuffer(oldBuffer: AudioBuffer, newBuffer: AudioBuffer = ol
  * @returns {AudioBuffer}
  */
 export function weakenBuffer(buffer: AudioBuffer, volume: number, audioContext: AudioContext){
+	volume = Math.min(1, volume);
 	const newBuffer = audioContext.createBuffer(buffer.numberOfChannels, buffer.length, buffer.sampleRate);
 	for (let channel = 0, c = buffer.numberOfChannels; channel < c; channel++) {
 		let oldData = buffer.getChannelData(channel);
