@@ -2,7 +2,7 @@ const WorkerTimer = require("worker-timer");
 const mergeBuffers = require('merge-audio-buffers');
 import RecorderWorker from './RecorderWorker';
 import Loop from './Loop';
-import {appendBuffer} from '../AudioUtils';
+import {appendBuffer, weakenBuffer} from '../AudioUtils';
 
 
 class Looper {
@@ -247,14 +247,15 @@ class Looper {
 		this.timer = null;
 	}
 
+
+
 	exportWav(returnWavCallback: Function){
 		let buffers: AudioBuffer[] = [];
-		//FIXME: when merging all buffers gain needs to be taken into account
-		//FIXME: THIS IS WHY EXPORTING LOOPS SOUNDS LOWER QUALITY
 		for (let i in this.loops){
-			buffers.push(this.loops[i].buffer);
+			const newBuffer = weakenBuffer(this.loops[i].buffer, this.loops[i].output.gain.value, this.context)
+			buffers.push(newBuffer);
 		}
-		let mergedBuffer: AudioBuffer = mergeBuffers(buffers, this.context);
+		const mergedBuffer: AudioBuffer = mergeBuffers(buffers, this.context);
 
 		RecorderWorker.postMessage({
 			command: 'clear',

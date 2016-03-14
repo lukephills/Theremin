@@ -12,6 +12,7 @@ class Loop {
 	maxPlayCount: number = 30;
 	startOffset: number = 0; //TODO: if start overdubbing whilst playing back give the loop an offset of loop[0].length - newloopLength
 	disposed: boolean = false;
+	volumeReduceAmount: number = 1.1; //TODO: calculate this number based on this.maxPlayCount
 
 	constructor(context) {
 		this.isPlaying = false;
@@ -50,7 +51,7 @@ class Loop {
 	//
 	// Lower the volume of the loop over time and eventually remove it after maxLoopAmount amount
 	updateVolume(){
-		this.output.gain.value /= 1.1; //TODO: calculate this number based on this.maxPlayCount
+		this.output.gain.value /= this.volumeReduceAmount;
 		// if this output is barely audible remove loop
 		if (this.playCount >= this.maxPlayCount){
 			this.dispose();
