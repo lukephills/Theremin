@@ -2,7 +2,7 @@
 import { DEFAULTS } from './Constants/Defaults';
 import * as CanvasUtils from './Utils/CanvasUtils';
 import {WaveformStringType} from './Constants/AppTypings';
-const Tone: any = require('Tone/core/Tone.js');
+//const Tone: any = require('Tone/core/Tone.js');
 import Looper from './Utils/Looper/Looper'
 
 interface IAnalysers {
@@ -12,8 +12,9 @@ interface IAnalysers {
 
 class Audio {
 
-	public tone: Tone = new Tone();
-	public context: AudioContext = this.tone.context;
+	//public tone: Tone = new Tone(); //TODO: include a web audio polyfill
+	public context: AudioContext = new AudioContext();
+
 	public voiceCount: number = DEFAULTS.VoiceCount;
 	public recording: AudioBufferSourceNode;
 	public looper: Looper;
@@ -95,7 +96,7 @@ class Audio {
 
 	public SetFilterFrequency(y: number, id: number): void {
 		if (id < this.voiceCount) {
-			this.filters[id].frequency.value = (this.tone.context.sampleRate / 2) * (y / 100);
+			this.filters[id].frequency.value = (this.context.sampleRate / 2) * (y / 100);
 		}
 	}
 
@@ -114,9 +115,14 @@ class Audio {
 	}
 
 	public Download(cb: Function): void {
+
+
+
 		this.looper.exportWav((recording: Blob) => {
 			cb(recording);
 		});
+
+
 		//this.recorder.exportWAV((recording: Blob) => {
 		//	cb(recording);
 		//});

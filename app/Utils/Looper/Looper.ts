@@ -1,5 +1,6 @@
 const WorkerTimer = require("worker-timer");
 const mergeBuffers = require('merge-audio-buffers');
+const bufferUtils = require('audio-buffer-utils');
 import RecorderWorker from './RecorderWorker';
 import Loop from './Loop';
 import {appendBuffer, weakenBuffer} from '../AudioUtils';
@@ -303,11 +304,18 @@ class Looper {
 
 	exportWav(returnWavCallback: Function){
 		let buffers: AudioBuffer[] = [];
+
+		let weakenAmount = Math.min(this.loops.length, 4);
+
 		for (let i in this.loops){
-			const newBuffer = weakenBuffer(this.loops[i].buffer, this.loops[i].output.gain.value, this.context)
-			buffers.push(newBuffer);
+			if (this.loops[i].buffer !== null){
+				const newBuffer = weakenBuffer(this.loops[i].buffer, this.loops[i].output.gain.value / weakenAmount, this.context)
+				buffers.push(newBuffer);
+			}
 		}
+
 		const mergedBuffer: AudioBuffer = mergeBuffers(buffers, this.context);
+		const normalizedBuffer = bufferUtils.normalize(mergedBuffer);
 
 		RecorderWorker.postMessage({
 			command: 'clear',
@@ -324,7 +332,7 @@ class Looper {
 		RecorderWorker.postMessage({
 			command: 'record',
 			buffer: [
-				mergedBuffer.getChannelData(0)
+				normalizedBuffer.getChannelData(0)
 			]
 		});
 
