@@ -1,8 +1,8 @@
 //import {ICoordinates} from './Components/MultiTouchView';
+require('./Utils/audio-shim');
 import { DEFAULTS } from './Constants/Defaults';
 import * as CanvasUtils from './Utils/CanvasUtils';
 import {WaveformStringType} from './Constants/AppTypings';
-//const Tone: any = require('Tone/core/Tone.js');
 import Looper from './Utils/Looper/Looper'
 
 interface IAnalysers {
