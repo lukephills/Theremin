@@ -21,7 +21,8 @@ class Looper {
 	bufferSize: number;
 	context: AudioContext;
 	processor: ScriptProcessorNode
-	loops: Loop[] = [];
+	loops: Loop[] = []; //TODO: loops should have a max of amount value
+	maxAmountOfLoops: number = 3;
 	currentLoopId: number = null;
 	maxLoopDuration: number = 300;
 	input: AudioNode;
@@ -30,7 +31,9 @@ class Looper {
 	nextLoopStartTime: number;
 	timer: number;
 	recordMono: boolean = true;
-
+	audioProcessLog: number = null;
+	audioProcessLogDelay: number = null; //TODO: can we work this out using the bufferSize and sample rate?
+	temploopLength: number = 0;
 
 	constructor(input: AudioNode, output: AudioNode, bufferSize: number = 4096) {
 
@@ -60,17 +63,17 @@ class Looper {
 		});
 	}
 
-	temp: number = 0; //TODO: delete this when discovered the bug
+	//temp: number = 0; //TODO: delete this when discovered the bug
 
 	// scheduler is constantly called
 	scheduler() {
 		// next note soon
 		while (this.nextLoopStartTime < this.context.currentTime - 0.1) {
-			console.log('in the while loop', this.nextLoopStartTime, '<', this.context.currentTime)
-			this.temp++;
-			if (this.temp > 1){
-				console.log('shit', this.nextLoopStartTime - this.context.currentTime)
-			}
+			//console.log('in the while loop', this.nextLoopStartTime, '<', this.context.currentTime)
+			//this.temp++;
+			//if (this.temp > 1){
+			//	console.log('shit', this.nextLoopStartTime - this.context.currentTime)
+			//}
 			// shedule play
 			this.playLoops();
 			// next beat time
@@ -82,12 +85,31 @@ class Looper {
 	}
 
 	playLoops() {
-		for (let i in this.loops){
-			if (this.loops[i].buffer !== null){
-				this.loops[i].play();
+		//for (let i in this.loops){
+		//	if (this.loops[i].buffer !== null){
+		//		this.loops[i].play();
+		//		if (this.isOverdubbing){
+		//			this.loops[i].updateVolume();
+		//			//TODO: once the loop has reached maxPlayCount remove it
+		//			//if (this.loops[i].playCount >= this.loops[i].maxPlayCount){
+		//			//	this.loops.shift();
+		//			//	console.log('SHIFTED', this.loops);
+		//			//}
+		//		}
+		//	}
+		//}
+		for (let i = this.loops.length - 1; i >= 0; i--){
+			if (this.loops[i].buffer !== null && !this.loops[i].disposed){
 				if (this.isOverdubbing){
 					this.loops[i].updateVolume();
+					//TODO: once the loop has reached maxPlayCount remove it
+					//if (this.loops[i].playCount >= this.loops[i].maxPlayCount){
+					//	this.loops.shift();
+					//	console.log('SHIFTED', this.loops);
+					//	continue;
+					//}
 				}
+				this.loops[i].play();
 			}
 		}
 	}
@@ -159,7 +181,9 @@ class Looper {
 	}
 
 	stopRecording() {
-		this.setLoopLength(this.loops[0]);
+		this.setLoopLength(this.loops[0]); //TODO: at this point the loop length is too short, can we calculate what the length will be using the script processor buffer size. Set the length to the closest available buffer size. For example, at buffer size 4096 the onadudio process fires every 0.09287981859410444 seconds. At 2048 buffer size it fires every 0.04643990929705222 seconds. In the onaudioprocess function get currentTime twice to find difference between them. We can use this value to work out the time to stop recording.
+		console.log(this.loops[0].buffer.duration)
+		setTimeout => console.log(this.loops[0].buffer.duration), 500;
 		console.log(`stopped recording, we have ${this.loops.length} loops`, this.loops);
 		this.isRecording = false;
 		this.processor.onaudioprocess = null;
@@ -172,8 +196,24 @@ class Looper {
 
 	startOverdubbing() {
 		this.setLoopLength(this.loops[0]);
+		//console.log('setLoopLength', this.temploopLength + this.loopLength - this.loops[0].buffer.duration)
+		//this.loopLength = this.loops[0].buffer.duration;
+		//this.loopLength = this.temploopLength + this.loopLength - this.loops[0].buffer.duration;
+
 
 		console.log(`startOverdubbing, the loop length is ${this.loopLength}`);
+		console.log(`startOverdubbing, the loop length is ${this.loopLength} + the amount time it takes until the next onaudioprocess gets called `);
+
+		let now = this.context.currentTime;
+		this.temploopLength = now + this.audioProcessLogDelay - this.audioProcessLog - 0.07;
+		console.log(now, '+', this.audioProcessLogDelay, '-', this.audioProcessLog);
+		console.log('now + this.audioProcessLogDelay - this.audioProcessLog - 0.07 = ', this.temploopLength);
+		console.log(`startOverdubbing, the loop length is ${this.temploopLength + this.loopLength}`);
+		// when was the last audioprocess called? - 200 ago => this.audioProcessLog
+		// what is the time difference between audioprocesses - 1000 => this.audioProcessLogDelay
+		// what time is it now - 3560
+		// when will the next audio process be? - 3560 + (1000 - 200)
+		// Set the new loop length to this.
 		this.startPlaying();
 	}
 
@@ -198,6 +238,13 @@ class Looper {
 	// on audio process loop
 	//TODO: capture in mono to save processing power
 	onaudioprocess(e) {
+		if (this.audioProcessLog && !this.audioProcessLogDelay) {
+			this.audioProcessLogDelay = this.context.currentTime - this.audioProcessLog;
+		}
+		this.audioProcessLog = this.context.currentTime;
+		//console.log('audioProcessLogDelay',this.audioProcessLogDelay)
+		//console.log('audioProcessLog',this.audioProcessLog)
+
 		// not recording -> exit
 		if (!this.isRecording && !this.isOverdubbing) {
 			return;
@@ -212,13 +259,16 @@ class Looper {
 		this.loops[this.currentLoopId] = newLoop;
 
 		// start a new loop & connect old loop to output if the loop length reaches the maximum loopLength (minus buffer time)
-		if (newLoop.buffer.duration > this.loopLength) {
-			this.temp = 0;
+		if (newLoop.buffer.duration > this.loopLength + this.temploopLength) {
+			this.temploopLength = 0;
 			//this.connectLoopToOutput(this.loops[this.currentLoopId]);
 			this.nextLoopStartTime = this.context.currentTime;
 			this.incrementLoop();
 			console.log('first buffer duration', this.loops[0].buffer.duration)
-			console.log(`new recorded buffer added, duration ${newLoop.buffer.duration}`, this.loops);
+			//console.clear();
+			console.log('out by', this.temploopLength + this.loopLength - this.loops[0].buffer.duration)
+
+			//console.log(`new recorded buffer added, duration ${newLoop.buffer.duration}`, this.loops);
 		}
 	};
 
@@ -232,7 +282,9 @@ class Looper {
 	}
 
 	incrementLoop() {
+		//if (this.loops.length === this.maxAmountOfLoops) return;
 		console.log(`${this.loops.length} loops recorded`);
+		console.log('set current loop id',this.loops.length);
 		this.setCurrentLoopId(this.loops.length);
 		this.newLoop();
 	}

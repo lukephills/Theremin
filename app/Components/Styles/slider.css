@@ -15,6 +15,17 @@ html {
     padding: 0 5px 5px 5px;
 }
 
+::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color:    #444;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:    #444;
+    opacity:  1;
+}
+:placeholder-shown { /* Standard (https://drafts.csswg.org/selectors-4/#placeholder) */
+    color:    #444;
+}
+
 .rc-slider * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
