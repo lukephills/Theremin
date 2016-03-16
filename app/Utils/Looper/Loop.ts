@@ -1,32 +1,23 @@
-let __ID = 0; //TODO: could generate a loop id by using its position in Looper.loops
-
 class Loop {
-	id: number;
-	//source: AudioBufferSourceNode;
 	activeBufferSources: AudioBufferSourceNode[] = []
-	buffer: AudioBuffer;
+	buffer: AudioBuffer = null;
 	output: GainNode;
 	isPlaying: boolean;
 	context: AudioContext;
 	playCount: number = 0;
-	maxPlayCount: number = 15;
-	startOffset: number = 0; //TODO: if start overdubbing whilst playing back give the loop an offset of loop[0].length - newloopLength
+	startOffset: number; //TODO: if start overdubbing whilst playing back give the loop an offset of loop[0].length - newloopLength
 	disposed: boolean = false;
 	volumeReduceAmount: number = 1.1; //TODO: calculate this number based on this.maxPlayCount
 
-	constructor(context) {
-		this.isPlaying = false;
+	constructor(context: AudioContext, startOffset: number = 0) {
 		this.context = context;
+		this.startOffset = startOffset;
+		this.isPlaying = false;
 		this.output = this.context.createGain();
-		//this.source.connect(this.output);
-		this.buffer = null;
-		this.id = __ID;
-		__ID++;
 	}
 
 	play(time: number = this.context.currentTime){
 		if (!this.disposed){
-			//console.log('start loop', this.id, 'at time',this.context.currentTime,'. Currently playing?', this.isPlaying)
 			// Audiobuffer sources get created and deleted each time
 			let source: AudioBufferSourceNode = this.context.createBufferSource();
 			source.buffer = this.buffer;

@@ -8,41 +8,51 @@ import {appendBuffer, weakenBuffer} from '../AudioUtils';
 
 class Looper {
 
-	isRecording: boolean = false
-	isPlaying: boolean = false;
+	public bufferSize: number;
+	public isPlaying: boolean = false;
+	public isRecording: boolean = false
+	public loops: Loop[] = [];
+	public maxAmountOfLoops: number = 3; //TODO: support a max amount of loops
+	public maxLoopDuration: number = 300;
+	public recordMono: boolean = true;
 
-	get isOverdubbing(): boolean {
+	private context: AudioContext;
+	private currentLoopId: number = null;
+	private input: AudioNode;
+	private isOverdubPressed: boolean = false;
+	private loopLength: number = this.maxLoopDuration;
+	private nextLoopStartTime: number = null;
+	private output: AudioNode;
+	private playbackSchedulerTimeout: number;
+	private processor: ScriptProcessorNode;
+
+	public get isOverdubbing(): boolean {
 		return this.loops.length > 1 && this.isRecording;
 	}
 
-	get hasRecordings(): boolean {
+	public get hasRecordings(): boolean {
 		return this.loops.length ? true : false;
 	};
 
-	bufferSize: number;
-	context: AudioContext;
-	processor: ScriptProcessorNode
-	loops: Loop[] = []; //TODO: loops should have a max of amount value
-	maxAmountOfLoops: number = 3;
-	currentLoopId: number = null;
-	maxLoopDuration: number = 300;
-	input: AudioNode;
-	output: AudioNode;
-	loopLength: number = this.maxLoopDuration;
-	nextLoopStartTime: number = null;
-	timer: number;
-	recordMono: boolean = true;
-	audioProcessLog: number = null;
-	audioProcessLogDelay: number = null; //TODO: can we work this out using the bufferSize and sample rate?
-	temploopLength: number = 0;
-	isOverdubPressed: boolean = false;
-
+	/**
+	 * LOOPER
+	 * Record, overdub and playback loops in the same style as a Line 6 DL4 Green Delay
+	 * `const looper = new Looper(input, output, bufferSize? = 4096)`
+	 * @param input {AudioNode}
+	 * @param output {AudioNode}
+	 * @param bufferSize (number}
+	 */
 	constructor(input: AudioNode, output: AudioNode, bufferSize: number = 4096) {
-
+		// Audio input
 		this.input = input;
+
+		// Audio output
 		this.output = output;
+
+		//
 		this.bufferSize = bufferSize
 		this.context = this.input.context;
+
 		// recorder
 		this.processor = this.context.createScriptProcessor(this.bufferSize, this.recordMono ? 1 : 2, 2);
 
@@ -50,10 +60,9 @@ class Looper {
 		this.input.connect(this.processor);
 		this.processor.connect(this.output);
 
-
-		this.playLoops = this.playLoops.bind(this);
+		// bind this to callback functions
 		this.onaudioprocess = this.onaudioprocess.bind(this);
-		this.scheduler = this.scheduler.bind(this);
+		this.playbackScheduler = this.playbackScheduler.bind(this);
 
 		// initialize the Recorder worker for downloading/encoding WAV's only
 		RecorderWorker.postMessage({
@@ -65,39 +74,24 @@ class Looper {
 		});
 	}
 
-	//temp: number = 0; //TODO: delete this when discovered the bug
-
-	// scheduler is constantly called
-	scheduler() {
+	/**
+	 * Recursive function to schedule loops to play at each loop start time
+	 */
+	playbackScheduler() {
 		// Only play when the current time reaches the next LoopStartTime
 		while (this.nextLoopStartTime < this.context.currentTime) {
-			// shedule play
 			this.playLoops();
-			// next beat time
+			// set the next loop start time
 			this.nextLoopStartTime += this.loopLength;
-			console.log('this.nextLoopStartTime = ', this.nextLoopStartTime);
 		}
-		// runner...
-		this.timer = WorkerTimer.setTimeout(this.scheduler, 0);
-
-
-		//this.timer = window.setTimeout(this.scheduler, 1);
+		// Keep scheduler running
+		this.playbackSchedulerTimeout = WorkerTimer.setTimeout(this.playbackScheduler, 0);
 	}
 
+	/**
+	 * Play all the loops starting with the newest
+	 */
 	playLoops() {
-		//for (let i in this.loops){
-		//	if (this.loops[i].buffer !== null){
-		//		this.loops[i].play();
-		//		if (this.isOverdubbing){
-		//			this.loops[i].updateVolume();
-		//			//TODO: once the loop has reached maxPlayCount remove it
-		//			//if (this.loops[i].playCount >= this.loops[i].maxPlayCount){
-		//			//	this.loops.shift();
-		//			//	console.log('SHIFTED', this.loops);
-		//			//}
-		//		}
-		//	}
-		//}
 		for (let i = this.loops.length - 1; i >= 0; i--){
 			if (this.loops[i].buffer !== null && !this.loops[i].disposed){
 				if (this.isOverdubbing){
@@ -114,6 +108,9 @@ class Looper {
 		}
 	}
 
+	/**
+	 * Stop all loops immediately
+	 */
 	stopLoops() {
 		for (let i in this.loops) {
 			if (this.loops[i].buffer !== null) {
@@ -122,10 +119,12 @@ class Looper {
 		}
 	}
 
-	// WHEN RECORD/PLAY IS PRESSED //action
+	/**
+	 * When the record/overdub button is pressed
+	 */
 	onRecordPress() {
 		//TODO: instead of if else, make a switch statement to detect this.recordState
-		//STOPPED STATE
+		// STOPPED STATE
 		if (!this.isRecording && !this.isOverdubbing){
 			if (this.isPlaying){
 				this.stopPlaying();
@@ -133,173 +132,177 @@ class Looper {
 			this.reset();
 			this.startRecording();
 		}
-		//FIRST RECORDING STATE
+		// FIRST RECORDING STATE
 		else if (this.isRecording && !this.isOverdubbing){
 			this.startOverdubbing();
 		}
-		//PLAYING BACK STATE
+		// PLAYING BACK STATE
 		else if (this.isPlaying && !this.isRecording) {
-			//TODO
+			//TODO: add ability to carry on overdubbing
 			//console.log('start recording whilst playing');
 			//this.startRecording();
 		}
-		//OVERDUBBING STATE
+		// OVERDUBBING STATE
 		else if (this.isOverdubbing) {
 			this.stopRecording();
 			this.stopPlaying();
 		}
 	}
 
-	// play/stop button
+	/**
+	 * When the playback/stop button is pressed
+	 */
 	onPlaybackPress() {
 		// if playing, stop playing
 		if (this.isPlaying && !this.isOverdubbing) {
 			this.stopPlaying();
 		}
 
-		// if we're recording and we click play/stop, stop recording
+		// if recording, stop recording
 		else if (this.isRecording && !this.isPlaying) {
 			this.stopRecording();
 			this.startPlaying();
 		}
 
+		// if overdubbing, stop overdubbing but carry on playing
 		else if (this.isRecording && this.isPlaying) {
 			this.stopRecording();
 		}
-		//
-		// if we're not playing and not recording but there are recordings *to* play start playing them
+
+		// if not playing or recording/overdubbing but loops exist, play them
 		else if (!this.isRecording && this.hasRecordings) {
 			this.startPlaying();
 		}
 	}
 
+	/**
+	 * Start Recording
+	 */
 	startRecording() {
-		// add a new track and set current loop
+		// add a new empty loop  and set current loop
 		this.incrementLoop();
 		this.isRecording = true;
 		this.processor.onaudioprocess = this.onaudioprocess;
 	}
 
+	/**
+	 * Stop Recording
+	 */
 	stopRecording() {
 		this.setLoopLength(this.loops[0]);
-		console.log(`stopped recording, we have ${this.loops.length} loops`, this.loops);
 		this.isRecording = false;
 		this.processor.onaudioprocess = null;
 	}
 
+	/**
+	 * Set Looper.loopLength using the loop argument's buffer duration
+	 * @param loop
+	 */
 	setLoopLength(loop: Loop){
-		console.log('setLoopLength', loop.buffer.duration)
 		this.loopLength = loop.buffer.duration;
 	}
 
+	/**
+	 * Start Overdubbing
+	 */
 	startOverdubbing() {
+		// Set overdub pressed boolean for onaudioprocess to catch
 		this.isOverdubPressed = true;
 	}
 
+	/**
+	 * Start playback
+	 */
 	startPlaying() {
-		console.time('scheduler');
+		// Set nextLoopStartTime as early as possible
 		this.nextLoopStartTime = this.context.currentTime;
 		// run scheduler
-		this.scheduler();
-
+		this.playbackScheduler();
 		this.isPlaying = true;
 	}
 
+	/**
+	 * Stop playbacks
+	 */
 	stopPlaying() {
-		// stop playing
 		this.isPlaying = false;
-		//window.clearTimeout(this.timer);
-		WorkerTimer.clearTimeout(this.timer);
-
+		WorkerTimer.clearTimeout(this.playbackSchedulerTimeout);
 		this.stopLoops();
 	}
 
-
-	// on audio process loop
-	//TODO: capture in mono to save processing power
+	/**
+	 * On audio process from the scriptProcessor
+	 * @param e - contains audio buffer
+	 */
 	onaudioprocess(e) {
-		//if (this.audioProcessLog && !this.audioProcessLogDelay) {
-		//	this.audioProcessLogDelay = this.context.currentTime - this.audioProcessLog;
-		//}
-		//this.audioProcessLog = this.context.currentTime;
-		////console.log('audioProcessLogDelay',this.audioProcessLogDelay)
-		////console.log('audioProcessLog',this.audioProcessLog)
+		// Exit loop if not recording
+		if (!this.isRecording && !this.isOverdubbing) return;
 
-
-
-
-
-		// not recording -> exit
-		if (!this.isRecording && !this.isOverdubbing) {
-			return;
-		}
-		// current loop
+		// get current loop
 		let newLoop = this.loops[this.currentLoopId];
 
-		// update recording with new audio event information
+		// update loop with new audio
 		newLoop.buffer = appendBuffer(newLoop.buffer, e.inputBuffer, this.context);
 
-		// Save the updated loop
+		// save the updated loop
 		this.loops[this.currentLoopId] = newLoop;
 
-		//check if the overdub button was first pressed
+		// if the overdub button was pressed set the loopLength and start playback
 		if (this.isOverdubPressed){
 			this.setLoopLength(this.loops[0]);
 			this.startPlaying();
 		}
 
-		// start a new loop & connect old loop to output if the loop length reaches the maximum loopLength (minus buffer time)
+		// if new loop reaches the max loop length
 		if (newLoop.buffer.duration >= this.loopLength) {
-			//reset overdub pressed button
+			// reset overdub button
 			this.isOverdubPressed = false;
-
-			this.temploopLength = 0;
-			//this.connectLoopToOutput(this.loops[this.currentLoopId]);
-			this.nextLoopStartTime = this.context.currentTime;
+			// start capturing a new loop
 			this.incrementLoop();
-			console.log('first buffer duration', this.loops[0].buffer.duration)
-			//console.clear();
-			console.log('out by', this.temploopLength + this.loopLength - this.loops[0].buffer.duration)
-
-			//console.log(`new recorded buffer added, duration ${newLoop.buffer.duration}`, this.loops);
 		}
 	};
 
-	connectLoopToOutput(loop: Loop){
-		loop.output.connect(this.output);
-	}
-
+	/**
+	 * Create a new loop and add to list of loops
+	 */
 	newLoop() {
 		this.loops.push(new Loop(this.context));
-		this.connectLoopToOutput(this.loops[this.currentLoopId]);
+		this.loops[this.currentLoopId].output.connect(this.output);
 	}
 
+	/**
+	 * Increment loop and set the current loop id
+	 */
 	incrementLoop() {
-		//if (this.loops.length === this.maxAmountOfLoops) return;
 		console.log(`${this.loops.length} loops recorded`);
-		console.log('set current loop id',this.loops.length);
-		this.setCurrentLoopId(this.loops.length);
+		this.currentLoopId = this.loops.length;
 		this.newLoop();
 	}
 
-	setCurrentLoopId(id: number) {
-		this.currentLoopId = id;
-	}
-
+	/**
+	 * Reset - Delete loops, stop scheduler and reset loopLength
+	 */
 	reset() {
 		this.loops = [];
 		this.loopLength = this.maxLoopDuration;
-		this.timer = null;
+		this.playbackSchedulerTimeout = null;
 		this.nextLoopStartTime = null;
 	}
 
-
-
+	/**
+	 * Export Wav
+	 * 1. Merges all loops together at their appropriate gains and normalizes to one audio buffer
+	 * 2. Sends the buffer to the RecorderJs worker
+	 * 3. Calls the callback function with the blob data as it's sole argument
+	 * @param returnWavCallback {(Blob) => {}}
+	 */
 	exportWav(returnWavCallback: Function){
 		let buffers: AudioBuffer[] = [];
 
-		let weakenAmount = Math.min(this.loops.length, 4);
+		// Calculate an amount to futher reduce the loop's output gain. Amount of loops, but 4 max.
+		const weakenAmount: number = Math.min(this.loops.length, 4);
 
+		// Weaken all loops and add to buffers array
 		for (let i in this.loops){
 			if (this.loops[i].buffer !== null){
 				const newBuffer = weakenBuffer(this.loops[i].buffer, this.loops[i].output.gain.value / weakenAmount, this.context)
@@ -307,14 +310,18 @@ class Looper {
 			}
 		}
 
+		// Merge all buffers in buffers array
 		const mergedBuffer: AudioBuffer = mergeBuffers(buffers, this.context);
+
+		// Normalize the merged buffer
 		const normalizedBuffer = bufferUtils.normalize(mergedBuffer);
 
+		// Clear Recorder worker
 		RecorderWorker.postMessage({
 			command: 'clear',
 		});
 
-		// callback for `exportWAV`
+		// set exportWAV callback
 		RecorderWorker.onmessage = function(e) {
 			// this is would be your WAV blob
 			returnWavCallback(e.data.data);
