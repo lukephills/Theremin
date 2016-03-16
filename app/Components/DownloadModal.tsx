@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-var Modal = require('react-modal');
+const Modal = require('react-modal');
+const Radium = require('radium');
 import Audio from '../Audio';
-import Downloader from '../Downloader';
 import ToggleButton from './ToggleButton'
 import { modalChange } from '../Actions/actions';
 import {IGlobalState} from '../Constants/GlobalState';
 import {STYLE_CONST} from './Styles/styles';
+import { DEFAULTS } from '../Constants/Defaults';
 
 function select(state: IGlobalState): any {
 	return {
@@ -14,8 +15,9 @@ function select(state: IGlobalState): any {
 	};
 }
 
+@Radium
 @connect(select)
-class RecordOverlay extends React.Component<any, any> {
+class DownloadModal extends React.Component<any, any> {
 
 	constructor(props){
 		super(props);
@@ -23,7 +25,9 @@ class RecordOverlay extends React.Component<any, any> {
 		this.closeModal = this.closeModal.bind(this);
 		this.handleChange = this.handleChange.bind(this);
 		this.onFocus = this.onFocus.bind(this);
+		this.onBlur = this.onBlur.bind(this);
 		this.keyDown = this.keyDown.bind(this);
+		this.onButtonHover = this.onButtonHover.bind(this)
 
 		this.state = {
 			modalIsOpen: this.props.isActive,
@@ -32,7 +36,7 @@ class RecordOverlay extends React.Component<any, any> {
 	}
 
 	public render(): React.ReactElement<{}> {
-		const {overlay, title, input, button} = this.props.style;
+		const {overlay, title, subtitle, input, button} = this.props.style;
 		let {content} = this.props.style;
 		const contentPadding = window.innerWidth / 14;
 		content = Object.assign({}, content, {
@@ -46,12 +50,14 @@ class RecordOverlay extends React.Component<any, any> {
 			       onRequestClose={this.closeModal}
 			       style={{content, overlay}}>
 				<div>
-					<span style={title}>Choose a filename</span>
+					<span style={title}>Download</span>
+					<span style={subtitle}>Choose a filename</span>
 					<input type="text"
 					       placeholder={this.state.filename || 'Theremin'}
 					       onChange={this.handleChange}
 					       onKeyDown={this.keyDown}
 					       onFocus={this.onFocus}
+					       onBlur={this.onBlur}
 					       style={input}/>
 					<ToggleButton onDown={this.onDownloadSubmit}
 					              style={button}>
@@ -63,12 +69,23 @@ class RecordOverlay extends React.Component<any, any> {
 	}
 
 	private handleChange(e){
-		const val = e.target.value ? e.target.value : 'theremin';
+		const val = e.target.value ? e.target.value : DEFAULTS.Title;
 		this.setState({filename: val})
 	}
 
 	private onFocus(e){
 		e.target.style.outline = 'none';
+		e.target.placeholder = '';
+	}
+
+	private onBlur(e){
+		if (e.target.placeholder === '') {
+			e.target.placeholder = DEFAULTS.Title;
+		}
+	}
+
+	private onButtonHover(e) {
+		console.log('hover button state', e);
 	}
 
 	private keyDown(e: KeyboardEvent) {
@@ -112,4 +129,4 @@ class RecordOverlay extends React.Component<any, any> {
 		//}
 	}
 }
-export default RecordOverlay;
+export default DownloadModal;

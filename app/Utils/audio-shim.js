@@ -50,5 +50,3 @@ if (!isFunction(OscillatorNode.prototype.stop)){
 if (!isFunction(OscillatorNode.prototype.setPeriodicWave)){
     OscillatorNode.prototype.setPeriodicWave = OscillatorNode.prototype.setWaveTable;
 }
-
-console.log('audio shimmed');

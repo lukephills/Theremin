@@ -6,7 +6,7 @@ import RecordPlayButtonGroup from './RecordPlayButtonGroup';
 import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
 import MultiTouchView from './MultiTouchView';
-import RecordOverlay from './RecordOverlay';
+import DownloadModal from './DownloadModal';
 import {WaveformStringType} from '../Constants/AppTypings';
 import { WAVEFORMS, DEFAULTS } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
@@ -18,7 +18,6 @@ import * as AudioUtils from '../Utils/AudioUtils';
 import * as CanvasUtils from '../Utils/CanvasUtils';
 import {IdentifierIndexMap} from '../Utils/utils';
 import Spectrum from './Spectrum';
-import Downloader from '../Downloader';
 import {RecordStateType} from '../Constants/AppTypings';
 import {STATE} from '../Constants/AppTypings';
 import {PlayerStateType} from '../Constants/AppTypings';
@@ -29,7 +28,7 @@ interface IState {
 	feedbackVal?: number;
 	playerState?: PlayerStateType;
 	recordState?: RecordStateType;
-	isRecordOverlayActive?: boolean;
+	isDownloadOverlayActive?: boolean;
 	scuzzVal?: number;
 	waveform?: string;
 	windowHeight?: number;
@@ -72,7 +71,7 @@ class App extends React.Component<any, IState> {
 			feedbackVal: DEFAULTS.Sliders.feedback.value,
 			playerState: STATE.STOPPED,
 			recordState: STATE.STOPPED,
-			isRecordOverlayActive: false,
+			isDownloadOverlayActive: false,
 			scuzzVal: DEFAULTS.Sliders.scuzz.value,
 			waveform: WAVEFORMS[DEFAULTS.Waveform],
 			windowHeight: window.innerHeight,
@@ -166,7 +165,7 @@ class App extends React.Component<any, IState> {
 				<RangeSliderGroup
 					sliderChange={this.SliderChange}
 			    />
-				<RecordOverlay
+				<DownloadModal
 					isActive={this.props.isModalOpen}
 				    style={Object.assign({}, STYLE.recordOverlay)}
 				/>
@@ -246,7 +245,7 @@ class App extends React.Component<any, IState> {
 
 	public Download() {
 		this.props.dispatch(modalChange(true));
-		this.setState({isRecordOverlayActive: true})
+		this.setState({isDownloadOverlayActive: true})
 	}
 
 	private Draw() {
@@ -273,7 +272,7 @@ class App extends React.Component<any, IState> {
 		}
 
 		this.spectrumRecording.Draw({
-			isActive: this._isAnimating,
+			isActive: this._isAnimating && this.props.playerState === 'playing',
 			color: STYLE_CONST.GREY,
 		});
 

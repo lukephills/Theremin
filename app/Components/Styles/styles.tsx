@@ -132,8 +132,15 @@ export const STYLE: any = prefixer.prefix({
 		title: {
 			display:'flex',
 			justifyContent: 'center',
-			fontSize: '18px',
+			fontSize: STYLE_CONST.TITLE_FONT_SIZE,
+			lineHeight: `${STYLE_CONST.TITLE_FONT_SIZE}px`,
+			marginBottom: 10,
 			textTransform: 'uppercase',
+		},
+		subtitle: {
+			display:'flex',
+			justifyContent: 'center',
+			fontSize: '18px',
 		},
 		input: {
 			display:'flex',
@@ -154,7 +161,10 @@ export const STYLE: any = prefixer.prefix({
 			fontSize: '28px',
 			border: `3px solid ${STYLE_CONST.WHITE}`,
 			padding: 10,
+			':hover': {
+				background: STYLE_CONST.WHITE,
+				color: STYLE_CONST.GREEN,
+			},
 		},
-
 	}
 });
