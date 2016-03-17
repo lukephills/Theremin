@@ -63,7 +63,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 						height={this.props.buttonSize}
 						width={this.props.buttonSize}
 						draw={this.draw}
-						options={{id: 'play'}}
+						options={{id: 'play', disabled: this.playButtonDisabled}}
 					/>
 				</MultiStateSwitch>
 
@@ -98,30 +98,27 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 						this.drawIconRecord(ctx, cx, cy, units);
 						break;
 					case STATE.RECORDING:
-						this.drawIconOverdub(ctx, cx, cy, units);
+						this.drawIconOverdub(ctx, cx, cy, units, STYLE_CONST.RED);
 						break;
 					case STATE.PLAYING:
-						this.drawIconOverdub(ctx, cx, cy, units);
+						this.drawIconOverdub(ctx, cx, cy, units, STYLE_CONST.BLACK);
 						break;
 					case STATE.OVERDUBBING:
-						this.drawIconStop(ctx, cx, cy, units);
+						this.drawIconStop(ctx, cx, cy, units, STYLE_CONST.RED);
 						break;
 				}
 				ctx.stroke();
 			break;
 
 			case 'play':
-				if (this.playButtonDisabled) {
-					ctx.strokeStyle = STYLE_CONST.GREY;
-				}
 				ctx.beginPath();
 
 				switch (this.props.playerState) {
 					case STATE.PLAYING:
-						this.drawIconStop(ctx, cx, cy, units)
+						this.drawIconStop(ctx, cx, cy, units, (this.playButtonDisabled ? STYLE_CONST.GREY : STYLE_CONST.RED))
 					break;
 					case STATE.STOPPED:
-						this.drawIconPlay(ctx, cx, cy, units)
+						this.drawIconPlay(ctx, cx, cy, units, (this.playButtonDisabled ? STYLE_CONST.GREY : STYLE_CONST.GREEN))
 					break;
 				}
 				ctx.stroke();
@@ -142,16 +139,17 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		ctx.arc(cx, cy, (6*units), 0, 2 * Math.PI, false);
 	}
 
-	private drawIconPlay(ctx, cx, cy, units) {
+	private drawIconPlay(ctx, cx, cy, units, color) {
+		ctx.strokeStyle = color;
 		ctx.moveTo(cx + (6*units),cy)
 		ctx.lineTo(cx - (4*units), cy + (6*units));
 		ctx.lineTo(cx - (4*units), cy - (6*units));
 		ctx.closePath();
 	}
 
-	private drawIconOverdub(ctx, cx, cy, units){
+	private drawIconOverdub(ctx, cx, cy, units, color){
 		//TODO: Overdub icon
-		ctx.strokeStyle = STYLE_CONST.RED;
+		ctx.strokeStyle = color;
 		ctx.arc(cx, cy, (6*units), 0, 2 * Math.PI, false);
 
 		ctx.moveTo(cx + (3*units), cy)
@@ -164,8 +162,8 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		ctx.closePath();
 	}
 
-	private drawIconStop(ctx, cx, cy, units) {
-		ctx.strokeStyle = STYLE_CONST.RED;
+	private drawIconStop(ctx, cx, cy, units, color) {
+		ctx.strokeStyle = color;
 		ctx.rect(cx - (6*units), cy - (6 * units), (12.2*units),  (12.2*units));
 	}
 
@@ -201,13 +199,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 			break;
 			case STATE.STOPPED:
 				this.playerChangeDispatch(STATE.PLAYING);
-				if (this.props.recordState === STATE.STOPPED) {
-					//TODO: for adding additional overdubbing later
-					//this.recorderChangeDispatch(STATE.PLAYING, false);
-				} else {
-					this.recorderChangeDispatch(STATE.STOPPED, false);
-				}
-
+				this.recorderChangeDispatch(STATE.PLAYING, false);
 			break;
 		}
 	}
@@ -216,13 +208,8 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		e.preventDefault();
 
 		this.playButtonDisabled = false;
-		//if (this.props.playerState === STATE.PLAYING) {
-		//	this.playerChangeDispatch(STATE.OVERDUBBING);
-		//}
-		console.log(this.props.recordState);
 
 		switch (this.props.recordState) {
-
 			case STATE.RECORDING:
 				this.recorderChangeDispatch(STATE.OVERDUBBING);
 				break;
@@ -233,13 +220,18 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 				}
 				break;
 			case STATE.STOPPED:
-				this.recorderChangeDispatch(STATE.RECORDING);
 				if (this.props.playerState === STATE.PLAYING){
 					this.playerChangeDispatch(STATE.STOPPED, false);
+					this.recorderChangeDispatch(STATE.OVERDUBBING);
+				} else {
+					this.recorderChangeDispatch(STATE.RECORDING);
 				}
 				break;
 			case STATE.PLAYING:
 				this.recorderChangeDispatch(STATE.OVERDUBBING);
+				if (this.props.playerState === STATE.PLAYING){
+					this.playerChangeDispatch(STATE.STOPPED, false);
+				}
 				break;
 		}
 	}
