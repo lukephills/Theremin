@@ -5,17 +5,17 @@ class Loop {
 	context: AudioContext;
 	startOffset: number;
 	disposed: boolean = false;
-	volumeReduceAmount: number = 1.1; //TODO: calculate this number based on this.maxPlayCount
+	playCount: number = 0;
 
-	constructor(context: AudioContext, startOffset: number = 0) {
+	constructor(context: AudioContext) {
 		this.context = context;
 
 		/**
 		 * If we start overdub from playing back state the loop will have a startOffset value so we can schedule
 		 * it's playback in the right position
-		 * @type {number}
+		 * @type {number} Defaults to 0 (the start of the loopLength
 		 */
-		this.startOffset = startOffset;
+		this.startOffset = 0;
 
 		/**
 		 * Loops output gain
@@ -53,12 +53,8 @@ class Loop {
 	/**
 	 * Lower the volume of the loop over time and eventually remove it after maxLoopAmount amount
 	 */
-	lowerVolume(){ //TODO: should take a parameter (volumeReduceAmount) from Looper class
-		this.output.gain.value /= this.volumeReduceAmount;
-		// if this output is barely audible remove loop
-		//if (this.playCount >= this.maxPlayCount){
-		//	this.dispose();
-		//}
+	lowerVolume(volumeReduceAmount: number = 1){ //TODO: should take a parameter (volumeReduceAmount) from Looper class
+		this.output.gain.value /= volumeReduceAmount;
 	}
 
 	/**

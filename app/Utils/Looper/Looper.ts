@@ -22,6 +22,7 @@ class Looper {
 	public maxAmountOfLoops: number = 3; //TODO: support a max amount of loops
 	public maxLoopDuration: number = 300;
 	public recordMono: boolean = true;
+	public volumeReduceAmount: number = 1.1;
 
 	private context: AudioContext;
 	private currentLoopId: number = null;
@@ -32,6 +33,7 @@ class Looper {
 	private output: AudioNode;
 	private playbackSchedulerTimeout: number;
 	private processor: ScriptProcessorNode;
+	private resumeOverdubbingpPressed: boolean = false;
 
 	public get isOverdubbing(): boolean {
 		return this.loops.length > 1 && this.isRecording;
@@ -92,10 +94,7 @@ class Looper {
 		}
 		// PLAYING BACK STATE
 		else if (this.isPlaying && !this.isRecording) {
-			//TODO: add ability to carry on overdubbing
-			console.log('start recording whilst playing');
-			//this.startRecording();
-			this.resumeRecording();
+			this.resumeOverdubbing();
 		}
 		// OVERDUBBING STATE
 		else if (this.isOverdubbing) {
@@ -144,10 +143,10 @@ class Looper {
 	 * Resume Recording
 	 * Same as start recording except saves the start offset of the loop so it can play in the correct place
 	 */
-	public resumeRecording() {
-		let startOffset: number = this.loopLength - (this.nextLoopStartTime - this.context.currentTime);
+	public resumeOverdubbing() {
+		this.resumeOverdubbingpPressed = true;
 		// add a new empty loop  and set current loop
-		this.incrementLoop(startOffset);
+		this.incrementLoop();
 		this.isRecording = true;
 		this.processor.onaudioprocess = this.onaudioprocess;
 	}
@@ -210,16 +209,20 @@ class Looper {
 				// Buffers with a start offset (ie. the first loop from a resumed overdub)
 				// Shift their buffer data over by the offset amount
 				if (this.loops[i].startOffset > 0) {
-					console.log(Math.round(this.loopLength * newBuffer.sampleRate))
-					console.log(Math.round(this.loops[i].startOffset * newBuffer.sampleRate))
+					let arrayOffset = Math.round(this.loops[i].startOffset * newBuffer.sampleRate);
+
 					const shifted: AudioBuffer = this.context.createBuffer(
-						newBuffer.numberOfChannels, this.loopLength * newBuffer.sampleRate, newBuffer.sampleRate
+						newBuffer.numberOfChannels, Math.round(this.loopLength * newBuffer.sampleRate), newBuffer.sampleRate
 					);
-					if (newBuffer.length === shifted.length + (this.loops[i].startOffset * newBuffer.sampleRate)){
-						newBuffer = bufferUtils.copy(newBuffer, shifted, this.loops[i].startOffset * newBuffer.sampleRate);
+
+					if (newBuffer.length + arrayOffset  <= shifted.length) {
+						console.log('okay')
+						newBuffer = bufferUtils.copy(newBuffer, shifted, arrayOffset);
 					} else {
-						console.error('shifted buffer at offset didnt fit');
-						//TODO: Adjust offset so it WILL fit
+						console.log('from.length + arrayOffset', newBuffer.length + arrayOffset, '>', 'to.length', shifted.length,
+							'by', ((newBuffer.length + arrayOffset) - shifted.length)/newBuffer.sampleRate
+						);
+						//TODO must fix this gap
 					}
 
 				}
@@ -278,13 +281,24 @@ class Looper {
 		for (let i = this.loops.length - 1; i >= 0; i--){
 			if (this.loops[i].buffer !== null && !this.loops[i].disposed){
 				if (this.isOverdubbing){
-					this.loops[i].lowerVolume();
-					//TODO: once the loop has reached maxPlayCount remove it
-					//if (this.loops[i].playCount >= this.loops[i].maxPlayCount){
+					// Lower the loops volume when overdubbing
+					this.loops[i].lowerVolume(this.volumeReduceAmount);
+					this.loops[i].playCount++;
+
+					// TODO: once the loop has reached maxPlayCount remove it
+					//if (this.loops[i].playCount === this.maxAmountOfLoops){
 					//	this.loops.shift();
 					//	console.log('SHIFTED', this.loops);
-					//	continue;
+					//	return;
 					//}
+
+				}
+
+				// We need to reset the startOffset of resumed overdub loops so that the buffer fits exactly into
+				// this.loopLength. Otherwise there is a short audio dropout caused by timing inaccuracies.
+				// TODO: this could be made more efficient
+				if (this.loops[i].startOffset > 0){
+					this.loops[i].startOffset = this.loopLength - this.loops[i].buffer.duration;
 				}
 				this.loops[i].play();
 			}
@@ -335,6 +349,13 @@ class Looper {
 
 		// get current loop
 		let newLoop = this.loops[this.currentLoopId];
+		console.log(this.currentLoopId)
+
+		if (this.resumeOverdubbingpPressed){
+			newLoop.startOffset = this.loopLength - (this.nextLoopStartTime - this.context.currentTime);
+			console.log(`resume recording pressed, set it's start offset to ${newLoop.startOffset}`);
+			this.resumeOverdubbingpPressed = false;
+		}
 
 		// update loop with new audio
 		newLoop.buffer = appendBuffer(newLoop.buffer, e.inputBuffer, this.context);
@@ -360,21 +381,17 @@ class Looper {
 	/**
 	 * Create a new loop and add to list of loops
 	 */
-	private newLoop(startOffset = 0) {
-		if (startOffset < 0) {
-			console.error('start offset cant be below 0');
-		}
-		this.loops.push(new Loop(this.context, startOffset));
+	private newLoop() {
+		this.loops.push(new Loop(this.context));
 		this.loops[this.currentLoopId].output.connect(this.output);
-		console.log('new loop created with offset = ', startOffset)
 	}
 
 	/**
 	 * Increment loop and set the current loop id
 	 */
-	private incrementLoop(startOffset = 0) {
+	private incrementLoop() {
 		this.currentLoopId = this.loops.length;
-		this.newLoop(startOffset);
+		this.newLoop();
 	}
 }
 
