@@ -1,11 +1,13 @@
 class Loop {
-	activeBufferSource: AudioBufferSourceNode = null;
-	buffer: AudioBuffer = null;
-	output: GainNode;
-	context: AudioContext;
-	startOffset: number;
-	disposed: boolean = false;
-	playCount: number = 0;
+
+	public activeBufferSource: AudioBufferSourceNode = null;
+	public buffer: AudioBuffer = null;
+	public id: number;
+	public output: GainNode;
+	public overdubCount: number;
+	public startOffset: number;
+
+	private context: AudioContext;
 
 	constructor(context: AudioContext) {
 		this.context = context;
@@ -18,6 +20,12 @@ class Loop {
 		this.startOffset = 0;
 
 		/**
+		 * Every time the loop is played whilst overdubbing this will be incremented.
+		 * @type {number}
+		 */
+		this.overdubCount = 0;
+
+		/**
 		 * Loops output gain
 		 * @type {GainNode}
 		 */
@@ -28,7 +36,7 @@ class Loop {
 	 * Play the loop at the time given plus it's startOffset
 	 * @param time {number = currentTime)
 	 */
-	play(time: number = this.context.currentTime){
+	public play(time: number = this.context.currentTime){
 		// Create a temporary BufferSourceNode for this loop and play
 		let source: AudioBufferSourceNode = this.context.createBufferSource();
 		source.buffer = this.buffer;
@@ -40,12 +48,11 @@ class Loop {
 	}
 
 	/**
-	 * Stop the loop at the time
-	 * @param time = currentTime
+	 * Stop the loop
 	 */
-	stop(time: number = this.context.currentTime) {
-		if (this.activeBufferSource){
-			this.activeBufferSource.stop(time);
+	public stop() {
+		if (this.activeBufferSource) {
+			this.activeBufferSource.stop(this.context.currentTime);
 			this.activeBufferSource = null;
 		}
 	}
@@ -53,20 +60,8 @@ class Loop {
 	/**
 	 * Lower the volume of the loop over time and eventually remove it after maxLoopAmount amount
 	 */
-	lowerVolume(volumeReduceAmount: number = 1){ //TODO: should take a parameter (volumeReduceAmount) from Looper class
+	public lowerVolume(volumeReduceAmount: number = 1) {
 		this.output.gain.value /= volumeReduceAmount;
-	}
-
-	/**
-	 * Dispose of the loop. TODO: this should be called from the Looper class when this loop is done.
-	 */
-	dispose() {
-		this.stop();
-		this.output.disconnect();
-		this.activeBufferSource.disconnect();
-		this.output = null;
-		this.buffer = null;
-		this.disposed = true;
 	}
 }
 export default Loop;
