@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build:webpack": "NODE_ENV=production webpack --config config/webpack.prod.js",
-    "build": "npm run clean && npm run build:webpack",
+    "build": "npm run clean && npm run build:webpack && npm run zip",
+    "zip": "zip -r build/bundle.zip build/*",
     "clean": "rimraf build",
     "start": "node dev_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -57,7 +58,6 @@
     "merge-audio-buffers": "^1.0.0",
     "normalize.css": "^3.0.3",
     "object-assign": "^4.0.1",
-    "radium": "^0.16.6",
     "rc-slider": "^3.3.2",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
