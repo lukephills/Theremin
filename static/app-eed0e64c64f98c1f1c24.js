@@ -2770,7 +2770,7 @@
 	    SLIDER_FONT_SIZE: 28,
 	    WHITE: 'white',
 	    BLACK: '#444',
-	    GREY: 'rgba(50,50,50,0.5)',
+	    GREY: 'rgba(50,50,50,0.4)',
 	    YELLOW: '#fff997',
 	    GREEN: 'rgb(114,193,165)',
 	    RED: '#df6c57',
@@ -41568,7 +41568,7 @@
 	                    break;
 	            }
 	            this.spectrumRecording.Draw({
-	                isActive: this._isAnimating && this.props.playerState === 'playing',
+	                isActive: this._isAnimating,
 	                color: _styles.STYLE_CONST.GREY
 	            });
 	            this.spectrumLive.Draw({
@@ -43719,4 +43719,4 @@
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=app-f34c4fb2290d9b82adf7.js.map
+//# sourceMappingURL=app-eed0e64c64f98c1f1c24.js.map
