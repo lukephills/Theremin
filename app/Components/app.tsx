@@ -272,7 +272,7 @@ class App extends React.Component<any, IState> {
 		}
 
 		this.spectrumRecording.Draw({
-			isActive: this._isAnimating && this.props.playerState === 'playing',
+			isActive: this._isAnimating,
 			color: STYLE_CONST.GREY,
 		});
 

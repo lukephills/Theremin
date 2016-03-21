@@ -11,7 +11,7 @@ export const STYLE_CONST: any = prefixer.prefix({
 	SLIDER_FONT_SIZE: 28,
 	WHITE: 'white',
 	BLACK: '#444',
-	GREY: 'rgba(50,50,50,0.5)',
+	GREY: 'rgba(50,50,50,0.4)',
 	YELLOW: '#fff997',
 	GREEN: 'rgb(114,193,165)',
 	RED: '#df6c57',
