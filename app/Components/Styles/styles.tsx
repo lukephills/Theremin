@@ -37,7 +37,7 @@ export const STYLE: any = prefixer.prefix({
 			fontSize: STYLE_CONST.TITLE_FONT_SIZE,
 			lineHeight: `${STYLE_CONST.TOP_PANEL_HEIGHT}px`,
 			margin: 0,
-			marginLeft: 20,
+			marginLeft: 15, //TODO: move title left a bit and waveforms in a bit
 			fontWeight: 400,
 			color: STYLE_CONST.BLACK,
 		},
@@ -62,6 +62,7 @@ export const STYLE: any = prefixer.prefix({
 	waveformSelectGroup: {
 		container: {
 			marginLeft: '4vw',
+			marginRight: 10,
 			flexGrow: 1,
 			display: `flex`,
 			justifyContent: 'space-around',
@@ -111,7 +112,7 @@ export const STYLE: any = prefixer.prefix({
 		right: 0,
 		fontSize: STYLE_CONST.SLIDER_FONT_SIZE,
 		lineHeight: `${STYLE_CONST.BOTTOM_PANEL_HEIGHT/3}px`,
-		marginRight: 20,
+		marginRight: 15,
 		pointerEvents: 'none',
 		color: STYLE_CONST.BLACK,
 	},
