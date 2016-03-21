@@ -1,6 +1,6 @@
-const WorkerTimer = require("worker-timer");
-const mergeBuffers = require('merge-audio-buffers');
-const bufferUtils = require('audio-buffer-utils');
+const WorkerTimer: any = require('worker-timer'); //TODO: create type def
+const mergeBuffers: any = require('merge-audio-buffers'); //TODO: create type def
+const bufferUtils: any = require('audio-buffer-utils'); //TODO: create type def
 import RecorderWorker from './RecorderWorker';
 import Loop from './Loop';
 import {appendBuffer, weakenBuffer} from '../AudioUtils';
@@ -17,7 +17,7 @@ class Looper {
 
 	public bufferSize: number;
 	public isPlaying: boolean = false;
-	public isRecording: boolean = false
+	public isRecording: boolean = false;
 	public loops: Loop[] = [];
 	public maxAmountOfLoops: number = 30;
 	public maxLoopDuration: number = 300;
@@ -51,7 +51,7 @@ class Looper {
 		this.output = output;
 
 		//
-		this.bufferSize = bufferSize
+		this.bufferSize = bufferSize;
 		this.context = this.input.context;
 
 		// recorder
@@ -69,19 +69,19 @@ class Looper {
 		RecorderWorker.postMessage({
 			command: 'init',
 			config: {
+				numChannels: this.recordMono ? 1 : 2,
 				sampleRate: 44100,
-				numChannels: this.recordMono ? 1 : 2
-			}
+			},
 		});
 	}
 
 	/**
 	 * When the record/overdub button is pressed
 	 */
-	public onRecordPress() {
+	public onRecordPress(): void {
 		//TODO: instead of if else, make a switch statement to detect this.recordState
 		// STOPPED STATE
-		if (!this.isRecording && !this.isOverdubbing && !this.isPlaying){
+		if (!this.isRecording && !this.isOverdubbing && !this.isPlaying) {
 			//if (this.isPlaying){
 			//	this.stopPlaying();
 			//}
@@ -89,7 +89,7 @@ class Looper {
 			this.startRecording();
 		}
 		// FIRST RECORDING STATE
-		else if (this.isRecording && !this.isOverdubbing){
+		else if (this.isRecording && !this.isOverdubbing) {
 			this.startOverdubbing();
 		}
 		// PLAYING BACK STATE
@@ -106,7 +106,7 @@ class Looper {
 	/**
 	 * When the playback/stop button is pressed
 	 */
-	public onPlaybackPress() {
+	public onPlaybackPress(): void {
 		// if playing, stop playing
 		if (this.isPlaying && !this.isOverdubbing) {
 			this.stopPlaying();
@@ -132,7 +132,7 @@ class Looper {
 	/**
 	 * Start Recording
 	 */
-	public startRecording() {
+	public startRecording(): void {
 		// add a new empty loop  and set current loop
 		this.newLoop();
 		this.isRecording = true;
@@ -143,7 +143,7 @@ class Looper {
 	 * Resume Recording
 	 * Same as start recording except saves the start offset of the loop so it can play in the correct place
 	 */
-	public resumeOverdubbing() {
+	public resumeOverdubbing(): void {
 		this.resumeOverdubbingpPressed = true;
 		// add a new empty loop  and set current loop
 		this.newLoop();
@@ -154,24 +154,16 @@ class Looper {
 	/**
 	 * Stop Recording
 	 */
-	public stopRecording() {
+	public stopRecording(): void {
 		this.setLoopLength(this.loops[0]);
 		this.isRecording = false;
 		this.processor.onaudioprocess = null;
 	}
 
 	/**
-	 * Set Looper.loopLength using the loop argument's buffer duration
-	 * @param loop
-	 */
-	private setLoopLength(loop: Loop){
-		this.loopLength = loop.buffer.duration + loop.startOffset;
-	}
-
-	/**
 	 * Start Overdubbing
 	 */
-	public startOverdubbing() {
+	public startOverdubbing(): void {
 		// Set overdub pressed boolean for onaudioprocess to catch
 		this.isOverdubPressed = true;
 	}
@@ -179,12 +171,21 @@ class Looper {
 	/**
 	 * Start playback
 	 */
-	public startPlaying() {
+	public startPlaying(): void {
 		// Set nextLoopStartTime as early as possible
 		this.nextLoopStartTime = this.context.currentTime;
 		// run scheduler
 		this.playbackScheduler();
 		this.isPlaying = true;
+	}
+
+	/**
+	 * Stop playbacks
+	 */
+	public stopPlaying(): void {
+		this.isPlaying = false;
+		WorkerTimer.clearTimeout(this.playbackSchedulerTimeout);
+		this.stopLoops();
 	}
 
 	/**
@@ -194,22 +195,22 @@ class Looper {
 	 * 3. Calls the callback function with the blob data as it's sole argument
 	 * @param returnWavCallback {(Blob) => {}}
 	 */
-	public exportWav(returnWavCallback: Function){
+	public exportWav(returnWavCallback: Function): void {
 		let buffers: AudioBuffer[] = [];
 
 		// Calculate an amount to futher reduce the loop's output gain. Amount of loops, but 4 max.
 		const weakenAmount: number = Math.min(this.loops.length, 4);
 
 		// Weaken all loops and add to buffers array
-		for (let i in this.loops){
-			if (this.loops[i].buffer !== null){
+		for (let i in this.loops) {
+			if (this.loops[i].buffer !== null) {
 				let newBuffer: AudioBuffer = weakenBuffer(
-					this.loops[i].buffer, this.loops[i].output.gain.value / weakenAmount, this.context)
+					this.loops[i].buffer, this.loops[i].output.gain.value / weakenAmount, this.context);
 
 				// Buffers with a start offset (ie. the first loop from a resumed overdub)
 				// Shift their buffer data over by the offset amount
 				if (this.loops[i].startOffset > 0) {
-					let arrayOffset = Math.round(this.loops[i].startOffset * newBuffer.sampleRate);
+					let arrayOffset: number = Math.round(this.loops[i].startOffset * newBuffer.sampleRate);
 
 					const shifted: AudioBuffer = this.context.createBuffer(
 						newBuffer.numberOfChannels, Math.round(this.loopLength * newBuffer.sampleRate), newBuffer.sampleRate
@@ -218,8 +219,13 @@ class Looper {
 					if (newBuffer.length + arrayOffset  <= shifted.length) {
 						newBuffer = bufferUtils.copy(newBuffer, shifted, arrayOffset);
 					} else {
-						console.error('from.length + arrayOffset', newBuffer.length + arrayOffset, '>', 'to.length', shifted.length,
-							'by', ((newBuffer.length + arrayOffset) - shifted.length)/newBuffer.sampleRate
+						console.error(
+							'from.length + arrayOffset',
+							newBuffer.length + arrayOffset, '>',
+							'to.length',
+							shifted.length,
+							'by',
+							((newBuffer.length + arrayOffset) - shifted.length) / newBuffer.sampleRate
 						);
 					}
 
@@ -233,11 +239,11 @@ class Looper {
 		const mergedBuffer: AudioBuffer = mergeBuffers(buffers, this.context);
 
 		// Normalize the merged buffer
-		const normalizedBuffer = bufferUtils.normalize(mergedBuffer);
+		const normalizedBuffer: AudioBuffer = bufferUtils.normalize(mergedBuffer);
 
 		// Clear Recorder worker
 		RecorderWorker.postMessage({
-			command: 'clear',
+			command: 'clear'
 		});
 
 		// set exportWAV callback
@@ -249,23 +255,23 @@ class Looper {
 		// send the channel data from our buffer to the worker
 		// TODO: update this to allow stereo recording in the future
 		RecorderWorker.postMessage({
-			command: 'record',
 			buffer: [
 				normalizedBuffer.getChannelData(0)
-			]
+			],
+			command: 'record',
 		});
 
 		// ask the worker for a WAV
 		RecorderWorker.postMessage({
 			command: 'exportWAV',
-			type: 'audio/wav'
+			type: 'audio/wav',
 		});
 	}
 
 	/**
 	 * Reset - Delete loops, stop scheduler and reset loopLength
 	 */
-	public reset() {
+	public reset(): void {
 		this.loops = [];
 		this.loopLength = this.maxLoopDuration;
 		this.playbackSchedulerTimeout = null;
@@ -274,18 +280,26 @@ class Looper {
 	}
 
 	/**
+	 * Set Looper.loopLength using the loop argument's buffer duration
+	 * @param loop
+	 */
+	private setLoopLength(loop: Loop): void {
+		this.loopLength = loop.buffer.duration + loop.startOffset;
+	}
+
+	/**
 	 * Play all the loops starting with the newest
 	 */
-	private playLoops() {
-		for (let i = this.loops.length - 1; i >= 0; i--){
-			if (this.loops[i].buffer !== null){
-				if (this.isOverdubbing){
+	private playLoops(): void {
+		for (let i: number = this.loops.length - 1; i >= 0; i--) {
+			if (this.loops[i].buffer !== null) {
+				if (this.isOverdubbing) {
 					// Lower the loops volume when overdubbing
 					this.loops[i].lowerVolume(this.volumeReduceAmount);
 					this.loops[i].overdubCount++;
 
 					// Once the loop has reached maxPlayCount remove it
-					if (this.loops[i].overdubCount === this.maxAmountOfLoops){
+					if (this.loops[i].overdubCount === this.maxAmountOfLoops) {
 						this.loops.shift();
 						return;
 					}
@@ -295,7 +309,7 @@ class Looper {
 				// We need to reset the startOffset of resumed overdub loops so that the buffer fits exactly into
 				// this.loopLength. Otherwise there is a short audio dropout caused by timing inaccuracies.
 				// TODO: this could be made more efficient
-				if (this.loops[i].startOffset > 0){
+				if (this.loops[i].startOffset > 0) {
 					this.loops[i].startOffset = this.loopLength - this.loops[i].buffer.duration;
 				}
 				this.loops[i].play();
@@ -304,18 +318,9 @@ class Looper {
 	}
 
 	/**
-	 * Stop playbacks
-	 */
-	public stopPlaying() {
-		this.isPlaying = false;
-		WorkerTimer.clearTimeout(this.playbackSchedulerTimeout);
-		this.stopLoops();
-	}
-
-	/**
 	 * Stop all loops immediately
 	 */
-	private stopLoops() {
+	private stopLoops(): void {
 		for (let i in this.loops) {
 			if (this.loops[i].buffer !== null) {
 				this.loops[i].stop();
@@ -326,7 +331,7 @@ class Looper {
 	/**
 	 * Recursive function to schedule loops to play at each loop start time
 	 */
-	private playbackScheduler() {
+	private playbackScheduler(): void {
 		// Only play when the current time reaches the next LoopStartTime
 		while (this.nextLoopStartTime < this.context.currentTime) {
 			this.playLoops();
@@ -341,14 +346,16 @@ class Looper {
 	 * On audio process from the scriptProcessor
 	 * @param e - contains audio buffer
 	 */
-	private onaudioprocess(e) {
+	private onaudioprocess(e): void {
 		// Exit loop if not recording
-		if (!this.isRecording && !this.isOverdubbing) return;
+		if (!this.isRecording && !this.isOverdubbing) {
+			return;
+		}
 
 		// get current loop
-		let newLoop = this.loops[this.loops.length-1];
+		let newLoop: Loop = this.loops[this.loops.length - 1];
 
-		if (this.resumeOverdubbingpPressed){
+		if (this.resumeOverdubbingpPressed) {
 			newLoop.startOffset = this.loopLength - (this.nextLoopStartTime - this.context.currentTime);
 			this.resumeOverdubbingpPressed = false;
 		}
@@ -357,10 +364,10 @@ class Looper {
 		newLoop.buffer = appendBuffer(newLoop.buffer, e.inputBuffer, this.context);
 
 		// save the updated loop
-		this.loops[this.loops.length-1] = newLoop;
+		this.loops[this.loops.length - 1] = newLoop;
 
 		// if the overdub button was pressed set the loopLength and start playback
-		if (this.isOverdubPressed){
+		if (this.isOverdubPressed) {
 			this.setLoopLength(this.loops[0]);
 			this.startPlaying();
 		}
@@ -377,10 +384,10 @@ class Looper {
 	/**
 	 * Create a new loop and add to list of loops
 	 */
-	private newLoop() {
+	private newLoop(): void {
 		this._id++;
 		this.loops.push(new Loop(this.context));
-		const currentLoopIndex = this.loops.length - 1;
+		const currentLoopIndex: number = this.loops.length - 1;
 		this.loops[currentLoopIndex].output.connect(this.output);
 		this.loops[currentLoopIndex].id = this._id;
 	}

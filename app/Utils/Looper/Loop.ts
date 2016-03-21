@@ -36,12 +36,12 @@ class Loop {
 	 * Play the loop at the time given plus it's startOffset
 	 * @param time {number = currentTime)
 	 */
-	public play(time: number = this.context.currentTime){
+	public play(time: number = this.context.currentTime): void {
 		// Create a temporary BufferSourceNode for this loop and play
 		let source: AudioBufferSourceNode = this.context.createBufferSource();
 		source.buffer = this.buffer;
 		source.start(time + this.startOffset);
-		source.connect(this.output)
+		source.connect(this.output);
 
 		// Save the buffer source so we can stop if we need to
 		this.activeBufferSource = source;
@@ -50,7 +50,7 @@ class Loop {
 	/**
 	 * Stop the loop
 	 */
-	public stop() {
+	public stop(): void {
 		if (this.activeBufferSource) {
 			this.activeBufferSource.stop(this.context.currentTime);
 			this.activeBufferSource = null;
@@ -60,7 +60,7 @@ class Loop {
 	/**
 	 * Lower the volume of the loop over time and eventually remove it after maxLoopAmount amount
 	 */
-	public lowerVolume(volumeReduceAmount: number = 1) {
+	public lowerVolume(volumeReduceAmount: number = 1): void {
 		this.output.gain.value /= volumeReduceAmount;
 	}
 }

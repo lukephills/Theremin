@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 const Modal = require('react-modal');
-const Radium = require('radium');
 import Audio from '../Audio';
 import ToggleButton from './ToggleButton'
 import { modalChange } from '../Actions/actions';
@@ -15,7 +14,6 @@ function select(state: IGlobalState): any {
 	};
 }
 
-@Radium
 @connect(select)
 class DownloadModal extends React.Component<any, any> {
 
