@@ -17,6 +17,7 @@ export const STYLE_CONST: any = prefixer.prefix({
 	RED: '#df6c57',
 	GREEN_VALUES: '114,193,165',
 	PADDING: 5,
+	FONT_FAMILY: 'Lato, sans-serif',
 })
 
 export const STYLE: any = prefixer.prefix({
@@ -34,12 +35,13 @@ export const STYLE: any = prefixer.prefix({
 			position: 'absolute',
 		},
 		h1: {
-			fontSize: STYLE_CONST.TITLE_FONT_SIZE,
-			lineHeight: `${STYLE_CONST.TOP_PANEL_HEIGHT}px`,
 			margin: 0,
 			marginLeft: 15, //TODO: move title left a bit and waveforms in a bit
-			fontWeight: 400,
 			color: STYLE_CONST.BLACK,
+			fontFamily: STYLE_CONST.FONT_FAMILY,
+			fontWeight: 400,
+			fontSize: STYLE_CONST.TITLE_FONT_SIZE,
+			lineHeight: `${STYLE_CONST.TOP_PANEL_HEIGHT}px`,
 		},
 		h1_mobile: {
 			fontSize: 16,
@@ -110,9 +112,11 @@ export const STYLE: any = prefixer.prefix({
 		position: 'absolute',
 		zIndex: 10,
 		right: 0,
-		fontSize: STYLE_CONST.SLIDER_FONT_SIZE,
-		lineHeight: `${STYLE_CONST.BOTTOM_PANEL_HEIGHT/3}px`,
 		marginRight: 15,
+		fontSize: STYLE_CONST.SLIDER_FONT_SIZE,
+		fontFamily: STYLE_CONST.FONT_FAMILY,
+		fontWeight: 300,
+		lineHeight: `${STYLE_CONST.BOTTOM_PANEL_HEIGHT/3}px`,
 		pointerEvents: 'none',
 		color: STYLE_CONST.BLACK,
 	},
@@ -129,11 +133,13 @@ export const STYLE: any = prefixer.prefix({
 			justifyContent: 'center',
 			border: 0,
 			borderRadius: 0,
+			fontFamily: STYLE_CONST.FONT_FAMILY,
 		},
 		title: {
 			display:'flex',
 			justifyContent: 'center',
-			fontSize: STYLE_CONST.TITLE_FONT_SIZE,
+			fontSize: STYLE_CONST.TITLE_FONT_SIZE + 10,
+			fontWeight: 400,
 			lineHeight: `${STYLE_CONST.TITLE_FONT_SIZE}px`,
 			marginBottom: 10,
 			textTransform: 'uppercase',
@@ -146,7 +152,7 @@ export const STYLE: any = prefixer.prefix({
 		input: {
 			display:'flex',
 			justifyContent: 'center',
-			fontSize: '36px',
+			fontSize: '42px',
 			border: 'none',
 			background: 'transparent',
 			color: STYLE_CONST.WHITE,
@@ -159,7 +165,8 @@ export const STYLE: any = prefixer.prefix({
 			display:'flex',
 			justifyContent: 'center',
 			textAlign: 'center',
-			fontSize: '28px',
+			fontSize: '36px',
+			fontWeight: 400,
 			border: `3px solid ${STYLE_CONST.WHITE}`,
 			padding: 10,
 			':hover': {

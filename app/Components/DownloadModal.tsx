@@ -48,7 +48,7 @@ class DownloadModal extends React.Component<any, any> {
 			       onRequestClose={this.closeModal}
 			       style={{content, overlay}}>
 				<div>
-					<span style={title}>Download</span>
+					<span style={title}>Save Recording</span>
 					<span style={subtitle}>Choose a filename</span>
 					<input type="text"
 					       placeholder={this.state.filename || 'Theremin'}
