@@ -7,6 +7,7 @@ import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
 import MultiTouchView from './MultiTouchView';
 import DownloadModal from './DownloadModal';
+import SplashScreen from './SplashScreen';
 import {WaveformStringType} from '../Constants/AppTypings';
 import { WAVEFORMS, DEFAULTS } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
@@ -169,8 +170,13 @@ class App extends React.Component<any, IState> {
 					isActive={this.props.isModalOpen}
 				    style={Object.assign({}, STYLE.recordOverlay)}
 				/>
+				{this.splashScreen()}
 			</div>
 		);
+	}
+
+	private splashScreen() {
+		// return <SplashScreen width={this.state.windowWidth} height={this.state.windowHeight}/>;
 	}
 
 	private handleResize() {
