@@ -18,17 +18,19 @@ class DownloadModal extends React.Component<any, any> {
 
 	constructor(props){
 		super(props);
+
+		this.state = {
+			filename: 'theremin',
+		};
+
 		this.onDownloadSubmit = this.onDownloadSubmit.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.handleChange = this.handleChange.bind(this);
-		this.onFocus = this.onFocus.bind(this);
-		this.onBlur = this.onBlur.bind(this);
+		this.handleFocus = this.handleFocus.bind(this);
+		this.handleBlur = this.handleBlur.bind(this);
 		this.keyDown = this.keyDown.bind(this);
 
-		this.state = {
-			// modalIsOpen: this.props.isActive,
-			filename: 'theremin',
-		};
+
 	}
 
 	public render(): React.ReactElement<{}> {
@@ -79,9 +81,10 @@ class DownloadModal extends React.Component<any, any> {
 					       placeholder={this.state.filename || 'Theremin'}
 					       onChange={this.handleChange}
 					       onKeyDown={this.keyDown}
-					       onFocus={this.onFocus}
-					       onBlur={this.onBlur}
-					       style={Object.assign({}, input, mobileSizeSmall && input_mobile)}/>
+					       onFocus={this.handleFocus}
+					       onBlur={this.handleBlur}
+					       style={Object.assign({}, input, mobileSizeSmall && input_mobile)}
+					       />
 					<ToggleButton onDown={this.onDownloadSubmit}
 					              style={Object.assign({}, button, mobileSizeSmall && button_mobile)}>
 						<div>Save {this.state.filename}.wav</div>
@@ -90,18 +93,20 @@ class DownloadModal extends React.Component<any, any> {
 			</Modal>
 		);
 	}
-
+	
 	private handleChange(e){
 		const val = e.target.value ? e.target.value : DEFAULTS.Title;
 		this.setState({filename: val})
 	}
 
-	private onFocus(e){
+	private handleFocus(e){
+		console.log('on focus', e)
 		e.target.style.outline = 'none';
 		e.target.placeholder = '';
 	}
 
-	private onBlur(e){
+	private handleBlur(e){
+		console.log('on blur', e)
 		if (e.target.placeholder === '') {
 			e.target.placeholder = DEFAULTS.Title;
 		}

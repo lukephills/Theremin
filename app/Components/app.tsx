@@ -211,10 +211,6 @@ class App extends React.Component<any, IState> {
 		AudioUtils.startIOSAudio(Audio.context, cb);
 	}
 
-	private splashScreen() {
-		// return <SplashScreen width={this.state.windowWidth} height={this.state.windowHeight}/>;
-	}
-
 	private handleResize() {
 		this.setState({
 			windowWidth: window.innerWidth,
@@ -236,6 +232,7 @@ class App extends React.Component<any, IState> {
 		}
 		Audio.Start(pos, index);
 	}
+
 	public Stop(e: Event, identifier: number = 0): void {
 		const index = this.touches.GetIndexFromIdentifier(identifier);
 		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
@@ -244,8 +241,6 @@ class App extends React.Component<any, IState> {
 		//Remove from list of touch ids
 		this.touches.Remove(identifier)
 	}
-
-
 
 	public Move(e: Event, id: number = 0) {
 		const index = this.touches.GetIndexFromIdentifier(id);
@@ -323,4 +318,5 @@ class App extends React.Component<any, IState> {
 	}
 
 }
+
 export default App;

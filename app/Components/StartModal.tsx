@@ -36,17 +36,17 @@ class StartModal extends React.Component<any, IProps> {
 			bottom: contentPadding,
 		})
 		title = Object.assign({}, title, {
-			fontSize: window.innerWidth / 7 < 100 ? window.innerWidth / 7 : 100,
+			fontSize: window.innerWidth / 7 < 80 ? window.innerWidth / 7 : 80,
 			marginBottom: window.innerWidth / 20,
 		});
 
 		subtitle = Object.assign({}, subtitle, {
-			fontSize: window.innerWidth / 30,
+			fontSize: window.innerWidth / 20 < 28 ?  window.innerWidth / 20 : 28,
 			marginBottom: window.innerWidth / 20,
 		});
 
 		button = Object.assign({}, button, {
-			fontSize: window.innerWidth / 15 < 72 ? window.innerWidth / 15 : 72,
+			fontSize: window.innerWidth / 15 < 62 ? window.innerWidth / 15 : 62,
 		});
 
 		return (

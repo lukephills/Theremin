@@ -2977,7 +2977,11 @@
 	            borderBottom: '3px solid ' + STYLE_CONST.WHITE,
 	            margin: '40px 0',
 	            textAlign: 'center',
-	            width: '100%'
+	            width: '100%',
+	            MozUserSelect: 'text',
+	            MSUserSelect: 'text',
+	            WebkitUserSelect: 'text',
+	            userSelect: 'text'
 	        },
 	        input_mobile: {
 	            fontSize: 32,
@@ -3027,7 +3031,7 @@
 	        subtitle: {
 	            display: 'flex',
 	            justifyContent: 'center',
-	            fontSize: '18px',
+	            fontSize: 18,
 	            marginBottom: 40
 	        },
 	        button: {
@@ -40293,11 +40297,6 @@
 	            AudioUtils.startIOSAudio(_Audio2.default.context, cb);
 	        }
 	    }, {
-	        key: "splashScreen",
-	        value: function splashScreen() {
-	            // return <SplashScreen width={this.state.windowWidth} height={this.state.windowHeight}/>;
-	        }
-	    }, {
 	        key: "handleResize",
 	        value: function handleResize() {
 	            this.setState({
@@ -40494,16 +40493,15 @@
 	
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(DownloadModal).call(this, props));
 	
+	        _this.state = {
+	            filename: 'theremin'
+	        };
 	        _this.onDownloadSubmit = _this.onDownloadSubmit.bind(_this);
 	        _this.closeModal = _this.closeModal.bind(_this);
 	        _this.handleChange = _this.handleChange.bind(_this);
-	        _this.onFocus = _this.onFocus.bind(_this);
-	        _this.onBlur = _this.onBlur.bind(_this);
+	        _this.handleFocus = _this.handleFocus.bind(_this);
+	        _this.handleBlur = _this.handleBlur.bind(_this);
 	        _this.keyDown = _this.keyDown.bind(_this);
-	        _this.state = {
-	            // modalIsOpen: this.props.isActive,
-	            filename: 'theremin'
-	        };
 	        return _this;
 	    }
 	
@@ -40549,7 +40547,7 @@
 	                        { style: Object.assign({}, subtitle, mobileSizeSmall && subtitle_mobile) },
 	                        "Choose a filename"
 	                    ),
-	                    React.createElement("input", { type: "text", placeholder: this.state.filename || 'Theremin', onChange: this.handleChange, onKeyDown: this.keyDown, onFocus: this.onFocus, onBlur: this.onBlur, style: Object.assign({}, input, mobileSizeSmall && input_mobile) }),
+	                    React.createElement("input", { type: "text", placeholder: this.state.filename || 'Theremin', onChange: this.handleChange, onKeyDown: this.keyDown, onFocus: this.handleFocus, onBlur: this.handleBlur, style: Object.assign({}, input, mobileSizeSmall && input_mobile) }),
 	                    React.createElement(
 	                        _ToggleButton2.default,
 	                        { onDown: this.onDownloadSubmit, style: Object.assign({}, button, mobileSizeSmall && button_mobile) },
@@ -40571,14 +40569,16 @@
 	            this.setState({ filename: val });
 	        }
 	    }, {
-	        key: "onFocus",
-	        value: function onFocus(e) {
+	        key: "handleFocus",
+	        value: function handleFocus(e) {
+	            console.log('on focus', e);
 	            e.target.style.outline = 'none';
 	            e.target.placeholder = '';
 	        }
 	    }, {
-	        key: "onBlur",
-	        value: function onBlur(e) {
+	        key: "handleBlur",
+	        value: function handleBlur(e) {
+	            console.log('on blur', e);
 	            if (e.target.placeholder === '') {
 	                e.target.placeholder = _Defaults.DEFAULTS.Title;
 	            }
@@ -41473,15 +41473,15 @@
 	                bottom: contentPadding
 	            });
 	            title = Object.assign({}, title, {
-	                fontSize: window.innerWidth / 7 < 100 ? window.innerWidth / 7 : 100,
+	                fontSize: window.innerWidth / 7 < 80 ? window.innerWidth / 7 : 80,
 	                marginBottom: window.innerWidth / 20
 	            });
 	            subtitle = Object.assign({}, subtitle, {
-	                fontSize: window.innerWidth / 30,
+	                fontSize: window.innerWidth / 20 < 28 ? window.innerWidth / 20 : 28,
 	                marginBottom: window.innerWidth / 20
 	            });
 	            button = Object.assign({}, button, {
-	                fontSize: window.innerWidth / 15 < 72 ? window.innerWidth / 15 : 72
+	                fontSize: window.innerWidth / 15 < 62 ? window.innerWidth / 15 : 62
 	            });
 	            return React.createElement(
 	                Modal,
@@ -42743,4 +42743,4 @@
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=app-079018a3cc56dfadbcba.js.map
+//# sourceMappingURL=app-6fe50c7ac2a44b2b5be3.js.map

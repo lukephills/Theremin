@@ -207,6 +207,10 @@ export const STYLE: any = prefixer.prefix({
 			margin: '40px 0',
 			textAlign: 'center',
 			width: '100%',
+			MozUserSelect: 'text',
+			MSUserSelect: 'text',
+			WebkitUserSelect: 'text',
+			userSelect: 'text',
 		},
 		input_mobile: {
 			fontSize: 32,
@@ -257,7 +261,7 @@ export const STYLE: any = prefixer.prefix({
 		subtitle: {
 			display:'flex',
 			justifyContent: 'center',
-			fontSize: '18px',
+			fontSize: 18,
 			marginBottom: 40,
 		},
 		button: {
