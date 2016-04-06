@@ -1,12 +1,25 @@
 /**
  * IOS needs to start audio on first touchUp in order for web audio to run
  */
-export function startIOSAudio(context: AudioContext): void {
-	const buffer: AudioBuffer = context.createBuffer(1, 1, 22050);
-	const source: AudioBufferSourceNode = context.createBufferSource();
-	source.buffer = buffer;	source.connect(context.destination);
+let isUnlocked = false;
+export function startIOSAudio(context: AudioContext, cb): void {
+	if (isUnlocked) return;
+	// create empty buffer and play it
+	const buffer = context.createBuffer(1, 1, 22050);
+	const source: any = context.createBufferSource();
+	source.buffer = buffer;
+	source.connect(context.destination);
 	source.start(0);
+	
+	// by checking the play state after some time, we know if we're really unlocked
+	setTimeout(function() {
+		if((source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE)) {
+			isUnlocked = true;
+			cb();
+		}
+	}, 0);
 }
+
 
 /**
  * Joins to buffers together. If one buffer is empty, return the other.

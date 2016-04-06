@@ -1,9 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { connect } from 'react-redux';
 
 import * as CanvasUtils from '../Utils/CanvasUtils';
-import { IGlobalState } from '../Constants/GlobalState';
 import { noOp } from '../Utils/utils';
 import { STYLE } from './Styles/styles';
 import TouchEvent = __React.TouchEvent;
@@ -16,7 +14,6 @@ interface IProps {
 	onMove(event: Event, identifier: number): void;
 	onUp(event: Event, identifier: number): void;
 	onLeave(event: Event, identifier: number): void;
-	onFirstTouch(): void;
 }
 
 interface IState {
@@ -85,11 +82,11 @@ class MultiTouchView extends React.Component<IProps, IState> {
 	}
 
 	private onMouseDown(e, callback = noOp) {
+		console.log('mouse down',e)
 		e.preventDefault();
 		this.setState({
 			pointerDown: true,
-		})
-
+		});
 		callback(e);
 	}
 
@@ -135,11 +132,6 @@ class MultiTouchView extends React.Component<IProps, IState> {
 	}
 
 	private onTouchEnd(e: TouchEvent, callback = noOp) {
-		if (this.hasBeenTouched === false)	{
-			// play empty buffer to unmute audio (ios needs this)
-			this.props.onFirstTouch();
-			this.hasBeenTouched = true;
-		}
 		e.preventDefault();
 		const touches = e.changedTouches;
 		for (let i = 0; i < touches.length; i++) {

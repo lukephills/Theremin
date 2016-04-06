@@ -4,7 +4,8 @@ import {
 	RECORDER_STATE_CHANGE,
 	PLAYER_STATE_CHANGE,
 	SLIDER_CHANGE,
-	MODAL_CHANGE,
+	DOWNLOAD_MODAL_CHANGE, 
+	START_MODAL_CHANGE,
 } from '../Constants/ActionTypes';
 import {RecordStateType, PlayerStateType} from '../Constants/AppTypings';
 
@@ -41,9 +42,16 @@ export function SliderAction(sliderName: string, value: number): any {
 	};
 }
 
-export function modalChange(value: boolean): any {
+export function downloadModalChange(value: boolean): any {
 	return {
-		type: MODAL_CHANGE,
+		type: DOWNLOAD_MODAL_CHANGE,
+		value,
+	};
+}
+
+export function startModalChange(value: boolean): any {
+	return {
+		type: START_MODAL_CHANGE,
 		value,
 	};
 }

@@ -56,3 +56,13 @@ html {
     margin: auto 0 auto -3px;
     background: #444;
 }
+
+.example-appear {
+    opacity: 0;
+    -webkit-transition: opacity 1.5s ease-in-out;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.example-appear.example-appear-active {
+    opacity: 1;
+}

@@ -7,12 +7,12 @@ import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
 import MultiTouchView from './MultiTouchView';
 import DownloadModal from './DownloadModal';
-import SplashScreen from './SplashScreen';
+import StartModal from './StartModal';
 import {WaveformStringType} from '../Constants/AppTypings';
 import { WAVEFORMS, DEFAULTS } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
 import Audio from '../Audio';
-import { modalChange } from '../Actions/actions';
+import { downloadModalChange } from '../Actions/actions';
 
 import Visibility from '../Utils/visibility';
 import * as AudioUtils from '../Utils/AudioUtils';
@@ -44,7 +44,8 @@ function select(state: IGlobalState) {
 		delayVal: state.Slider.delay,
 		feedbackVal: state.Slider.feedback,
 		scuzzVal: state.Slider.scuzz,
-		isModalOpen: state.Modal.isOpen,
+		isDownloadModalOpen: state.DownloadModal.isOpen,
+		isStartModalOpen: state.StartModal.isOpen,
 	};
 }
 
@@ -79,9 +80,7 @@ class App extends React.Component<any, IState> {
 			windowWidth: window.innerWidth,
 		};
 
-		this._touchAreaHeight = this.state.windowHeight - (STYLE_CONST.TOP_PANEL_HEIGHT + (STYLE_CONST.PADDING * 2 ) +
-			STYLE_CONST.BOTTOM_PANEL_HEIGHT);
-		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
+		this.updateSize();
 
 		//Create canvas with the device resolution.
 		this.canvas = CanvasUtils.createCanvas(this._touchAreaWidth, this._touchAreaHeight);
@@ -100,6 +99,25 @@ class App extends React.Component<any, IState> {
 		this.Playback = this.Playback.bind(this);
 		this.Download = this.Download.bind(this);
 		this.handleResize = this.handleResize.bind(this);
+		this.startPress = this.startPress.bind(this);
+	}
+
+	get mobileLandscapeSize(): boolean {
+		return this.state.windowHeight < 450 && (this.state.windowWidth > this.state.windowHeight);
+	}
+
+	get smallScreen(): boolean {
+		return this.state.windowHeight < 600;
+	}
+
+	private updateSize() {
+		const topPanelHeight = this.mobileLandscapeSize ? STYLE_CONST.TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE : STYLE_CONST.TOP_PANEL_HEIGHT;
+		const bottomPanelHeight = this.smallScreen ? STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE : STYLE_CONST.BOTTOM_PANEL_HEIGHT
+
+		this._touchAreaHeight = this.state.windowHeight - (STYLE_CONST.STATUS_BAR_HEIGHT +
+			topPanelHeight + (STYLE_CONST.PADDING * 2) +
+			bottomPanelHeight);
+		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING * 2);
 	}
 
 	public componentDidMount() {
@@ -121,20 +139,27 @@ class App extends React.Component<any, IState> {
 	}
 
 	public render(): React.ReactElement<{}> {
-		const mobileSizeSmall = this.state.windowWidth < 400;
+		const mobileSizeSmall = this.state.windowWidth < 512;
 		const mobileSizeLarge = this.state.windowWidth < 600;
-		const buttonSize = this.state.windowWidth > 600 ? 50 : this.state.windowWidth/10;
+		const mobileLandscape = this.mobileLandscapeSize;
+
+		let buttonSize = this.state.windowWidth > 600 ? 50 : (this.state.windowWidth / 9);
+		buttonSize = buttonSize < 50 ? buttonSize : 50;
 
 		const titleStyle = Object.assign({},
 			STYLE.title.h1,
-			mobileSizeLarge && STYLE.title.h1_mobile
+			mobileSizeLarge && STYLE.title.h1_mobileSizeLarge,
+			mobileSizeSmall && STYLE.title.h1_mobileSizeSmall,
+			mobileLandscape && STYLE.title.h1_mobileLandscape,
+			mobileLandscape && mobileSizeSmall && STYLE.title.h1_mobileSizeSmall
 		);
 
 		return (
 			<div id='body-wrapper'>
-				<div style={STYLE.topPanel}>
+				<div style={Object.assign({}, STYLE.topPanel, mobileLandscape && STYLE.topPanel_mobileLandscape)}>
 					<div style={Object.assign({},STYLE.title.container,
-					(this.state.windowWidth < 400) && STYLE.title.container_mobile)}>
+					mobileSizeSmall && STYLE.title.container_mobile,
+					mobileLandscape && STYLE.title.container_mobileLandscape)}>
 						<span style={titleStyle}>{DEFAULTS.Title.toUpperCase()}</span>
 					</div>
 					<RecordPlayButtonGroup
@@ -161,18 +186,29 @@ class App extends React.Component<any, IState> {
 				    onUp={this.Stop}
 				    onMove={this.Move}
 				    onLeave={this.Stop}
-				    onFirstTouch={() => AudioUtils.startIOSAudio(Audio.context)}
 				/>
 				<RangeSliderGroup
 					sliderChange={this.SliderChange}
+				    smallScreen={this.smallScreen}
+				    windowWidth={this.state.windowWidth}
 			    />
 				<DownloadModal
-					isActive={this.props.isModalOpen}
-				    style={Object.assign({}, STYLE.recordOverlay)}
+					isActive={this.props.isDownloadModalOpen}
+				    style={Object.assign({},STYLE.downloadModal)}
+					windowWidth={this.state.windowWidth}
+				    windowHeight={this.state.windowHeight}
 				/>
-				{this.splashScreen()}
+				<StartModal
+					isActive={this.props.isStartModalOpen}
+					onStartPress={this.startPress}
+					style={Object.assign({}, STYLE.startModal)}
+				/>
 			</div>
 		);
+	}
+	
+	private startPress(cb) {
+		AudioUtils.startIOSAudio(Audio.context, cb);
 	}
 
 	private splashScreen() {
@@ -184,10 +220,8 @@ class App extends React.Component<any, IState> {
 			windowWidth: window.innerWidth,
 			windowHeight: window.innerHeight,
 		});
-		this._touchAreaHeight = this.state.windowHeight - (STYLE_CONST.TOP_PANEL_HEIGHT + (STYLE_CONST.PADDING * 2 ) +
-			STYLE_CONST.BOTTOM_PANEL_HEIGHT);
-		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING*2);
 
+		this.updateSize();
 		// Resize the canvas element
 		CanvasUtils.canvasResize(this.canvas, this._touchAreaWidth, this._touchAreaHeight);
 		this.forceUpdate();
@@ -200,7 +234,6 @@ class App extends React.Component<any, IState> {
 		if (this._isAnimating === false) {
 			this.Draw();
 		}
-
 		Audio.Start(pos, index);
 	}
 	public Stop(e: Event, identifier: number = 0): void {
@@ -250,7 +283,7 @@ class App extends React.Component<any, IState> {
 	}
 
 	public Download() {
-		this.props.dispatch(modalChange(true));
+		this.props.dispatch(downloadModalChange(true));
 		this.setState({isDownloadOverlayActive: true})
 	}
 

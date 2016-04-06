@@ -417,8 +417,7 @@ var Slider = (function (_React$Component) {
                 for (let i = 0; i < touches.length; i++) {
                     var touch = touches[i];
                     if (_touchIdentifiers[touch.identifier]) {
-                        delete _touchIdentifiers[touch.identifier]
-                        console.log(touch.identifier, 'end');
+                        delete _touchIdentifiers[touch.identifier];
                     }
                 }
             }

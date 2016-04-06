@@ -1,4 +1,4 @@
-import { DEFAULTS, WAVEFORMS } from '../Constants/Defaults'
+import { DEFAULTS } from '../Constants/Defaults'
 import {ISlider} from '../Constants/GlobalState';
 import {SLIDER_CHANGE} from '../Constants/ActionTypes';
 

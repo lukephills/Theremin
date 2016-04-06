@@ -3,14 +3,13 @@ import { connect } from 'react-redux';
 const Modal = require('react-modal');
 import Audio from '../Audio';
 import ToggleButton from './ToggleButton'
-import { modalChange } from '../Actions/actions';
+import { downloadModalChange } from '../Actions/actions';
 import {IGlobalState} from '../Constants/GlobalState';
-import {STYLE_CONST} from './Styles/styles';
 import { DEFAULTS } from '../Constants/Defaults';
 
 function select(state: IGlobalState): any {
 	return {
-		isOpen: state.Modal.isOpen,
+		isOpen: state.DownloadModal.isOpen,
 	};
 }
 
@@ -25,40 +24,66 @@ class DownloadModal extends React.Component<any, any> {
 		this.onFocus = this.onFocus.bind(this);
 		this.onBlur = this.onBlur.bind(this);
 		this.keyDown = this.keyDown.bind(this);
-		this.onButtonHover = this.onButtonHover.bind(this)
 
 		this.state = {
-			modalIsOpen: this.props.isActive,
+			// modalIsOpen: this.props.isActive,
 			filename: 'theremin',
 		};
 	}
 
 	public render(): React.ReactElement<{}> {
-		const {overlay, title, subtitle, input, button} = this.props.style;
+		const mobileSizeSmall = this.props.windowWidth < 512 || this.props.windowHeight < 500;
+		const mobileLandscape = this.props.windowHeight < 450 && this.props.windowWidth > this.props.windowHeight;
+
+		const {
+			overlay,
+			title,
+			title_mobile,
+			title_mobileLandscape,
+			subtitle,
+			subtitle_mobile,
+			input,
+			input_mobile,
+			button,
+			button_mobile,
+		} = this.props.style;
+
 		let {content} = this.props.style;
-		const contentPadding = window.innerWidth / 14;
+		let contentPadding = this.props.windowWidth / 14;
+		contentPadding = contentPadding > 20 ? 20 : contentPadding;
+		
 		content = Object.assign({}, content, {
 			top: contentPadding,
 			left: contentPadding,
 			right: contentPadding,
 			bottom: contentPadding,
-		})
+		});
+
+
 		return (
 			<Modal isOpen={this.props.isOpen}
 			       onRequestClose={this.closeModal}
 			       style={{content, overlay}}>
 				<div>
-					<span style={title}>Save Recording</span>
-					<span style={subtitle}>Choose a filename</span>
+					<span style={
+						Object.assign(
+							{}, 
+							title, 
+							mobileSizeSmall && title_mobile, 
+							mobileLandscape && title_mobileLandscape
+						)}>
+						Save Recording
+					</span>
+					<span style={Object.assign({}, subtitle, mobileSizeSmall && subtitle_mobile)}>Choose a filename</span>
 					<input type="text"
 					       placeholder={this.state.filename || 'Theremin'}
 					       onChange={this.handleChange}
 					       onKeyDown={this.keyDown}
 					       onFocus={this.onFocus}
 					       onBlur={this.onBlur}
-					       style={input}/>
+					       style={Object.assign({}, input, mobileSizeSmall && input_mobile)}/>
 					<ToggleButton onDown={this.onDownloadSubmit}
-					              style={button}>
+					              style={Object.assign({}, button, mobileSizeSmall && button_mobile)}>
 						<div>Save {this.state.filename}.wav</div>
 					</ToggleButton>
 				</div>
@@ -81,11 +106,7 @@ class DownloadModal extends React.Component<any, any> {
 			e.target.placeholder = DEFAULTS.Title;
 		}
 	}
-
-	private onButtonHover(e) {
-		console.log('hover button state', e);
-	}
-
+	
 	private keyDown(e: KeyboardEvent) {
 		if (e.keyCode === 13) { //Enter
 			this.onDownloadSubmit();
@@ -93,14 +114,14 @@ class DownloadModal extends React.Component<any, any> {
 	}
 
 	private closeModal(){
-		this.props.dispatch(modalChange(false));
+		this.props.dispatch(downloadModalChange(false));
 	}
 
 	private onDownloadSubmit(){
 		Audio.Download((wav: Blob) => {
 			this.saveWav(wav);
 		});
-		this.props.dispatch(modalChange(false));
+		this.props.dispatch(downloadModalChange(false));
 	}
 
 	private sanitizeFilename(s: string): string {
@@ -119,12 +140,6 @@ class DownloadModal extends React.Component<any, any> {
 			click.initEvent("click", true, true);
 			link.dispatchEvent(click);
 		}
-		//else {
-		//	// Show the anchor link with instructions to 'right click save as'
-		//	link.innerHTML = 'right click save as'
-		//	document.body.appendChild(link); //FIXME: append to a pop up box instead of body
-		//	//TODO: could use this to trigger a saveAs() https://github.com/koffsyrup/FileSaver.js
-		//}
 	}
 }
 export default DownloadModal;

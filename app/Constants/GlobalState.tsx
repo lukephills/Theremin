@@ -6,7 +6,8 @@ export interface IGlobalState {
 	Player?: IPlayer;
 	Recorder?: IRecorder;
 	Slider?: ISlider;
-	Modal?: IModal;
+	DownloadModal?: IModal;
+	StartModal?: IModal;
 }
 
 export interface IWaveform {
