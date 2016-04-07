@@ -93,7 +93,7 @@ class DownloadModal extends React.Component<any, any> {
 			</Modal>
 		);
 	}
-	
+
 	private handleChange(e){
 		const val = e.target.value ? e.target.value : DEFAULTS.Title;
 		this.setState({filename: val})
@@ -134,7 +134,9 @@ class DownloadModal extends React.Component<any, any> {
 	}
 
 	private saveWav(wav: Blob){
+		console.log(wav);
 		const url = (window.URL || (window as any).webkitURL).createObjectURL(wav);
+		console.log(url);
 		const link: HTMLAnchorElement = document.createElement('a');
 		link.href = url;
 
@@ -144,6 +146,16 @@ class DownloadModal extends React.Component<any, any> {
 			let click = document.createEvent("Event");
 			click.initEvent("click", true, true);
 			link.dispatchEvent(click);
+		} else {
+			// console.log('save as')
+			// // Show the anchor link with instructions to 'right click save as'
+			// link.innerHTML = 'right click save as';
+			// document.body.appendChild(link); //FIXME: append to a pop up box instead of body
+			// //TODO: could use this to trigger a saveAs() https://github.com/koffsyrup/FileSaver.js
+
+
+			console.log(cordova.file);
+
 		}
 	}
 }

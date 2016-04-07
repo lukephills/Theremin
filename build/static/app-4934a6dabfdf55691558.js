@@ -107,7 +107,46 @@
 	    return Main;
 	}(React.Component);
 	
-	ReactDOM.render(React.createElement(Main, null), document.getElementById('app'));
+	var startApp = function startApp() {
+	    console.log('starting app...');
+	    ReactDOM.render(React.createElement(Main, null), document.getElementById('app'));
+	};
+	// interface Window {
+	// 	appRootDirName: string;
+	// 	appRootDir: string;
+	// }
+	var deviceReady = function deviceReady() {
+	    cordova;
+	    console.log('Using Cordova!');
+	    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+	    startApp();
+	};
+	window.appRootDirName = ".myapp";
+	function fail() {
+	    console.log("failed to get filesystem");
+	}
+	function gotFS(fileSystem) {
+	    console.log("filesystem got");
+	    cordova.file.documentsDirectory;
+	    fileSystem.root.getDirectory(window.appRootDirName, {
+	        create: true,
+	        exclusive: false
+	    }, dirReady, fail);
+	}
+	function dirReady(entry) {
+	    window.appRootDir = entry;
+	    console.log(JSON.stringify(window.appRootDir));
+	}
+	if (window.cordova) {
+	    console.log('cordova exists');
+	    document.addEventListener('deviceready', deviceReady, false);
+	} else {
+	    startApp();
+	}
+	// somewhere in your app
+	// if(window.device && device.platform === 'iOS') {
+	// 	styles.base.paddingTop = '20px'
+	// }
 
 /***/ },
 /* 1 */
@@ -40622,6 +40661,13 @@
 	                var click = document.createEvent("Event");
 	                click.initEvent("click", true, true);
 	                link.dispatchEvent(click);
+	            } else {
+	                // console.log('save as')
+	                // // Show the anchor link with instructions to 'right click save as'
+	                // link.innerHTML = 'right click save as';
+	                // document.body.appendChild(link); //FIXME: append to a pop up box instead of body
+	                // //TODO: could use this to trigger a saveAs() https://github.com/koffsyrup/FileSaver.js
+	                console.log(cordova.file);
 	            }
 	        }
 	    }]);
@@ -42743,4 +42789,4 @@
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=app-6fe50c7ac2a44b2b5be3.js.map
+//# sourceMappingURL=app-4934a6dabfdf55691558.js.map
