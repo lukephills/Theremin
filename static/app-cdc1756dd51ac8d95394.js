@@ -108,45 +108,19 @@
 	}(React.Component);
 	
 	var startApp = function startApp() {
-	    console.log('starting app...');
 	    ReactDOM.render(React.createElement(Main, null), document.getElementById('app'));
 	};
-	// interface Window {
-	// 	appRootDirName: string;
-	// 	appRootDir: string;
-	// }
 	var deviceReady = function deviceReady() {
-	    cordova;
-	    console.log('Using Cordova!');
-	    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
-	    startApp();
+	    setTimeout(function () {
+	        navigator.splashscreen.hide();
+	        startApp();
+	    }, 2000);
 	};
-	window.appRootDirName = ".myapp";
-	function fail() {
-	    console.log("failed to get filesystem");
-	}
-	function gotFS(fileSystem) {
-	    console.log("filesystem got");
-	    cordova.file.documentsDirectory;
-	    fileSystem.root.getDirectory(window.appRootDirName, {
-	        create: true,
-	        exclusive: false
-	    }, dirReady, fail);
-	}
-	function dirReady(entry) {
-	    window.appRootDir = entry;
-	    console.log(JSON.stringify(window.appRootDir));
-	}
 	if (window.cordova) {
-	    console.log('cordova exists');
 	    document.addEventListener('deviceready', deviceReady, false);
 	} else {
 	    startApp();
 	}
-	// somewhere in your app
-	// if(window.device && device.platform === 'iOS') {
-	// 	styles.base.paddingTop = '20px'
-	// }
 
 /***/ },
 /* 1 */
@@ -2826,10 +2800,17 @@
 	__webpack_require__(530);
 	var Prefixer = __webpack_require__(363);
 	var prefixer = exports.prefixer = new Prefixer();
+	var statusBarHeight = exports.statusBarHeight = function statusBarHeight() {
+	    if (window.cordova && cordova.platformId === 'ios' && (window.orientation === 0 || window.orientation === 180)) {
+	        return 20;
+	    } else {
+	        return 0;
+	    }
+	};
 	var STYLE_CONST = exports.STYLE_CONST = prefixer.prefix({
 	    TOP_PANEL_HEIGHT: 80,
 	    TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE: 60,
-	    STATUS_BAR_HEIGHT: 20,
+	    STATUS_BAR_HEIGHT: statusBarHeight(),
 	    BORDER_WIDTH: 0,
 	    BOTTOM_PANEL_HEIGHT: 150,
 	    BOTTOM_PANEL_HEIGHT_MOBILE: 120,
@@ -2849,7 +2830,7 @@
 	});
 	var STYLE = exports.STYLE = prefixer.prefix({
 	    topPanel: {
-	        marginTop: STYLE_CONST.STATUS_BAR_HEIGHT,
+	        marginTop: statusBarHeight(),
 	        height: STYLE_CONST.TOP_PANEL_HEIGHT + 'px',
 	        display: 'flex',
 	        flexDirection: 'row'
@@ -2875,7 +2856,8 @@
 	            fontFamily: STYLE_CONST.FONT_FAMILY,
 	            fontWeight: 400,
 	            fontSize: STYLE_CONST.TITLE_FONT_SIZE,
-	            lineHeight: STYLE_CONST.TOP_PANEL_HEIGHT + 'px'
+	            lineHeight: STYLE_CONST.TOP_PANEL_HEIGHT + 'px',
+	            cursor: 'default'
 	        },
 	        h1_mobileSizeLarge: {
 	            fontSize: STYLE_CONST.TITLE_FONT_SIZE_MED,
@@ -3079,8 +3061,12 @@
 	            textAlign: 'center',
 	            fontSize: '36px',
 	            fontWeight: 400,
-	            border: '3px solid ' + STYLE_CONST.BLACK,
-	            padding: 10
+	            border: '2px solid ' + STYLE_CONST.BLACK,
+	            padding: 10,
+	            paddingLeft: 100,
+	            paddingRight: 100,
+	            minWidth: 250,
+	            cursor: 'pointer'
 	        }
 	    }
 	});
@@ -40246,6 +40232,7 @@
 	            playerState: _AppTypings.STATE.STOPPED,
 	            recordState: _AppTypings.STATE.STOPPED,
 	            isDownloadOverlayActive: false,
+	            orientation: 0,
 	            scuzzVal: _Defaults.DEFAULTS.Sliders.scuzz.value,
 	            waveform: _Defaults.WAVEFORMS[_Defaults.DEFAULTS.Waveform],
 	            windowHeight: window.innerHeight,
@@ -40267,6 +40254,7 @@
 	        _this.Playback = _this.Playback.bind(_this);
 	        _this.Download = _this.Download.bind(_this);
 	        _this.handleResize = _this.handleResize.bind(_this);
+	        _this.handleOrientationChange = _this.handleOrientationChange.bind(_this);
 	        _this.startPress = _this.startPress.bind(_this);
 	        return _this;
 	    }
@@ -40276,13 +40264,29 @@
 	        value: function updateSize() {
 	            var topPanelHeight = this.mobileLandscapeSize ? _styles.STYLE_CONST.TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE : _styles.STYLE_CONST.TOP_PANEL_HEIGHT;
 	            var bottomPanelHeight = this.smallScreen ? _styles.STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE : _styles.STYLE_CONST.BOTTOM_PANEL_HEIGHT;
-	            this._touchAreaHeight = this.state.windowHeight - (_styles.STYLE_CONST.STATUS_BAR_HEIGHT + topPanelHeight + _styles.STYLE_CONST.PADDING * 2 + bottomPanelHeight);
+	            this._touchAreaHeight = this.state.windowHeight - (this.statusBarHeight() + topPanelHeight + _styles.STYLE_CONST.PADDING * 2 + bottomPanelHeight);
 	            this._touchAreaWidth = this.state.windowWidth - _styles.STYLE_CONST.PADDING * 2;
+	        }
+	    }, {
+	        key: "handleOrientationChange",
+	        value: function handleOrientationChange() {
+	            console.log(window.orientation);
+	            this.setState({ orientation: window.orientation }, this.statusBarHeight);
+	        }
+	    }, {
+	        key: "statusBarHeight",
+	        value: function statusBarHeight() {
+	            if (window.cordova && cordova.platformId === 'ios' && (this.state.orientation === 0 || this.state.orientation === 180)) {
+	                return 20;
+	            } else {
+	                return 0;
+	            }
 	        }
 	    }, {
 	        key: "componentDidMount",
 	        value: function componentDidMount() {
 	            window.addEventListener('resize', this.handleResize);
+	            window.addEventListener("orientationchange", this.handleOrientationChange);
 	            // Make sure all sounds stop when app is awoken.
 	            _visibility2.default.onVisible = function () {
 	                _Audio2.default.StopAll();
@@ -40296,6 +40300,7 @@
 	        key: "componentWillUnmount",
 	        value: function componentWillUnmount() {
 	            window.removeEventListener('resize', this.handleResize);
+	            window.removeEventListener("orientationchange", this.handleOrientationChange);
 	        }
 	    }, {
 	        key: "render",
@@ -40416,8 +40421,34 @@
 	    }, {
 	        key: "Download",
 	        value: function Download() {
-	            this.props.dispatch((0, _actions.downloadModalChange)(true));
-	            this.setState({ isDownloadOverlayActive: true });
+	            var _this2 = this;
+	
+	            if (cordova) {
+	                _Audio2.default.Download(function (wav) {
+	                    _this2.shareAudioUsingCordova(wav, 'theremin.wav');
+	                });
+	            } else {
+	                this.props.dispatch((0, _actions.downloadModalChange)(true));
+	                this.setState({ isDownloadOverlayActive: true });
+	            }
+	        }
+	    }, {
+	        key: "shareAudioUsingCordova",
+	        value: function shareAudioUsingCordova(wav, filename) {
+	            if (wav.size > 5242880) {
+	                navigator.notification.alert('The recording is too large. Try a shorter length.', function () {
+	                    return;
+	                }, "Can't share file");
+	            } else {
+	                var reader = new FileReader();
+	                reader.onloadend = function () {
+	                    window.plugins.socialsharing.share(null, filename, reader.result, null);
+	                };
+	                reader.onerror = function (e) {
+	                    console.log('File could not be read! Error:', e);
+	                };
+	                reader.readAsDataURL(wav);
+	            }
 	        }
 	    }, {
 	        key: "Draw",
@@ -40640,7 +40671,7 @@
 	            var _this2 = this;
 	
 	            _Audio2.default.Download(function (wav) {
-	                _this2.saveWav(wav);
+	                _this2.downloadWav(wav);
 	            });
 	            this.props.dispatch((0, _actions.downloadModalChange)(false));
 	        }
@@ -40650,8 +40681,8 @@
 	            return s.replace(/[^a-z0-9_\-]/gi, '_');
 	        }
 	    }, {
-	        key: "saveWav",
-	        value: function saveWav(wav) {
+	        key: "downloadWav",
+	        value: function downloadWav(wav) {
 	            var url = (window.URL || window.webkitURL).createObjectURL(wav);
 	            var link = document.createElement('a');
 	            link.href = url;
@@ -40661,13 +40692,6 @@
 	                var click = document.createEvent("Event");
 	                click.initEvent("click", true, true);
 	                link.dispatchEvent(click);
-	            } else {
-	                // console.log('save as')
-	                // // Show the anchor link with instructions to 'right click save as'
-	                // link.innerHTML = 'right click save as';
-	                // document.body.appendChild(link); //FIXME: append to a pop up box instead of body
-	                // //TODO: could use this to trigger a saveAs() https://github.com/koffsyrup/FileSaver.js
-	                console.log(cordova.file);
 	            }
 	        }
 	    }]);
@@ -40854,7 +40878,6 @@
 	        value: function onMouseDown(e) {
 	            var callback = arguments.length <= 1 || arguments[1] === undefined ? _utils.noOp : arguments[1];
 	
-	            console.log('mouse down', e);
 	            e.preventDefault();
 	            this.setState({
 	                pointerDown: true
@@ -41538,26 +41561,50 @@
 	                    React.createElement(
 	                        "div",
 	                        { key: "start-modal" },
-	                        React.createElement(
-	                            "span",
-	                            { style: title },
-	                            "THEREMIN"
-	                        ),
-	                        React.createElement(
-	                            "span",
-	                            { style: subtitle },
-	                            "femurdesign.com"
-	                        ),
-	                        React.createElement(
-	                            "div",
-	                            { style: button, onTouchEnd: this.startApp, onClick: this.startApp },
-	                            React.createElement(
-	                                "span",
-	                                null,
-	                                "START"
-	                            )
-	                        )
+	                        this.startModalCopy(title, subtitle, button)
 	                    )
+	                )
+	            );
+	        }
+	    }, {
+	        key: "startModalCopy",
+	        value: function startModalCopy(titleStyle, subtitleStyle, buttonStyle) {
+	            // if (window.cordova && cordova.platformId === 'ios'){
+	            //TODO: get rid of start button for android and chrome
+	            // }
+	            // TODO: if ( no splash screen ) {
+	            //     this.startText(titleStyle, subtitleStyle)
+	            // }
+	            return this.startButton(buttonStyle);
+	        }
+	    }, {
+	        key: "startButton",
+	        value: function startButton(style) {
+	            return React.createElement(
+	                "div",
+	                { style: style, onTouchEnd: this.startApp, onClick: this.startApp },
+	                React.createElement(
+	                    "span",
+	                    null,
+	                    "START"
+	                )
+	            );
+	        }
+	    }, {
+	        key: "startText",
+	        value: function startText(titleStyle, subtitleStyle) {
+	            return React.createElement(
+	                "span",
+	                null,
+	                React.createElement(
+	                    "span",
+	                    { style: titleStyle },
+	                    "THEREMIN"
+	                ),
+	                React.createElement(
+	                    "span",
+	                    { style: subtitleStyle },
+	                    "femurdesign.com"
 	                )
 	            );
 	        }
@@ -42710,7 +42757,7 @@
 	exports.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Lato:400,300);", ""]);
 	
 	// module
-	exports.push([module.id, "html * {\n    box-sizing: border-box;\n    -webkit-tap-highlight-color: rgba(0,0,0,0);\n    tap-highlight-color: rgba(0,0,0,0);\n    -ms-user-select: none;\n    -moz-user-select: none;\n    -webkit-user-select: none;\n    user-select: none;\n}\nhtml {\n    font-family: Lato, Helvetica, sans-serif;\n    font-weight: 300;\n    padding: 0 5px 5px 5px;\n}\n\n::-webkit-input-placeholder { /* WebKit, Blink, Edge */\n    color:    #444;\n}\n::-moz-placeholder { /* Mozilla Firefox 19+ */\n    color:    #444;\n    opacity:  1;\n}\n:placeholder-shown { /* Standard (https://drafts.csswg.org/selectors-4/#placeholder) */\n    color:    #444;\n}\n\n.rc-slider * {\n    box-sizing: border-box;\n    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n}\n.rc-slider {\n    position: relative;\n    width: 100%;\n    border-radius: 0;\n    box-sizing: border-box;\n    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n}\n.rc-slider-track {\n    position: absolute;\n    left: 0;\n    float: left;\n    border-radius: 0;\n    z-index: 1;\n}\n\n.rc-slider-handle {\n    width: 6px;\n    height: 6px;\n    position: absolute;\n    z-index: 8;\n    transform: rotate(45deg);\n    top: 0;\n    bottom: 0;\n    margin: auto 0 auto -3px;\n    background: #444;\n}\n\n.example-appear {\n    opacity: 0;\n    -webkit-transition: opacity 1.5s ease-in-out;\n    transition: opacity 1.5s ease-in-out;\n}\n\n.example-appear.example-appear-active {\n    opacity: 1;\n}", ""]);
+	exports.push([module.id, "html * {\n    box-sizing: border-box;\n    -webkit-tap-highlight-color: rgba(0,0,0,0);\n    tap-highlight-color: rgba(0,0,0,0);\n    -ms-user-select: none;\n    -moz-user-select: none;\n    -webkit-user-select: none;\n    user-select: none;\n}\nhtml {\n    font-family: Lato, Helvetica, sans-serif;\n    font-weight: 300;\n    padding: 0 5px 5px 5px;\n}\n\n::-webkit-input-placeholder { /* WebKit, Blink, Edge */\n    color:    #444;\n}\n::-moz-placeholder { /* Mozilla Firefox 19+ */\n    color:    #444;\n    opacity:  1;\n}\n:placeholder-shown { /* Standard (https://drafts.csswg.org/selectors-4/#placeholder) */\n    color:    #444;\n}\n\n.rc-slider * {\n    box-sizing: border-box;\n    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n}\n.rc-slider {\n    position: relative;\n    width: 100%;\n    border-radius: 0;\n    box-sizing: border-box;\n    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n}\n.rc-slider-track {\n    position: absolute;\n    left: 0;\n    float: left;\n    border-radius: 0;\n    z-index: 1;\n}\n\n.rc-slider-handle {\n    width: 6px;\n    height: 6px;\n    position: absolute;\n    z-index: 8;\n    transform: rotate(45deg);\n    top: 0;\n    bottom: 0;\n    margin: auto 0 auto -3px;\n    background: #444;\n}\n\n.example-appear {\n    opacity: 0;\n    -webkit-transition: opacity 0.2s ease-in-out;\n    transition: opacity 0.2s ease-in-out;\n}\n\n.example-appear.example-appear-active {\n    opacity: 1;\n}", ""]);
 	
 	// exports
 
@@ -42789,4 +42836,4 @@
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=app-4934a6dabfdf55691558.js.map
+//# sourceMappingURL=app-cdc1756dd51ac8d95394.js.map
