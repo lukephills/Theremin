@@ -30,6 +30,7 @@ interface IState {
 	playerState?: PlayerStateType;
 	recordState?: RecordStateType;
 	isDownloadOverlayActive?: boolean;
+	orientation?: string | number;
 	scuzzVal?: number;
 	waveform?: string;
 	windowHeight?: number;
@@ -74,6 +75,7 @@ class App extends React.Component<any, IState> {
 			playerState: STATE.STOPPED,
 			recordState: STATE.STOPPED,
 			isDownloadOverlayActive: false,
+			orientation: 0,
 			scuzzVal: DEFAULTS.Sliders.scuzz.value,
 			waveform: WAVEFORMS[DEFAULTS.Waveform],
 			windowHeight: window.innerHeight,
@@ -99,6 +101,7 @@ class App extends React.Component<any, IState> {
 		this.Playback = this.Playback.bind(this);
 		this.Download = this.Download.bind(this);
 		this.handleResize = this.handleResize.bind(this);
+		this.handleOrientationChange = this.handleOrientationChange.bind(this);
 		this.startPress = this.startPress.bind(this);
 	}
 
@@ -114,14 +117,31 @@ class App extends React.Component<any, IState> {
 		const topPanelHeight = this.mobileLandscapeSize ? STYLE_CONST.TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE : STYLE_CONST.TOP_PANEL_HEIGHT;
 		const bottomPanelHeight = this.smallScreen ? STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE : STYLE_CONST.BOTTOM_PANEL_HEIGHT
 
-		this._touchAreaHeight = this.state.windowHeight - (STYLE_CONST.STATUS_BAR_HEIGHT +
+		this._touchAreaHeight = this.state.windowHeight - (this.statusBarHeight() +
 			topPanelHeight + (STYLE_CONST.PADDING * 2) +
 			bottomPanelHeight);
 		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING * 2);
 	}
 
+	private handleOrientationChange() {
+		console.log(window.orientation);
+		this.setState({orientation: window.orientation}, this.statusBarHeight)
+	}
+
+	private statusBarHeight() {
+		if (window.cordova && cordova.platformId === 'ios' &&
+			(this.state.orientation === 0 || this.state.orientation === 180)) {
+			return 20;
+		} else {
+			return 0;
+		}
+	}
+
+
 	public componentDidMount() {
 		window.addEventListener('resize', this.handleResize);
+		window.addEventListener("orientationchange", this.handleOrientationChange);
+
 
 		// Make sure all sounds stop when app is awoken.
 		Visibility.onVisible = () => {
@@ -136,6 +156,7 @@ class App extends React.Component<any, IState> {
 
 	public componentWillUnmount() {
 		window.removeEventListener('resize', this.handleResize);
+		window.removeEventListener("orientationchange", this.handleOrientationChange);
 	}
 
 	public render(): React.ReactElement<{}> {
@@ -278,8 +299,35 @@ class App extends React.Component<any, IState> {
 	}
 
 	public Download() {
-		this.props.dispatch(downloadModalChange(true));
-		this.setState({isDownloadOverlayActive: true})
+		if (cordova) {
+			Audio.Download((wav: Blob) => {
+				this.shareAudioUsingCordova(wav, 'theremin.wav');
+			});
+		} else {
+			this.props.dispatch(downloadModalChange(true));
+			this.setState({isDownloadOverlayActive: true})
+		}
+	}
+
+	private shareAudioUsingCordova(wav: Blob, filename){
+		if (wav.size > 5242880) {
+			navigator.notification.alert('The recording is too large. Try a shorter length.', () => {
+				return;
+			}, `Can't share file`)
+		} else {
+			var reader = new FileReader();
+			reader.onloadend = function() {
+				window.plugins.socialsharing.share(
+					null,
+					filename,
+					reader.result,
+					null)
+			}
+			reader.onerror = function(e: any) {
+				console.log('File could not be read! Error:', e);
+			}
+			reader.readAsDataURL(wav);
+		}
 	}
 
 	private Draw() {

@@ -4,8 +4,13 @@
   "description": "Theremin emulator",
   "main": "index.js",
   "scripts": {
+    "ios:build": "npm run build && cd phonegap/theremin && cordova build ios",
+    "android": "cd phonegap/theremin && cordova build android",
+    "copyIndex": "cp build/index.html phonegap/theremin/www",
+    "copyScript": "rm -r phonegap/theremin/www/static && cp -a build/static phonegap/theremin/www",
+    "cordova:copyfiles": "npm run copyIndex && npm run copyScript",
     "build:webpack": "NODE_ENV=production webpack --config config/webpack.prod.js",
-    "build": "npm run clean && npm run build:webpack && npm run zip",
+    "build": "npm run clean && npm run build:webpack && npm run cordova:copyfiles",
     "zip": "zip -r build/bundle.zip build/*",
     "clean": "rimraf build",
     "start": "node dev_server.js",
@@ -69,7 +74,6 @@
     "tone": "^0.6.1",
     "ts-loader": "^0.8.1",
     "typescript": "^1.8.2",
-    "web-audio-scheduler": "^1.0.0",
     "worker-loader": "^0.7.0",
     "worker-timer": "^1.0.0"
   }

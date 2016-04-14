@@ -5,7 +5,7 @@ const Modal = require('react-modal');
 import { startModalChange } from '../Actions/actions';
 import { IGlobalState } from '../Constants/GlobalState';
 
-var ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 interface IProps {
 	onStartPress: Function;
@@ -54,23 +54,40 @@ class StartModal extends React.Component<any, IProps> {
 			       onRequestClose={this.startApp}
 			       style={{content, overlay}}>
 
-
-
 				<ReactCSSTransitionGroup transitionName="example"
 				                         transitionAppear={true}
 				                         transitionAppearTimeout={0}
 				                         transitionEnterTimeout={0}
 				                         transitionLeaveTimeout={0}>
 					<div key="start-modal">
-						<span style={title}>THEREMIN</span>
-						<span style={subtitle}>femurdesign.com</span>
-						<div style={button} onTouchEnd={this.startApp} onClick={this.startApp}>
-							<span>START</span>
-						</div>
+						{this.startModalCopy(title, subtitle, button)}
 					</div>
 				</ReactCSSTransitionGroup>
 			</Modal>
 		);
+	}
+
+	private startModalCopy(titleStyle, subtitleStyle, buttonStyle) {
+		// if (window.cordova && cordova.platformId === 'ios'){
+		//TODO: get rid of start button for android and chrome
+		// }
+		// TODO: if ( no splash screen ) {
+		//     this.startText(titleStyle, subtitleStyle)
+		// }
+		return this.startButton(buttonStyle)
+	}
+
+	private startButton(style) {
+		return <div style={style} onTouchEnd={this.startApp} onClick={this.startApp}>
+			<span>START</span>
+		</div>
+	}
+
+	private startText(titleStyle, subtitleStyle) {
+		return <span>
+			<span style={titleStyle}>THEREMIN</span>
+			<span style={subtitleStyle}>femurdesign.com</span>
+		</span>
 	}
 
 	public componentDidMount() {
@@ -87,12 +104,9 @@ class StartModal extends React.Component<any, IProps> {
 	}
 
 	private startApp(){
-		
 		this.props.onStartPress(() => {
 			this.props.dispatch(startModalChange(false));
 		});
-
-		
 	}
 	
 }

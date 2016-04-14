@@ -1,0 +1,30 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-file": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-file-transfer": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-x-socialsharing": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-dialogs": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
+        }
+    },
+    "dependent_plugins": {}
+}

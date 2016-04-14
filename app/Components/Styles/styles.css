@@ -59,8 +59,8 @@ html {
 
 .example-appear {
     opacity: 0;
-    -webkit-transition: opacity 1.5s ease-in-out;
-    transition: opacity 1.5s ease-in-out;
+    -webkit-transition: opacity 0.2s ease-in-out;
+    transition: opacity 0.2s ease-in-out;
 }
 
 .example-appear.example-appear-active {

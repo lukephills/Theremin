@@ -124,7 +124,7 @@ class DownloadModal extends React.Component<any, any> {
 
 	private onDownloadSubmit(){
 		Audio.Download((wav: Blob) => {
-			this.saveWav(wav);
+			this.downloadWav(wav);
 		});
 		this.props.dispatch(downloadModalChange(false));
 	}
@@ -133,29 +133,16 @@ class DownloadModal extends React.Component<any, any> {
 		return s.replace(/[^a-z0-9_\-]/gi, '_');
 	}
 
-	private saveWav(wav: Blob){
-		console.log(wav);
+	private downloadWav(wav: Blob){
 		const url = (window.URL || (window as any).webkitURL).createObjectURL(wav);
-		console.log(url);
 		const link: HTMLAnchorElement = document.createElement('a');
 		link.href = url;
-
-		const downloadAttrSupported: boolean = ('download' in link);
+		const downloadAttrSupported = ('download' in link);
 		if (downloadAttrSupported) {
 			link.setAttribute('download', `${this.sanitizeFilename(this.state.filename)}.wav`);
 			let click = document.createEvent("Event");
 			click.initEvent("click", true, true);
 			link.dispatchEvent(click);
-		} else {
-			// console.log('save as')
-			// // Show the anchor link with instructions to 'right click save as'
-			// link.innerHTML = 'right click save as';
-			// document.body.appendChild(link); //FIXME: append to a pop up box instead of body
-			// //TODO: could use this to trigger a saveAs() https://github.com/koffsyrup/FileSaver.js
-
-
-			console.log(cordova.file);
-
 		}
 	}
 }

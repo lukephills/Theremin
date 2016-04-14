@@ -18,7 +18,6 @@ interface IProps {
 
 interface IState {
 	pointerDown?: boolean;
-	//touches?: any; //Touch.identifiers
 }
 
 interface ITouch {
@@ -82,7 +81,6 @@ class MultiTouchView extends React.Component<IProps, IState> {
 	}
 
 	private onMouseDown(e, callback = noOp) {
-		console.log('mouse down',e)
 		e.preventDefault();
 		this.setState({
 			pointerDown: true,

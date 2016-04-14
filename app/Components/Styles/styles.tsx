@@ -4,10 +4,19 @@ require('./styles.css');
 const Prefixer  = require('inline-style-prefixer');
 export const prefixer = new Prefixer();
 
+export const statusBarHeight = () => {
+	if (window.cordova && cordova.platformId === 'ios' &&
+		(window.orientation === 0 || window.orientation === 180)) {
+		return 20;
+	} else {
+		return 0;
+	}
+}
+
 export const STYLE_CONST: any = prefixer.prefix({
 	TOP_PANEL_HEIGHT: 80,
 	TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE: 60,
-	STATUS_BAR_HEIGHT: 20,
+	STATUS_BAR_HEIGHT: statusBarHeight(),
 	BORDER_WIDTH: 0,
 	BOTTOM_PANEL_HEIGHT: 150,
 	BOTTOM_PANEL_HEIGHT_MOBILE: 120,
@@ -28,7 +37,7 @@ export const STYLE_CONST: any = prefixer.prefix({
 
 export const STYLE: any = prefixer.prefix({
 	topPanel: {
-		marginTop: STYLE_CONST.STATUS_BAR_HEIGHT,
+		marginTop: statusBarHeight(),
 		height: `${STYLE_CONST.TOP_PANEL_HEIGHT}px`,
 		display: `flex`,
 		flexDirection: 'row',
@@ -55,6 +64,7 @@ export const STYLE: any = prefixer.prefix({
 			fontWeight: 400,
 			fontSize: STYLE_CONST.TITLE_FONT_SIZE,
 			lineHeight: `${STYLE_CONST.TOP_PANEL_HEIGHT}px`,
+			cursor: 'default',
 		},
 		h1_mobileSizeLarge: {
 			fontSize: STYLE_CONST.TITLE_FONT_SIZE_MED,
@@ -270,8 +280,12 @@ export const STYLE: any = prefixer.prefix({
 			textAlign: 'center',
 			fontSize: '36px',
 			fontWeight: 400,
-			border: `3px solid ${STYLE_CONST.BLACK}`,
+			border: `2px solid ${STYLE_CONST.BLACK}`,
 			padding: 10,
+			paddingLeft: 100,
+			paddingRight: 100,
+			minWidth: 250,
+			cursor: 'pointer',
 		},
 	}
 });

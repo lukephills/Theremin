@@ -16,7 +16,8 @@ interface Plugins {
      * Google's GCM (Google Cloud Messaging) service,
      * whereas the iOS version is based on Apple APNS Notifications
      */
-    pushNotification: PushNotification
+    pushNotification: PushNotification;
+    socialsharing: SocialSharing;
 }
 
 /**
@@ -53,6 +54,17 @@ interface PushNotification {
         successCallback: (result: any) => void,
         errorCallback: (error: any) => void,
         badgeCount: number): void;
+}
+
+interface SocialSharing {
+    share(
+        message: string,
+        subject?: string,
+        file?: string,
+        link?: string,
+        successCallback?: (result: any) => void,
+        errorCallback?: (result: any) => void
+    ): void;
 }
 
 /** Options for registration process. */
