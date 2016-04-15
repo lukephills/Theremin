@@ -108,6 +108,11 @@
 	}(React.Component);
 	
 	var startApp = function startApp() {
+	    // Prevent touch scroll event on document //
+	    document.addEventListener('touchmove', function (e) {
+	        e.preventDefault();
+	    }, false);
+	    // Render App to DOM //
 	    ReactDOM.render(React.createElement(Main, null), document.getElementById('app'));
 	};
 	var deviceReady = function deviceReady() {
@@ -2800,17 +2805,18 @@
 	__webpack_require__(530);
 	var Prefixer = __webpack_require__(363);
 	var prefixer = exports.prefixer = new Prefixer();
-	var statusBarHeight = exports.statusBarHeight = function statusBarHeight() {
-	    if (window.cordova && cordova.platformId === 'ios' && (window.orientation === 0 || window.orientation === 180)) {
-	        return 20;
-	    } else {
-	        return 0;
-	    }
-	};
+	// export const statusBarHeight = () => {
+	// 	if (window.cordova && cordova.platformId === 'ios' &&
+	// 		(window.orientation === 0 || window.orientation === 180)) {
+	// 		return 20;
+	// 	} else {
+	// 		return 0;
+	// 	}
+	// }
 	var STYLE_CONST = exports.STYLE_CONST = prefixer.prefix({
 	    TOP_PANEL_HEIGHT: 80,
 	    TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE: 60,
-	    STATUS_BAR_HEIGHT: statusBarHeight(),
+	    STATUS_BAR_HEIGHT: 0,
 	    BORDER_WIDTH: 0,
 	    BOTTOM_PANEL_HEIGHT: 150,
 	    BOTTOM_PANEL_HEIGHT_MOBILE: 120,
@@ -2830,7 +2836,7 @@
 	});
 	var STYLE = exports.STYLE = prefixer.prefix({
 	    topPanel: {
-	        marginTop: statusBarHeight(),
+	        marginTop: 0,
 	        height: STYLE_CONST.TOP_PANEL_HEIGHT + 'px',
 	        display: 'flex',
 	        flexDirection: 'row'
@@ -3067,6 +3073,10 @@
 	            paddingRight: 100,
 	            minWidth: 250,
 	            cursor: 'pointer'
+	        },
+	        buttonPressed: {
+	            background: STYLE_CONST.BLACK,
+	            color: STYLE_CONST.WHITE
 	        }
 	    }
 	});
@@ -28695,7 +28705,6 @@
 	          var touch = touches[i];
 	          if (_touchIdentifiers[touch.identifier]) {
 	            delete _touchIdentifiers[touch.identifier];
-	            console.log(touch.identifier, 'end');
 	          }
 	        }
 	      }
@@ -40224,15 +40233,12 @@
 	
 	        _this._isAnimating = false;
 	        _this._pixelRatio = CanvasUtils.getPixelRatio();
-	        _this.hasRecording = false;
-	        _this.isPlayingBack = false;
 	        _this.state = {
 	            delayVal: _Defaults.DEFAULTS.Sliders.delay.value,
 	            feedbackVal: _Defaults.DEFAULTS.Sliders.feedback.value,
 	            playerState: _AppTypings.STATE.STOPPED,
 	            recordState: _AppTypings.STATE.STOPPED,
 	            isDownloadOverlayActive: false,
-	            orientation: 0,
 	            scuzzVal: _Defaults.DEFAULTS.Sliders.scuzz.value,
 	            waveform: _Defaults.WAVEFORMS[_Defaults.DEFAULTS.Waveform],
 	            windowHeight: window.innerHeight,
@@ -40254,7 +40260,6 @@
 	        _this.Playback = _this.Playback.bind(_this);
 	        _this.Download = _this.Download.bind(_this);
 	        _this.handleResize = _this.handleResize.bind(_this);
-	        _this.handleOrientationChange = _this.handleOrientationChange.bind(_this);
 	        _this.startPress = _this.startPress.bind(_this);
 	        return _this;
 	    }
@@ -40264,29 +40269,24 @@
 	        value: function updateSize() {
 	            var topPanelHeight = this.mobileLandscapeSize ? _styles.STYLE_CONST.TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE : _styles.STYLE_CONST.TOP_PANEL_HEIGHT;
 	            var bottomPanelHeight = this.smallScreen ? _styles.STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE : _styles.STYLE_CONST.BOTTOM_PANEL_HEIGHT;
-	            this._touchAreaHeight = this.state.windowHeight - (this.statusBarHeight() + topPanelHeight + _styles.STYLE_CONST.PADDING * 2 + bottomPanelHeight);
+	            var statusBarHeight = this.getStatusBarHeight();
+	            this._touchAreaHeight = this.state.windowHeight - (statusBarHeight + topPanelHeight + _styles.STYLE_CONST.PADDING * 2 + bottomPanelHeight);
+	            console.log('touch area height =', this._touchAreaHeight, 'status bar =', statusBarHeight);
 	            this._touchAreaWidth = this.state.windowWidth - _styles.STYLE_CONST.PADDING * 2;
 	        }
 	    }, {
-	        key: "handleOrientationChange",
-	        value: function handleOrientationChange() {
-	            console.log(window.orientation);
-	            this.setState({ orientation: window.orientation }, this.statusBarHeight);
-	        }
-	    }, {
-	        key: "statusBarHeight",
-	        value: function statusBarHeight() {
-	            if (window.cordova && cordova.platformId === 'ios' && (this.state.orientation === 0 || this.state.orientation === 180)) {
-	                return 20;
-	            } else {
-	                return 0;
+	        key: "getStatusBarHeight",
+	        value: function getStatusBarHeight() {
+	            var h = 0;
+	            if (window.cordova && cordova.platformId === 'ios' && this.state.windowWidth < this.state.windowHeight) {
+	                h = 20;
 	            }
+	            return h;
 	        }
 	    }, {
 	        key: "componentDidMount",
 	        value: function componentDidMount() {
 	            window.addEventListener('resize', this.handleResize);
-	            window.addEventListener("orientationchange", this.handleOrientationChange);
 	            // Make sure all sounds stop when app is awoken.
 	            _visibility2.default.onVisible = function () {
 	                _Audio2.default.StopAll();
@@ -40300,7 +40300,6 @@
 	        key: "componentWillUnmount",
 	        value: function componentWillUnmount() {
 	            window.removeEventListener('resize', this.handleResize);
-	            window.removeEventListener("orientationchange", this.handleOrientationChange);
 	        }
 	    }, {
 	        key: "render",
@@ -40311,12 +40310,18 @@
 	            var buttonSize = this.state.windowWidth > 600 ? 50 : this.state.windowWidth / 9;
 	            buttonSize = buttonSize < 50 ? buttonSize : 50;
 	            var titleStyle = Object.assign({}, _styles.STYLE.title.h1, mobileSizeLarge && _styles.STYLE.title.h1_mobileSizeLarge, mobileSizeSmall && _styles.STYLE.title.h1_mobileSizeSmall, mobileLandscape && _styles.STYLE.title.h1_mobileLandscape, mobileLandscape && mobileSizeSmall && _styles.STYLE.title.h1_mobileSizeSmall);
+	            //TODO: should be able to make this nice using this.state.statusbar
+	            var statusBarHeight = this.getStatusBarHeight();
+	            console.log('App render, setting margin top to', statusBarHeight);
+	            var statusBarStyle = Object.assign({}, { marginTop: statusBarHeight });
 	            return React.createElement(
 	                "div",
-	                { id: "body-wrapper" },
+	                { id: "body-wrapper", onTouchMove: function onTouchMove(e) {
+	                        return e.preventDefault();
+	                    } },
 	                React.createElement(
 	                    "div",
-	                    { style: Object.assign({}, _styles.STYLE.topPanel, mobileLandscape && _styles.STYLE.topPanel_mobileLandscape) },
+	                    { style: Object.assign({}, _styles.STYLE.topPanel, statusBarStyle, mobileLandscape && _styles.STYLE.topPanel_mobileLandscape) },
 	                    React.createElement(
 	                        "div",
 	                        { style: Object.assign({}, _styles.STYLE.title.container, mobileSizeSmall && _styles.STYLE.title.container_mobile, mobileLandscape && _styles.STYLE.title.container_mobileLandscape) },
@@ -40338,6 +40343,7 @@
 	    }, {
 	        key: "startPress",
 	        value: function startPress(cb) {
+	            this.handleResize();
 	            AudioUtils.startIOSAudio(_Audio2.default.context, cb);
 	        }
 	    }, {
@@ -41520,7 +41526,13 @@
 	
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(StartModal).call(this, props));
 	
-	        _this.startApp = _this.startApp.bind(_this);
+	        _this.state = {
+	            buttonDown: false
+	        };
+	        // this.startApp = this.startApp.bind(this);
+	        _this.onTouchDown = _this.onTouchDown.bind(_this);
+	        _this.onTouchEnd = _this.onTouchEnd.bind(_this);
+	        _this.onTouchCancel = _this.onTouchCancel.bind(_this);
 	        return _this;
 	    }
 	
@@ -41532,6 +41544,7 @@
 	            var title = _props$style.title;
 	            var subtitle = _props$style.subtitle;
 	            var button = _props$style.button;
+	            var buttonPressed = _props$style.buttonPressed;
 	            var content = this.props.style.content;
 	
 	            var contentPadding = 0;
@@ -41561,28 +41574,29 @@
 	                    React.createElement(
 	                        "div",
 	                        { key: "start-modal" },
-	                        this.startModalCopy(title, subtitle, button)
+	                        this.startModalCopy(title, subtitle, button, buttonPressed)
 	                    )
 	                )
 	            );
 	        }
 	    }, {
 	        key: "startModalCopy",
-	        value: function startModalCopy(titleStyle, subtitleStyle, buttonStyle) {
+	        value: function startModalCopy(titleStyle, subtitleStyle, buttonStyle, buttonPressedStyle) {
 	            // if (window.cordova && cordova.platformId === 'ios'){
 	            //TODO: get rid of start button for android and chrome
 	            // }
 	            // TODO: if ( no splash screen ) {
 	            //     this.startText(titleStyle, subtitleStyle)
 	            // }
-	            return this.startButton(buttonStyle);
+	            return this.startButton(buttonStyle, buttonPressedStyle);
 	        }
 	    }, {
 	        key: "startButton",
-	        value: function startButton(style) {
+	        value: function startButton(style, pressedStyle) {
+	            style = Object.assign({}, style, this.state.buttonDown && pressedStyle);
 	            return React.createElement(
 	                "div",
-	                { style: style, onTouchEnd: this.startApp, onClick: this.startApp },
+	                { style: style, onTouchStart: this.onTouchDown, onTouchEnd: this.onTouchEnd, onTouchCancel: this.onTouchCancel, onMouseDown: this.onTouchDown, onMouseUp: this.onTouchEnd, onMouseLeave: this.onTouchCancel },
 	                React.createElement(
 	                    "span",
 	                    null,
@@ -41609,6 +41623,24 @@
 	            );
 	        }
 	    }, {
+	        key: "onTouchDown",
+	        value: function onTouchDown(e) {
+	            console.log('touch down start');
+	            e.preventDefault();
+	            this.setState({ buttonDown: true });
+	        }
+	    }, {
+	        key: "onTouchEnd",
+	        value: function onTouchEnd(e) {
+	            this.setState({ buttonDown: false });
+	            this.startApp(e);
+	        }
+	    }, {
+	        key: "onTouchCancel",
+	        value: function onTouchCancel(e) {
+	            this.setState({ buttonDown: false });
+	        }
+	    }, {
 	        key: "componentDidMount",
 	        value: function componentDidMount() {
 	            // Get the components DOM node
@@ -41624,9 +41656,10 @@
 	        }
 	    }, {
 	        key: "startApp",
-	        value: function startApp() {
+	        value: function startApp(e) {
 	            var _this2 = this;
 	
+	            e.preventDefault();
 	            this.props.onStartPress(function () {
 	                _this2.props.dispatch((0, _actions.startModalChange)(false));
 	            });
@@ -42836,4 +42869,4 @@
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=app-cdc1756dd51ac8d95394.js.map
+//# sourceMappingURL=app-3f809d6fa2d75b578251.js.map
