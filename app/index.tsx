@@ -26,6 +26,10 @@ class Main extends React.Component<{}, {}> {
 
 
 const startApp = () => {
+	// Prevent touch scroll event on document //
+	document.addEventListener('touchmove', function(e){e.preventDefault()}, false);
+
+	// Render App to DOM //
 	ReactDOM.render(<Main/>, document.getElementById('app'));
 }
 

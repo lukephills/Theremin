@@ -30,11 +30,12 @@ interface IState {
 	playerState?: PlayerStateType;
 	recordState?: RecordStateType;
 	isDownloadOverlayActive?: boolean;
-	orientation?: string | number;
 	scuzzVal?: number;
 	waveform?: string;
 	windowHeight?: number;
 	windowWidth?: number;
+	_touchAreaHeight?: number;
+	_touchAreaWidth?: number;
 }
 
 function select(state: IGlobalState) {
@@ -60,8 +61,6 @@ class App extends React.Component<any, IState> {
 	private _pixelRatio: number = CanvasUtils.getPixelRatio();
 	private _touchAreaHeight: number;
 	private _touchAreaWidth: number;
-	private hasRecording: boolean = false;
-	private isPlayingBack: boolean = false;
 	private _DrawAnimationFrame: number;
 	private touches: IdentifierIndexMap;
 
@@ -75,7 +74,6 @@ class App extends React.Component<any, IState> {
 			playerState: STATE.STOPPED,
 			recordState: STATE.STOPPED,
 			isDownloadOverlayActive: false,
-			orientation: 0,
 			scuzzVal: DEFAULTS.Sliders.scuzz.value,
 			waveform: WAVEFORMS[DEFAULTS.Waveform],
 			windowHeight: window.innerHeight,
@@ -101,7 +99,6 @@ class App extends React.Component<any, IState> {
 		this.Playback = this.Playback.bind(this);
 		this.Download = this.Download.bind(this);
 		this.handleResize = this.handleResize.bind(this);
-		this.handleOrientationChange = this.handleOrientationChange.bind(this);
 		this.startPress = this.startPress.bind(this);
 	}
 
@@ -117,31 +114,33 @@ class App extends React.Component<any, IState> {
 		const topPanelHeight = this.mobileLandscapeSize ? STYLE_CONST.TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE : STYLE_CONST.TOP_PANEL_HEIGHT;
 		const bottomPanelHeight = this.smallScreen ? STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE : STYLE_CONST.BOTTOM_PANEL_HEIGHT
 
-		this._touchAreaHeight = this.state.windowHeight - (this.statusBarHeight() +
+		const statusBarHeight = this.getStatusBarHeight();
+
+		this._touchAreaHeight = this.state.windowHeight - (statusBarHeight +
 			topPanelHeight + (STYLE_CONST.PADDING * 2) +
 			bottomPanelHeight);
+		console.log('touch area height =', this._touchAreaHeight, 'status bar =',statusBarHeight)
 		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING * 2);
 	}
 
-	private handleOrientationChange() {
-		console.log(window.orientation);
-		this.setState({orientation: window.orientation}, this.statusBarHeight)
+	private get isCordovaIOS() {
+		console.log(!!(window.cordova &&
+			cordova.platformId === 'ios'))
+		return !!window.cordova &&
+			cordova.platformId === 'ios';
 	}
 
-	private statusBarHeight() {
-		if (window.cordova && cordova.platformId === 'ios' &&
-			(this.state.orientation === 0 || this.state.orientation === 180)) {
-			return 20;
-		} else {
-			return 0;
+	private getStatusBarHeight(): number {
+		let h = 0;
+		if (this.isCordovaIOS && this.state.windowWidth < this.state.windowHeight) {
+			h = 20;
 		}
+		return h;
 	}
 
 
 	public componentDidMount() {
 		window.addEventListener('resize', this.handleResize);
-		window.addEventListener("orientationchange", this.handleOrientationChange);
-
 
 		// Make sure all sounds stop when app is awoken.
 		Visibility.onVisible = () => {
@@ -156,7 +155,6 @@ class App extends React.Component<any, IState> {
 
 	public componentWillUnmount() {
 		window.removeEventListener('resize', this.handleResize);
-		window.removeEventListener("orientationchange", this.handleOrientationChange);
 	}
 
 	public render(): React.ReactElement<{}> {
@@ -175,9 +173,19 @@ class App extends React.Component<any, IState> {
 			mobileLandscape && mobileSizeSmall && STYLE.title.h1_mobileSizeSmall
 		);
 
+		//TODO: should be able to make this nice using this.state.statusbar
+		const statusBarHeight = this.getStatusBarHeight();
+		console.log('App render, setting margin top to', statusBarHeight)
+		const statusBarStyle = Object.assign({}, {marginTop: statusBarHeight});
+
 		return (
-			<div id='body-wrapper'>
-				<div style={Object.assign({}, STYLE.topPanel, mobileLandscape && STYLE.topPanel_mobileLandscape)}>
+			<div id='body-wrapper' onTouchMove={(e)=> e.preventDefault()}>
+				<div style={
+					Object.assign({},
+						STYLE.topPanel,
+						statusBarStyle,
+						mobileLandscape && STYLE.topPanel_mobileLandscape
+					)}>
 					<div style={Object.assign({},STYLE.title.container,
 					mobileSizeSmall && STYLE.title.container_mobile,
 					mobileLandscape && STYLE.title.container_mobileLandscape)}>
@@ -227,8 +235,9 @@ class App extends React.Component<any, IState> {
 			</div>
 		);
 	}
-	
+
 	private startPress(cb) {
+		this.handleResize();
 		AudioUtils.startIOSAudio(Audio.context, cb);
 	}
 

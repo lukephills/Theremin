@@ -4,19 +4,19 @@ require('./styles.css');
 const Prefixer  = require('inline-style-prefixer');
 export const prefixer = new Prefixer();
 
-export const statusBarHeight = () => {
-	if (window.cordova && cordova.platformId === 'ios' &&
-		(window.orientation === 0 || window.orientation === 180)) {
-		return 20;
-	} else {
-		return 0;
-	}
-}
+// export const statusBarHeight = () => {
+// 	if (window.cordova && cordova.platformId === 'ios' &&
+// 		(window.orientation === 0 || window.orientation === 180)) {
+// 		return 20;
+// 	} else {
+// 		return 0;
+// 	}
+// }
 
 export const STYLE_CONST: any = prefixer.prefix({
 	TOP_PANEL_HEIGHT: 80,
 	TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE: 60,
-	STATUS_BAR_HEIGHT: statusBarHeight(),
+	STATUS_BAR_HEIGHT: 0,
 	BORDER_WIDTH: 0,
 	BOTTOM_PANEL_HEIGHT: 150,
 	BOTTOM_PANEL_HEIGHT_MOBILE: 120,
@@ -37,7 +37,7 @@ export const STYLE_CONST: any = prefixer.prefix({
 
 export const STYLE: any = prefixer.prefix({
 	topPanel: {
-		marginTop: statusBarHeight(),
+		marginTop: 0,
 		height: `${STYLE_CONST.TOP_PANEL_HEIGHT}px`,
 		display: `flex`,
 		flexDirection: 'row',
@@ -287,5 +287,9 @@ export const STYLE: any = prefixer.prefix({
 			minWidth: 250,
 			cursor: 'pointer',
 		},
+		buttonPressed: {
+			background: STYLE_CONST.BLACK,
+			color: STYLE_CONST.WHITE,
+		}
 	}
 });

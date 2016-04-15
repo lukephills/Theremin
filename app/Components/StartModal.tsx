@@ -8,7 +8,8 @@ import { IGlobalState } from '../Constants/GlobalState';
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 interface IProps {
-	onStartPress: Function;
+	onStartPress?: Function;
+	buttonDown?: boolean
 }
 
 function select(state: IGlobalState): any {
@@ -22,11 +23,17 @@ class StartModal extends React.Component<any, IProps> {
 
 	constructor(props){
 		super(props);
-		this.startApp = this.startApp.bind(this);
+		this.state = {
+			buttonDown: false,
+		}
+		// this.startApp = this.startApp.bind(this);
+		this.onTouchDown = this.onTouchDown.bind(this);
+		this.onTouchEnd = this.onTouchEnd.bind(this);
+		this.onTouchCancel = this.onTouchCancel.bind(this);
 	}
 
 	public render(): React.ReactElement<{}> {
-		let {overlay, title, subtitle, button} = this.props.style;
+		let {overlay, title, subtitle, button, buttonPressed} = this.props.style;
 		let {content} = this.props.style;
 		const contentPadding = 0;
 		content = Object.assign({}, content, {
@@ -60,25 +67,33 @@ class StartModal extends React.Component<any, IProps> {
 				                         transitionEnterTimeout={0}
 				                         transitionLeaveTimeout={0}>
 					<div key="start-modal">
-						{this.startModalCopy(title, subtitle, button)}
+						{this.startModalCopy(title, subtitle, button, buttonPressed)}
 					</div>
 				</ReactCSSTransitionGroup>
 			</Modal>
 		);
 	}
 
-	private startModalCopy(titleStyle, subtitleStyle, buttonStyle) {
+	private startModalCopy(titleStyle, subtitleStyle, buttonStyle, buttonPressedStyle) {
 		// if (window.cordova && cordova.platformId === 'ios'){
 		//TODO: get rid of start button for android and chrome
 		// }
 		// TODO: if ( no splash screen ) {
 		//     this.startText(titleStyle, subtitleStyle)
 		// }
-		return this.startButton(buttonStyle)
+		return this.startButton(buttonStyle, buttonPressedStyle)
 	}
 
-	private startButton(style) {
-		return <div style={style} onTouchEnd={this.startApp} onClick={this.startApp}>
+	private startButton(style, pressedStyle) {
+		style = Object.assign({}, style, this.state.buttonDown && pressedStyle)
+		return <div style={style}
+		            onTouchStart={this.onTouchDown}
+		            onTouchEnd={this.onTouchEnd}
+		            onTouchCancel={this.onTouchCancel}
+		            onMouseDown={this.onTouchDown}
+		            onMouseUp={this.onTouchEnd}
+		            onMouseLeave={this.onTouchCancel}
+		>
 			<span>START</span>
 		</div>
 	}
@@ -89,6 +104,22 @@ class StartModal extends React.Component<any, IProps> {
 			<span style={subtitleStyle}>femurdesign.com</span>
 		</span>
 	}
+
+	private onTouchDown(e) {
+		console.log('touch down start')
+		e.preventDefault();
+		this.setState({buttonDown: true});
+	}
+
+	private onTouchEnd(e) {
+		this.setState({buttonDown: false});
+		this.startApp(e)
+	}
+
+	private onTouchCancel(e) {
+		this.setState({buttonDown: false})
+	}
+
 
 	public componentDidMount() {
 	// Get the components DOM node
@@ -103,7 +134,8 @@ class StartModal extends React.Component<any, IProps> {
 		});
 	}
 
-	private startApp(){
+	private startApp(e){
+		e.preventDefault();
 		this.props.onStartPress(() => {
 			this.props.dispatch(startModalChange(false));
 		});
