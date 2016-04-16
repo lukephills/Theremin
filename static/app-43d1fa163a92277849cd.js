@@ -9196,8 +9196,8 @@
 	        key: 'render',
 	        value: function render() {
 	            var props = {
-	                onClick: this.onDown,
-	                onTouchStart: this.onDown,
+	                onClick: this.onTouchStart,
+	                onTouchStart: this.onTouchStart,
 	                style: this.getStyles(),
 	                value: this.props.buttonValue
 	            };
@@ -9212,7 +9212,7 @@
 	        value: function onDown(e) {
 	            e.preventDefault();
 	            if (!this.props.disabled) {
-	                this.props.onDown(e);
+	                this.props.onTouchStart(e);
 	            }
 	        }
 	    }, {
@@ -40786,7 +40786,7 @@
 	        value: function onDown(e) {
 	            e.preventDefault();
 	            if (!this.props.disabled) {
-	                this.props.onDown(e);
+	                this.props.onTouchStart(e);
 	            }
 	        }
 	    }, {
@@ -40868,7 +40868,7 @@
 	            var _this2 = this;
 	
 	            var _props = this.props;
-	            var onDown = _props.onDown;
+	            var onDown = _props.onTouchStart;
 	            var onMove = _props.onMove;
 	            var onUp = _props.onUp;
 	            var onLeave = _props.onLeave;
