@@ -7,7 +7,6 @@ import { PlayerStateChange, RecorderStateChange } from '../Actions/actions';
 import StaticCanvas from './StaticCanvas';
 import {STYLE_CONST} from './Styles/styles';
 import {RecordStateType} from '../Constants/AppTypings';
-import {ActionType} from '../Constants/ActionTypes';
 import {STATE} from '../Constants/AppTypings';
 import {PlayerStateType} from '../Constants/AppTypings';
 
@@ -16,8 +15,8 @@ interface IProps extends IPlayer, IRecorder {
 	dispatch?: Function;
 	style?: any;
 	//isPlaybackDisabled: boolean;
-	onRecordButtonChange(recordState: RecordStateType): void;
-	onPlaybackButtonChange(value: boolean): void;
+	onRecordButtonChange(): void;
+	onPlaybackButtonChange(): void;
 	onDownloadButtonChange(): void;
 }
 interface  IState {
@@ -70,6 +69,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 				<ToggleButton
 					disabled={this.playButtonDisabled}
 					onDown={this.props.onDownloadButtonChange}
+					onTouchEnd={this.props.onDownloadButtonChange}
 					isOn={true}>
 					<StaticCanvas
 						height={this.props.buttonSize}
@@ -239,14 +239,14 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 	recorderChangeDispatch(newState, buttonPressed: boolean = true){
 		this.props.dispatch(RecorderStateChange(newState));
 		if (buttonPressed) {
-			this.props.onRecordButtonChange(newState);
+			this.props.onRecordButtonChange();
 		}
 	}
 
 	playerChangeDispatch(newState, buttonPressed: boolean = true){
 		this.props.dispatch(PlayerStateChange(newState));
 		if (buttonPressed) {
-			this.props.onPlaybackButtonChange(newState);
+			this.props.onPlaybackButtonChange();
 		}
 	}
 }

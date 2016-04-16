@@ -119,7 +119,8 @@ class Audio {
 
 
 		this.looper.exportWav((recording: Blob) => {
-			cb(recording);
+			//TODO: create a promise?
+			setTimeout(cb(recording),0);
 		});
 
 

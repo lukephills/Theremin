@@ -3,13 +3,16 @@ import { connect } from 'react-redux';
 const Modal = require('react-modal');
 import Audio from '../Audio';
 import ToggleButton from './ToggleButton'
-import { downloadModalChange } from '../Actions/actions';
+import { downloadModalChange, RecorderStateChange, PlayerStateChange } from '../Actions/actions';
 import {IGlobalState} from '../Constants/GlobalState';
 import { DEFAULTS } from '../Constants/Defaults';
+import {STATE} from '../Constants/AppTypings';
 
 function select(state: IGlobalState): any {
 	return {
 		isOpen: state.DownloadModal.isOpen,
+		playerState: state.Player.playerState,
+		recordState: state.Recorder.recordState,
 	};
 }
 
@@ -20,7 +23,10 @@ class DownloadModal extends React.Component<any, any> {
 		super(props);
 
 		this.state = {
+			buttonsDisabled: false,
 			filename: 'theremin',
+			title: this.downloadText,
+			filesize: null,
 		};
 
 		this.onDownloadSubmit = this.onDownloadSubmit.bind(this);
@@ -29,16 +35,29 @@ class DownloadModal extends React.Component<any, any> {
 		this.handleFocus = this.handleFocus.bind(this);
 		this.handleBlur = this.handleBlur.bind(this);
 		this.keyDown = this.keyDown.bind(this);
-
+		this.onDownloadModalOpen = this.onDownloadModalOpen.bind(this)
 
 	}
 
+	private get downloadText(): string {
+		let str;
+		if (window.cordova) {
+			str = DEFAULTS.Copy.en.sharePrompt;
+		} else {
+			str = DEFAULTS.Copy.en.downloadPrompt;
+		}
+		return str;
+	}
+
 	public render(): React.ReactElement<{}> {
+		console.log(this.props);
 		const mobileSizeSmall = this.props.windowWidth < 512 || this.props.windowHeight < 500;
 		const mobileLandscape = this.props.windowHeight < 450 && this.props.windowWidth > this.props.windowHeight;
-
+		const largeSize = this.props.windowWidth > 700; 
+			
 		const {
 			overlay,
+			content_large,
 			title,
 			title_mobile,
 			title_mobileLandscape,
@@ -51,47 +70,68 @@ class DownloadModal extends React.Component<any, any> {
 		} = this.props.style;
 
 		let {content} = this.props.style;
-		let contentPadding = this.props.windowWidth / 14;
-		contentPadding = contentPadding > 20 ? 20 : contentPadding;
+		let contentPaddingWidth = this.props.windowWidth / 6;
+		contentPaddingWidth = contentPaddingWidth > 60 ? 60 : contentPaddingWidth;
+		let contentPaddingHeight = this.props.windowHeight / 4;
+		contentPaddingHeight = contentPaddingHeight > 60 ? 60 : contentPaddingHeight;
 		
 		content = Object.assign({}, content, {
-			top: contentPadding,
-			left: contentPadding,
-			right: contentPadding,
-			bottom: contentPadding,
+			top: 0,
+			left: 0,
+			right: 0,
+			bottom: 0,
+			margin: 'auto',
 		});
 
 
 		return (
 			<Modal isOpen={this.props.isOpen}
+			       onAfterOpen={this.onDownloadModalOpen}
 			       onRequestClose={this.closeModal}
-			       style={{content, overlay}}>
+			       style={{content: Object.assign({}, content, largeSize && content_large), overlay}}>
 				<div>
-					<span style={
-						Object.assign(
-							{}, 
-							title, 
-							mobileSizeSmall && title_mobile, 
-							mobileLandscape && title_mobileLandscape
-						)}>
-						Save Recording
-					</span>
-					<span style={Object.assign({}, subtitle, mobileSizeSmall && subtitle_mobile)}>Choose a filename</span>
-					<input type="text"
-					       placeholder={this.state.filename || 'Theremin'}
-					       onChange={this.handleChange}
-					       onKeyDown={this.keyDown}
-					       onFocus={this.handleFocus}
-					       onBlur={this.handleBlur}
-					       style={Object.assign({}, input, mobileSizeSmall && input_mobile)}
-					       />
-					<ToggleButton onDown={this.onDownloadSubmit}
-					              style={Object.assign({}, button, mobileSizeSmall && button_mobile)}>
-						<div>Save {this.state.filename}.wav</div>
-					</ToggleButton>
+					<span style={Object.assign({},title, mobileSizeSmall && title_mobile, mobileLandscape && title_mobileLandscape)}>
+						{this.state.title}</span>
+					{this.buttons(button)}
 				</div>
 			</Modal>
 		);
+	}
+
+	buttons(style) {
+		if (!this.state.buttonsDisabled) {
+			return (
+				<div style={Object.assign({},
+						{
+							display: 'flex',
+							flexDirection: 'row',
+							justifyContent: 'space-around',
+						}
+					)}>
+					<ToggleButton onDown={this.onDownloadSubmit}
+					              style={Object.assign({}, style)}>
+						<div>OK</div>
+					</ToggleButton>
+					<ToggleButton onDown={this.closeModal}
+					              style={Object.assign({}, style)}>
+						<div>Cancel</div>
+					</ToggleButton>
+				</div>
+			)
+		} else {
+			return <span></span>;
+		}
+	}
+
+	private onDownloadModalOpen() {
+		// If we're currently recording, stop recording and start playing the loop to 
+		// avoid accidental sound stopping.
+		if (this.props.recordState === STATE.RECORDING || this.props.recordState === STATE.OVERDUBBING) {
+			this.props.dispatch(RecorderStateChange(STATE.STOPPED));
+			this.props.dispatch(PlayerStateChange(STATE.PLAYING));
+			// Press play button to start playing back the loop
+			Audio.onPlaybackPress();
+		}
 	}
 
 	private handleChange(e){
@@ -122,11 +162,36 @@ class DownloadModal extends React.Component<any, any> {
 		this.props.dispatch(downloadModalChange(false));
 	}
 
+	
+
 	private onDownloadSubmit(){
-		Audio.Download((wav: Blob) => {
-			this.downloadWav(wav);
+
+		console.log('downloading')
+		console.time('download started');
+
+		this.setState({
+			title: DEFAULTS.Copy.en.renderingAudio,
+			buttonsDisabled: true,
 		});
-		this.props.dispatch(downloadModalChange(false));
+		this.forceUpdate();
+		
+		Audio.Download((wav: Blob) => {
+			console.log('finished')
+			console.timeEnd('download started')
+
+			this.setState({
+				title: this.downloadText,
+				buttonsDisabled: true,
+			});
+
+			if (window.cordova){
+				this.shareAudioUsingCordova(wav, DEFAULTS.Copy.en.filename);
+			} else {
+				this.downloadWav(wav);
+			}
+
+			this.props.dispatch(downloadModalChange(false));
+		});
 	}
 
 	private sanitizeFilename(s: string): string {
@@ -145,5 +210,40 @@ class DownloadModal extends React.Component<any, any> {
 			link.dispatchEvent(click);
 		}
 	}
+
+	//TODO: Make rendering the loop asyncrounous too.
+
+	private shareAudioUsingCordova(wav: Blob, filename){
+		if (wav.size > 5242880) {
+			navigator.notification.alert(DEFAULTS.Copy.en.recordingTooLong, () => {
+				return;
+			}, DEFAULTS.Copy.en.cantShare);
+		} else {
+			var reader = new FileReader();
+			reader.onloadend = function() {
+				console.log('ended');
+				window.plugins.socialsharing.share(
+					null,
+					filename,
+					reader.result,
+					null, this.successSharing, this.errorSharing)
+			}
+			
+			reader.onerror = function(e: any) {
+				console.log('File could not be read! Error:', e);
+			}
+			reader.readAsDataURL(wav);
+		}
+	}
+
+	successSharing(e) {
+		console.log('success', e)
+	}
+
+	errorSharing(e) {
+		console.log('error', e)
+	}
+
+
 }
 export default DownloadModal;

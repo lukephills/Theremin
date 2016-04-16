@@ -57,6 +57,16 @@ export const DEFAULTS: any = {
 		},
 	},
 	Title: 'Theremin',
+	Copy: {
+		en: {
+			renderingAudio: 'Rendering audio file. Please wait...',
+			filename: 'theremin.wav',
+			recordingTooLong: 'The recording is too large. Try a shorter length.',
+			cantShare: `Can't share file`,
+			sharePrompt: 'Would you like to share your recording?',
+			downloadPrompt: 'Would you like to download your recording?',
+		},
+	},
 	VoiceCount: 8,
 	Volume: 10,
 	Waveform: 2,

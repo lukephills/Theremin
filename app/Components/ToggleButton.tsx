@@ -7,6 +7,7 @@ interface IProps {
 	key?: number;
 	isOn?: boolean;
 	onDown?: any;
+	onTouchEnd?: any;
 	buttonValue?: string;
 	children?: any;
 	style?: any;
@@ -16,6 +17,7 @@ class ToggleButton extends React.Component<IProps, {}> {
 	constructor(props: IProps) {
 		super(props);
 		this.onDown = this.onDown.bind(this);
+		this.onTouchEnd = this.onTouchEnd.bind(this)
 	}
 
 	public render(): React.ReactElement<{}> {
@@ -23,6 +25,7 @@ class ToggleButton extends React.Component<IProps, {}> {
 		const props: any = {
 			onClick: this.onDown,
 			onTouchStart: this.onDown,
+			onTouchEnd: this.onTouchEnd,
 			style: this.getStyles(),
 			value: this.props.buttonValue,
 		};
@@ -34,6 +37,13 @@ class ToggleButton extends React.Component<IProps, {}> {
 		);
 	}
 
+	private onTouchEnd(e: Event): void {
+		e.preventDefault();
+		if (!this.props.disabled) {
+			this.props.onTouchEnd(e);
+		}
+	}
+	
 	private onDown(e: Event): void {
 		e.preventDefault();
 		if (!this.props.disabled) {

@@ -12,12 +12,12 @@ import {WaveformStringType} from '../Constants/AppTypings';
 import { WAVEFORMS, DEFAULTS } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
 import Audio from '../Audio';
-import { downloadModalChange } from '../Actions/actions';
+import { downloadModalChange, RecorderStateChange } from '../Actions/actions';
 
 import Visibility from '../Utils/visibility';
 import * as AudioUtils from '../Utils/AudioUtils';
 import * as CanvasUtils from '../Utils/CanvasUtils';
-import {IdentifierIndexMap} from '../Utils/utils';
+import {IdentifierIndexMap, isCordovaIOS} from '../Utils/utils';
 import Spectrum from './Spectrum';
 import {RecordStateType} from '../Constants/AppTypings';
 import {STATE} from '../Constants/AppTypings';
@@ -123,16 +123,11 @@ class App extends React.Component<any, IState> {
 		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING * 2);
 	}
 
-	private get isCordovaIOS() {
-		console.log(!!(window.cordova &&
-			cordova.platformId === 'ios'))
-		return !!window.cordova &&
-			cordova.platformId === 'ios';
-	}
+
 
 	private getStatusBarHeight(): number {
 		let h = 0;
-		if (this.isCordovaIOS && this.state.windowWidth < this.state.windowHeight) {
+		if (isCordovaIOS() && this.state.windowWidth < this.state.windowHeight) {
 			h = 20;
 		}
 		return h;
@@ -173,9 +168,7 @@ class App extends React.Component<any, IState> {
 			mobileLandscape && mobileSizeSmall && STYLE.title.h1_mobileSizeSmall
 		);
 
-		//TODO: should be able to make this nice using this.state.statusbar
 		const statusBarHeight = this.getStatusBarHeight();
-		console.log('App render, setting margin top to', statusBarHeight)
 		const statusBarStyle = Object.assign({}, {marginTop: statusBarHeight});
 
 		return (
@@ -308,35 +301,8 @@ class App extends React.Component<any, IState> {
 	}
 
 	public Download() {
-		if (cordova) {
-			Audio.Download((wav: Blob) => {
-				this.shareAudioUsingCordova(wav, 'theremin.wav');
-			});
-		} else {
-			this.props.dispatch(downloadModalChange(true));
-			this.setState({isDownloadOverlayActive: true})
-		}
-	}
-
-	private shareAudioUsingCordova(wav: Blob, filename){
-		if (wav.size > 5242880) {
-			navigator.notification.alert('The recording is too large. Try a shorter length.', () => {
-				return;
-			}, `Can't share file`)
-		} else {
-			var reader = new FileReader();
-			reader.onloadend = function() {
-				window.plugins.socialsharing.share(
-					null,
-					filename,
-					reader.result,
-					null)
-			}
-			reader.onerror = function(e: any) {
-				console.log('File could not be read! Error:', e);
-			}
-			reader.readAsDataURL(wav);
-		}
+		this.props.dispatch(downloadModalChange(true));
+		this.setState({isDownloadOverlayActive: true})
 	}
 
 	private Draw() {

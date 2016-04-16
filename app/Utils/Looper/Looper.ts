@@ -235,37 +235,39 @@ class Looper {
 			}
 		}
 
-		// Merge all buffers in buffers list
-		const mergedBuffer: AudioBuffer = mergeBuffers(buffers, this.context);
+		
+		WorkerTimer.setTimeout(() => {
+			// Merge all buffers in buffers list
+			const mergedBuffer: AudioBuffer = mergeBuffers(buffers, this.context);
+			// Normalize the merged buffer
+			const normalizedBuffer: AudioBuffer = bufferUtils.normalize(mergedBuffer);
 
-		// Normalize the merged buffer
-		const normalizedBuffer: AudioBuffer = bufferUtils.normalize(mergedBuffer);
+			// Clear Recorder worker
+			RecorderWorker.postMessage({
+				command: 'clear'
+			});
 
-		// Clear Recorder worker
-		RecorderWorker.postMessage({
-			command: 'clear'
-		});
+			// set exportWAV callback
+			RecorderWorker.onmessage = function(e) {
+				// this is would be your WAV blob
+				returnWavCallback(e.data.data);
+			};
 
-		// set exportWAV callback
-		RecorderWorker.onmessage = function(e) {
-			// this is would be your WAV blob
-			returnWavCallback(e.data.data);
-		};
+			// send the channel data from our buffer to the worker
+			// TODO: update this to allow stereo recording in the future
+			RecorderWorker.postMessage({
+				buffer: [
+					normalizedBuffer.getChannelData(0)
+				],
+				command: 'record',
+			});
 
-		// send the channel data from our buffer to the worker
-		// TODO: update this to allow stereo recording in the future
-		RecorderWorker.postMessage({
-			buffer: [
-				normalizedBuffer.getChannelData(0)
-			],
-			command: 'record',
-		});
-
-		// ask the worker for a WAV
-		RecorderWorker.postMessage({
-			command: 'exportWAV',
-			type: 'audio/wav',
-		});
+			// ask the worker for a WAV
+			RecorderWorker.postMessage({
+				command: 'exportWAV',
+				type: 'audio/wav',
+			});
+		}, 0)
 	}
 
 	/**

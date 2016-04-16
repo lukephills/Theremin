@@ -26,3 +26,7 @@ export class IdentifierIndexMap {
 }
 
 
+export function isCordovaIOS() {
+	return !!window.cordova && cordova.platformId === 'ios';
+}
+

@@ -21,14 +21,16 @@
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>
-    <preference name="Orientation" value="all" />
-
+    <platform name="android">
+        <preference name="orientation" value="default" />
+    </platform>
+    <platform name="ios">
+        <preference name="orientation" value="all" />
+    </platform>
     <preference name="iosExtraFilesystems" value="library,library-nosync,documents,documents-nosync,cache,bundle,root" />
     <preference name="AndroidExtraFilesystems" value="files,files-external,documents,sdcard,cache,cache-external,root" />
     <engine name="ios" spec="~4.1.1" />
     <engine name="android" spec="~5.1.1" />
-    <plugin name="cordova-plugin-file" spec="~4.1.1" />
-    <plugin name="cordova-plugin-file-transfer" spec="~1.5.0" />
     <plugin name="cordova-plugin-x-socialsharing" spec="~5.0.11" />
     <feature name="SocialSharing">
         <param name="ios-package" value="SocialSharing" />
@@ -38,11 +40,10 @@
     </feature>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <plugin name="cordova-plugin-dialogs" spec="~1.2.0" />
-
     <plugin name="cordova-plugin-splashscreen" spec="~3.2.1" />
     <preference name="AutoHideSplashScreen" value="false" />
     <preference name="SplashScreenDelay" value="3000" />
     <preference name="SplashScreenBackgroundColor" value="#fff997" />
-    <preference name="FadeSplashScreen" value="false"/>
+    <preference name="FadeSplashScreen" value="false" />
     <preference name="SplashMaintainAspectRatio" value="true" />
 </widget>
