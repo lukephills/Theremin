@@ -31,9 +31,9 @@ class DownloadModal extends React.Component<any, any> {
 
 		this.onDownloadSubmit = this.onDownloadSubmit.bind(this);
 		this.closeModal = this.closeModal.bind(this);
-		this.handleChange = this.handleChange.bind(this);
-		this.handleFocus = this.handleFocus.bind(this);
-		this.handleBlur = this.handleBlur.bind(this);
+		// this.handleChange = this.handleChange.bind(this);
+		// this.handleFocus = this.handleFocus.bind(this);
+		// this.handleBlur = this.handleBlur.bind(this);
 		this.keyDown = this.keyDown.bind(this);
 		this.onDownloadModalOpen = this.onDownloadModalOpen.bind(this)
 
@@ -50,7 +50,6 @@ class DownloadModal extends React.Component<any, any> {
 	}
 
 	public render(): React.ReactElement<{}> {
-		console.log(this.props);
 		const mobileSizeSmall = this.props.windowWidth < 512 || this.props.windowHeight < 500;
 		const mobileLandscape = this.props.windowHeight < 450 && this.props.windowWidth > this.props.windowHeight;
 		const largeSize = this.props.windowWidth > 700; 
@@ -108,11 +107,13 @@ class DownloadModal extends React.Component<any, any> {
 							justifyContent: 'space-around',
 						}
 					)}>
-					<ToggleButton onDown={this.onDownloadSubmit}
+					<ToggleButton onTouchStart={this.onDownloadSubmit}
+					              onClick={this.onDownloadSubmit}
 					              style={Object.assign({}, style)}>
 						<div>OK</div>
 					</ToggleButton>
-					<ToggleButton onDown={this.closeModal}
+					<ToggleButton onTouchEnd={this.closeModal}
+					              onClick={this.closeModal}
 					              style={Object.assign({}, style)}>
 						<div>Cancel</div>
 					</ToggleButton>
@@ -127,30 +128,30 @@ class DownloadModal extends React.Component<any, any> {
 		// If we're currently recording, stop recording and start playing the loop to 
 		// avoid accidental sound stopping.
 		if (this.props.recordState === STATE.RECORDING || this.props.recordState === STATE.OVERDUBBING) {
-			this.props.dispatch(RecorderStateChange(STATE.STOPPED));
+			this.props.dispatch(RecorderStateChange(STATE.PLAYING));
 			this.props.dispatch(PlayerStateChange(STATE.PLAYING));
 			// Press play button to start playing back the loop
 			Audio.onPlaybackPress();
 		}
 	}
 
-	private handleChange(e){
-		const val = e.target.value ? e.target.value : DEFAULTS.Title;
-		this.setState({filename: val})
-	}
-
-	private handleFocus(e){
-		console.log('on focus', e)
-		e.target.style.outline = 'none';
-		e.target.placeholder = '';
-	}
-
-	private handleBlur(e){
-		console.log('on blur', e)
-		if (e.target.placeholder === '') {
-			e.target.placeholder = DEFAULTS.Title;
-		}
-	}
+	// private handleChange(e){
+	// 	const val = e.target.value ? e.target.value : DEFAULTS.Title;
+	// 	this.setState({filename: val})
+	// }
+	//
+	// private handleFocus(e){
+	// 	console.log('on focus', e)
+	// 	e.target.style.outline = 'none';
+	// 	e.target.placeholder = '';
+	// }
+	//
+	// private handleBlur(e){
+	// 	console.log('on blur', e)
+	// 	if (e.target.placeholder === '') {
+	// 		e.target.placeholder = DEFAULTS.Title;
+	// 	}
+	// }
 	
 	private keyDown(e: KeyboardEvent) {
 		if (e.keyCode === 13) { //Enter
@@ -159,6 +160,7 @@ class DownloadModal extends React.Component<any, any> {
 	}
 
 	private closeModal(){
+		console.log('asdasd')
 		this.props.dispatch(downloadModalChange(false));
 	}
 
@@ -174,14 +176,14 @@ class DownloadModal extends React.Component<any, any> {
 			buttonsDisabled: true,
 		});
 		this.forceUpdate();
-		
+
 		Audio.Download((wav: Blob) => {
 			console.log('finished')
 			console.timeEnd('download started')
 
 			this.setState({
 				title: this.downloadText,
-				buttonsDisabled: true,
+				buttonsDisabled: false,
 			});
 
 			if (window.cordova){

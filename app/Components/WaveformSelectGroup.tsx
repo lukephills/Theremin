@@ -43,7 +43,8 @@ class WaveformSelectGroup extends React.Component<IProps, IState> {
 						<ToggleButton
 							id={waveform}
 							isOn={waveform === this.props.waveform}
-							onDown={(e) => this.onButtonClick(e, waveform)}
+							onTouchStart={(e) => this.onButtonClick(e, waveform)}
+							onClick={(e) => this.onButtonClick(e, waveform)}
 							key={id}>
 							<StaticCanvas
 								height={this.props.buttonSize}

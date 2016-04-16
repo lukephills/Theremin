@@ -19,9 +19,10 @@ interface IProps extends IPlayer, IRecorder {
 	onPlaybackButtonChange(): void;
 	onDownloadButtonChange(): void;
 }
-interface  IState {
-	recordState: RecordStateType;
-	playerState: PlayerStateType;
+interface IState {
+	recordState?: RecordStateType;
+	playerState?: PlayerStateType;
+	downloadButtonHighlighted?: boolean;
 }
 
 function select(state: IGlobalState): any {
@@ -35,10 +36,20 @@ function select(state: IGlobalState): any {
 class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 	playButtonDisabled: boolean = true;
+	private _touchIdentifiers;
 
 	constructor(props) {
 		super(props);
+
+		this.state = {
+			downloadButtonHighlighted: false,
+		}
+		this._touchIdentifiers = {}
+
 		this.draw = this.draw.bind(this);
+		this.onTouchEndDownloadButton = this.onTouchEndDownloadButton.bind(this);
+		this.onTouchStartDownloadButton = this.onTouchStartDownloadButton.bind(this);
+		this.onTouchCancelDownloadButton = this.onTouchCancelDownloadButton.bind(this);
 	}
 
 	public render(): React.ReactElement<{}> {
@@ -68,20 +79,34 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 				<ToggleButton
 					disabled={this.playButtonDisabled}
-					onDown={this.props.onDownloadButtonChange}
-					onTouchEnd={this.props.onDownloadButtonChange}
+					onTouchStart={this.onTouchStartDownloadButton}
+					onTouchCancel={this.onTouchCancelDownloadButton}
+					onTouchEnd={this.onTouchEndDownloadButton}
 					isOn={true}>
 					<StaticCanvas
 						height={this.props.buttonSize}
 						width={this.props.buttonSize}
 						draw={this.draw}
 						options={{id: 'download'}}
+					    isActive={this.state.downloadButtonHighlighted}
 					/>
 				</ToggleButton>
 			</section>
 		);
 	}
 
+	onTouchStartDownloadButton(e: TouchEvent) {
+		this.setState({downloadButtonHighlighted: true})
+	}
+
+	onTouchCancelDownloadButton(e: TouchEvent) {
+		this.setState({downloadButtonHighlighted: false})
+	}
+
+	onTouchEndDownloadButton(e: TouchEvent) {
+		this.setState({downloadButtonHighlighted: false})
+		this.props.onDownloadButtonChange();
+	}
 
 	public draw(ctx: CanvasRenderingContext2D, width: number, height: number, options: any){
 		var units = width/22;
@@ -127,6 +152,9 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 			case 'download':
 				if (this.playButtonDisabled) {
 					ctx.strokeStyle = STYLE_CONST.GREY;
+				}
+				if (this.state.downloadButtonHighlighted) {
+					ctx.strokeStyle = STYLE_CONST.GREEN;
 				}
 				ctx.beginPath();
 
