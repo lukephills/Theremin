@@ -7,14 +7,16 @@
     "ios:build": "npm run build && cd phonegap/theremin && cordova build ios",
     "android": "cd phonegap/theremin && cordova build android",
     "copyIndex": "cp build/index.html phonegap/theremin/www",
+    "copyFonts": "cp -a build/fonts phonegap/theremin/www/",
     "copyScript": "rm -r phonegap/theremin/www/static && cp -a build/static phonegap/theremin/www",
-    "cordova:copyfiles": "npm run copyIndex && npm run copyScript",
-    "build:webpack": "NODE_ENV=production webpack --config config/webpack.prod.js",
+    "cordova:copyfiles": "npm run copyIndex && npm run copyScript && npm run copyFonts",
+    "build:webpack": "NODE_ENV=production webpack --config config/webpack.prod.js && npm run moveFonts",
     "build": "npm run clean && npm run build:webpack && npm run cordova:copyfiles",
     "zip": "zip -r build/bundle.zip build/*",
     "clean": "rimraf build",
     "start": "node dev_server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "moveFonts": "mv -v build/static/fonts build/"
   },
   "paths": {
     "Tone": "tone/Tone"
@@ -57,6 +59,7 @@
   "dependencies": {
     "audio-buffer-utils": "^2.0.1",
     "document-visibility": "^1.0.1",
+    "file-loader": "^0.8.5",
     "inline-style-prefixer": "^0.6.7",
     "inline-worker": "^1.0.0",
     "lodash": "^4.3.0",

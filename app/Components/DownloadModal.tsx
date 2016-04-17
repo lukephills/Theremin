@@ -31,10 +31,6 @@ class DownloadModal extends React.Component<any, any> {
 
 		this.onDownloadSubmit = this.onDownloadSubmit.bind(this);
 		this.closeModal = this.closeModal.bind(this);
-		// this.handleChange = this.handleChange.bind(this);
-		// this.handleFocus = this.handleFocus.bind(this);
-		// this.handleBlur = this.handleBlur.bind(this);
-		this.keyDown = this.keyDown.bind(this);
 		this.onDownloadModalOpen = this.onDownloadModalOpen.bind(this)
 
 	}
@@ -50,30 +46,17 @@ class DownloadModal extends React.Component<any, any> {
 	}
 
 	public render(): React.ReactElement<{}> {
-		const mobileSizeSmall = this.props.windowWidth < 512 || this.props.windowHeight < 500;
-		const mobileLandscape = this.props.windowHeight < 450 && this.props.windowWidth > this.props.windowHeight;
 		const largeSize = this.props.windowWidth > 700; 
 			
 		const {
 			overlay,
 			content_large,
 			title,
-			title_mobile,
-			title_mobileLandscape,
-			subtitle,
-			subtitle_mobile,
-			input,
-			input_mobile,
 			button,
-			button_mobile,
+			buttonContainer,
 		} = this.props.style;
 
 		let {content} = this.props.style;
-		let contentPaddingWidth = this.props.windowWidth / 6;
-		contentPaddingWidth = contentPaddingWidth > 60 ? 60 : contentPaddingWidth;
-		let contentPaddingHeight = this.props.windowHeight / 4;
-		contentPaddingHeight = contentPaddingHeight > 60 ? 60 : contentPaddingHeight;
-		
 		content = Object.assign({}, content, {
 			top: 0,
 			left: 0,
@@ -89,24 +72,18 @@ class DownloadModal extends React.Component<any, any> {
 			       onRequestClose={this.closeModal}
 			       style={{content: Object.assign({}, content, largeSize && content_large), overlay}}>
 				<div>
-					<span style={Object.assign({},title, mobileSizeSmall && title_mobile, mobileLandscape && title_mobileLandscape)}>
+					<span style={Object.assign({}, title)}>
 						{this.state.title}</span>
-					{this.buttons(button)}
+					{this.buttons(button, buttonContainer)}
 				</div>
 			</Modal>
 		);
 	}
 
-	buttons(style) {
+	buttons(style, buttonContainerStyle) {
 		if (!this.state.buttonsDisabled) {
 			return (
-				<div style={Object.assign({},
-						{
-							display: 'flex',
-							flexDirection: 'row',
-							justifyContent: 'space-around',
-						}
-					)}>
+				<div style={Object.assign({}, buttonContainerStyle)}>
 					<ToggleButton onTouchStart={this.onDownloadSubmit}
 					              onClick={this.onDownloadSubmit}
 					              style={Object.assign({}, style)}>
@@ -135,42 +112,11 @@ class DownloadModal extends React.Component<any, any> {
 		}
 	}
 
-	// private handleChange(e){
-	// 	const val = e.target.value ? e.target.value : DEFAULTS.Title;
-	// 	this.setState({filename: val})
-	// }
-	//
-	// private handleFocus(e){
-	// 	console.log('on focus', e)
-	// 	e.target.style.outline = 'none';
-	// 	e.target.placeholder = '';
-	// }
-	//
-	// private handleBlur(e){
-	// 	console.log('on blur', e)
-	// 	if (e.target.placeholder === '') {
-	// 		e.target.placeholder = DEFAULTS.Title;
-	// 	}
-	// }
-	
-	private keyDown(e: KeyboardEvent) {
-		if (e.keyCode === 13) { //Enter
-			this.onDownloadSubmit();
-		}
-	}
-
 	private closeModal(){
-		console.log('asdasd')
 		this.props.dispatch(downloadModalChange(false));
 	}
 
-	
-
 	private onDownloadSubmit(){
-
-		console.log('downloading')
-		console.time('download started');
-
 		this.setState({
 			title: DEFAULTS.Copy.en.renderingAudio,
 			buttonsDisabled: true,
@@ -178,9 +124,6 @@ class DownloadModal extends React.Component<any, any> {
 		this.forceUpdate();
 
 		Audio.Download((wav: Blob) => {
-			console.log('finished')
-			console.timeEnd('download started')
-
 			this.setState({
 				title: this.downloadText,
 				buttonsDisabled: false,
@@ -214,7 +157,6 @@ class DownloadModal extends React.Component<any, any> {
 	}
 
 	//TODO: Make rendering the loop asyncrounous too.
-
 	private shareAudioUsingCordova(wav: Blob, filename){
 		if (wav.size > 5242880) {
 			navigator.notification.alert(DEFAULTS.Copy.en.recordingTooLong, () => {

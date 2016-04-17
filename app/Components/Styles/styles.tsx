@@ -1,4 +1,5 @@
 import * as React from 'react';
+require('./fonts/fonts.css');
 require('./styles.css');
 
 const Prefixer  = require('inline-style-prefixer');
@@ -181,7 +182,6 @@ export const STYLE: any = prefixer.prefix({
 			border: '1px solid #f4f4f4',
 			borderRadius: 0,
 			fontFamily: STYLE_CONST.FONT_FAMILY,
-			// paddingTop: 0,
 		},
 		content_large: {
 			padding: 40,
@@ -194,57 +194,22 @@ export const STYLE: any = prefixer.prefix({
 			fontWeight: 400,
 			padding: 20,
 		},
-		title_mobile: {
-			// fontSize: 18,
-			// lineHeight: '18px',
-			// marginBottom: 8,
-		},
-		title_mobileLandscape: {
-			// marginBottom: 0,
-		},
-		subtitle: {
-			// display:'flex',
-			// justifyContent: 'center',
-			// fontSize: 18,
-		},
-		subtitle_mobile: {
-			// fontSize: 14,
-		},
-		input: {
-			// display:'flex',
-			// justifyContent: 'center',
-			// fontSize: 42,
-			// border: 'none',
-			// background: 'transparent',
-			// color: STYLE_CONST.WHITE,
-			// borderBottom: `3px solid ${STYLE_CONST.BLACK}`,
-			// margin: '40px 0',
-			// textAlign: 'center',
-			// width: '100%',
-			// MozUserSelect: 'text',
-			// MSUserSelect: 'text',
-			// WebkitUserSelect: 'text',
-			// userSelect: 'text',
-		},
-		input_mobile: {
-			// fontSize: 32,
-			// margin: '30px 0',
-		},
 		button: {
 			display:'flex',
 			textAlign: 'center',
 			fontSize: 22,
 			lineHeight: '50px',
 			fontWeight: 300,
-			// border: `2px solid ${STYLE_CONST.BLACK}`,
 			border: 'none',
 			background: `rgba(${STYLE_CONST.GREEN_VALUES},${0.6})`,
 			width: '44%',
 			marginTop: 14,
 		},
-		button_mobile: {
-			// fontSize: 28,
-		}
+		buttonContainer: {
+			display: 'flex',
+			flexDirection: 'row',
+			justifyContent: 'space-around',
+		},
 	},
 
 	startModal: {

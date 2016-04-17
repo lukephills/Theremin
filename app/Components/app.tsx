@@ -119,7 +119,6 @@ class App extends React.Component<any, IState> {
 		this._touchAreaHeight = this.state.windowHeight - (statusBarHeight +
 			topPanelHeight + (STYLE_CONST.PADDING * 2) +
 			bottomPanelHeight);
-		console.log('touch area height =', this._touchAreaHeight, 'status bar =',statusBarHeight)
 		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING * 2);
 	}
 
@@ -232,6 +231,14 @@ class App extends React.Component<any, IState> {
 	private startPress(cb) {
 		this.handleResize();
 		AudioUtils.startIOSAudio(Audio.context, cb);
+
+		// Sometimes IOS changes the sample rate to 48000 and everyting sounds distorted
+		// Found answer from this:
+		// http://stackoverflow.com/questions/17892345/webkit-audio-distorts-on-ios-6-iphone-5-first-time-after-power-cycling/34501159#34501159
+		if (Audio.context.sampleRate === 48000) {
+			Audio.context = new AudioContext();
+			AudioUtils.startIOSAudio(Audio.context, cb);
+		}
 	}
 
 	private handleResize() {

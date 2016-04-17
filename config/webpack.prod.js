@@ -28,12 +28,14 @@ module.exports = {
         test: /\.css$/,
         loader: "style-loader!css-loader"
       },
+      { test: /\.woff$/, loader: 'file?name=fonts/[name].[ext]' },
+      { test: /\.worker.js$/, loader: "worker-loader" }
     ]
   },
   output: {
     path: path.join(__dirname, '..', 'build/static'),
     filename: 'app-[hash].js',
-    publicPath: '/static/'
+    // publicPath: '/static/'
   },
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
@@ -55,7 +57,6 @@ module.exports = {
       { from: 'icon-128.png', to: '../' },
       { from: 'config.xml', to: '../../phonegap/theremin' },
       { from: 'index.html', to: '../../phonegap/theremin/www' },
-      { from: 'icon-128.png', to: '../../phonegap/theremin/www' },
     ]),
     // plugin to replace /static/app.js to static/app-[hash].js in the build index file
     // check here for a nicer version in the future: https://github.com/webpack/webpack/issues/86

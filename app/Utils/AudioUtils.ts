@@ -3,11 +3,11 @@
  */
 let isUnlocked = false;
 export function startIOSAudio(context: AudioContext, cb): void {
+
 	if (isUnlocked) return;
 	// create empty buffer and play it
-	const buffer = context.createBuffer(1, 1, 22050);
 	const source: any = context.createBufferSource();
-	source.buffer = buffer;
+	source.buffer = context.createBuffer(1, 1, 48000);;
 	source.connect(context.destination);
 	source.start(0);
 	

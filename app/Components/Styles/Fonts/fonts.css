@@ -1,0 +1,15 @@
+/*@import url('https://fonts.googleapis.com/css?family=Lato:400,300');*/
+
+/*TODO: make fonts load locally*/
+@font-face {
+    font-family: 'Lato';
+    src: url('./Lato-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Lato';
+    src: url('./Lato-Light.woff') format('woff');
+    font-weight: 300; /* light */
+    font-style: normal;
+}
