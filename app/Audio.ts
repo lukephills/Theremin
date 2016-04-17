@@ -1,4 +1,5 @@
 //import {ICoordinates} from './Components/MultiTouchView';
+import {createIOSSafeAudioContext} from './Utils/AudioUtils';
 require('./Utils/audio-shim');
 import { DEFAULTS } from './Constants/Defaults';
 import * as CanvasUtils from './Utils/CanvasUtils';
@@ -12,41 +13,63 @@ interface IAnalysers {
 
 class Audio {
 
-	//public tone: Tone = new Tone(); //TODO: include a web audio polyfill
-	public context: AudioContext = new AudioContext();
-
+	public context: AudioContext;
 	public voiceCount: number = DEFAULTS.VoiceCount;
 	public recording: AudioBufferSourceNode;
 	public looper: Looper;
 
 
 	// Gains
-	public masterVolume: GainNode = this.context.createGain();
-	public thereminOutput: GainNode = this.context.createGain();
-	public oscillatorGains: GainNode[] = [];
-	public scuzzGain: GainNode = this.context.createGain();
-	public recordingGain: GainNode = this.context.createGain();
+	public masterVolume: GainNode;
+	public thereminOutput: GainNode;
+	public oscillatorGains: GainNode[];
+	public scuzzGain: GainNode;
+	public recordingGain: GainNode;
 
 	// Effects
-	public compressor: DynamicsCompressorNode = this.context.createDynamicsCompressor();
-	public delay: DelayNode = this.context.createDelay();
-	public feedback: GainNode = this.context.createGain();
-	public filters: BiquadFilterNode[] = [];
+	public compressor: DynamicsCompressorNode;
+	public delay: DelayNode;
+	public feedback: GainNode;
+	public filters: BiquadFilterNode[];
 
 	// Analysers
-	public analysers: IAnalysers = {
-		live: this.context.createAnalyser(),
-		recording: this.context.createAnalyser(),
-	}
+	public analysers: IAnalysers;
 
 	// Oscillators
-	public oscillators: OscillatorNode[] = [];
-	public scuzz: OscillatorNode = this.context.createOscillator();
+	public oscillators: OscillatorNode[];
+	public scuzz: OscillatorNode;
 
 	private _frequencyMultiplier: number = 15;
 	private _defaultCoordinates: CanvasUtils.ICoordinates = {x: 0, y: 0};
 
 	constructor() {
+		this.context = createIOSSafeAudioContext(44100);
+
+
+		// Gains
+		this.masterVolume = this.context.createGain();
+		this.thereminOutput = this.context.createGain();
+		this.oscillatorGains = [];
+		this.scuzzGain = this.context.createGain();
+		this.recordingGain = this.context.createGain();
+
+		// Effects
+		this.compressor = this.context.createDynamicsCompressor();
+		this.delay = this.context.createDelay();
+		this.feedback = this.context.createGain();
+		this.filters = [];
+
+		// Analysers
+		this.analysers = {
+			live: this.context.createAnalyser(),
+			recording: this.context.createAnalyser(),
+		}
+
+		// Oscillators
+		this.oscillators = [];
+		this.scuzz = this.context.createOscillator();
+		
+		
 		// AUDIO NODE SETUP
 		for (let i: number = 0; i < this.voiceCount; i++) {
 			this.oscillators.push(this.context.createOscillator());

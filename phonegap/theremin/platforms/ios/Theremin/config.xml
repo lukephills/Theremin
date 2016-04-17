@@ -57,10 +57,10 @@
     <preference name="PaginationMode" value="unpaginated" />
     <preference name="iosExtraFilesystems" value="library,library-nosync,documents,documents-nosync,cache,bundle,root" />
     <preference name="AndroidExtraFilesystems" value="files,files-external,documents,sdcard,cache,cache-external,root" />
-    <preference name="AutoHideSplashScreen" value="false" />
+    <preference name="SplashScreen" value="splash" />
     <preference name="SplashScreenDelay" value="3000" />
-    <preference name="SplashScreenBackgroundColor" value="#fff997" />
+    <preference name="auto-hide-splash-screen" value="false" />
+    <preference name="show-splash-screen-spinner" value="false" />
     <preference name="FadeSplashScreen" value="false" />
-    <preference name="SplashMaintainAspectRatio" value="true" />
     <preference name="orientation" value="all" />
 </widget>

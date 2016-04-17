@@ -47,7 +47,8 @@ module.exports = {
     new webpack.optimize.UglifyJsPlugin({
      compressor: {
        warnings: false
-     }
+     },
+      mangle: false
     }),
     new CopyWebpackPlugin([
       { from: 'index.html', to: '../' },
