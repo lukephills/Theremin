@@ -5,7 +5,7 @@ var APP_DIR = path.join(__dirname, '..', 'app');
 
 module.exports = {
     debug: true,
-    // devtool: 'source-map',
+    devtool: 'source-map',
     entry: ['webpack-hot-middleware/client', './app/index.tsx'],
     module: {
         preLoaders: [{

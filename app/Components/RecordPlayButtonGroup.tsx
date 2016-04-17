@@ -18,6 +18,7 @@ interface IProps extends IPlayer, IRecorder {
 	onRecordButtonChange(): void;
 	onPlaybackButtonChange(): void;
 	onDownloadButtonChange(): void;
+	maxLoopDuration: number;
 }
 interface IState {
 	recordState?: RecordStateType;
@@ -37,6 +38,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 	playButtonDisabled: boolean = true;
 	private _touchIdentifiers;
+	private maxLoopDurationTimer;
 
 	constructor(props) {
 		super(props);
@@ -50,6 +52,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		this.onTouchEndDownloadButton = this.onTouchEndDownloadButton.bind(this);
 		this.onTouchStartDownloadButton = this.onTouchStartDownloadButton.bind(this);
 		this.onTouchCancelDownloadButton = this.onTouchCancelDownloadButton.bind(this);
+		this.onClickDownloadButton = this.onClickDownloadButton.bind(this);
 	}
 
 	public render(): React.ReactElement<{}> {
@@ -82,6 +85,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 					onTouchStart={this.onTouchStartDownloadButton}
 					onTouchCancel={this.onTouchCancelDownloadButton}
 					onTouchEnd={this.onTouchEndDownloadButton}
+					onClick={this.onClickDownloadButton}
 					isOn={true}>
 					<StaticCanvas
 						height={this.props.buttonSize}
@@ -105,6 +109,10 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 	onTouchEndDownloadButton(e: TouchEvent) {
 		this.setState({downloadButtonHighlighted: false})
+		this.props.onDownloadButtonChange();
+	}
+
+	onClickDownloadButton(e: TouchEvent) {
 		this.props.onDownloadButtonChange();
 	}
 
@@ -215,9 +223,12 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 	private play(e) {
 		e.preventDefault();
+		// Clear the timer in case play was pressed whilst recording first loop
+		clearTimeout(this.maxLoopDurationTimer);
 
 		// Stop recording if play is pressed whilst recording/overdubbing
 		if (this.props.recordState === (STATE.OVERDUBBING || STATE.RECORDING)) {
+
 			this.recorderChangeDispatch(STATE.STOPPED, false);
 		}
 		switch (this.props.playerState) {
@@ -239,6 +250,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 		switch (this.props.recordState) {
 			case STATE.RECORDING:
+				clearTimeout(this.maxLoopDurationTimer);
 				this.recorderChangeDispatch(STATE.OVERDUBBING);
 				break;
 			case STATE.OVERDUBBING:
@@ -252,6 +264,9 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 					this.playerChangeDispatch(STATE.STOPPED, false);
 					this.recorderChangeDispatch(STATE.OVERDUBBING);
 				} else {
+					this.maxLoopDurationTimer = setTimeout(() => {
+						this.recorderChangeDispatch(STATE.OVERDUBBING);
+					}, this.props.maxLoopDuration * 1000);
 					this.recorderChangeDispatch(STATE.RECORDING);
 				}
 				break;

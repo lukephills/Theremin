@@ -15,8 +15,8 @@
         <param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
         <param name="onload" value="true" />
     </feature>
-    <preference name="BackgroundColor" value="0xff0000ff" />
     <allow-intent href="market:*" />
+    <preference name="orientation" value="default" />
     <name>Theremin</name>
     <description>
         A multi-touch synthesizer with delay and scuzz effects and new recorder functionality.
@@ -30,7 +30,6 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
-    <preference name="Orientation" value="all" />
     <preference name="iosExtraFilesystems" value="library,library-nosync,documents,documents-nosync,cache,bundle,root" />
     <preference name="AndroidExtraFilesystems" value="files,files-external,documents,sdcard,cache,cache-external,root" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

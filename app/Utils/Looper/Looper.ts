@@ -20,14 +20,15 @@ class Looper {
 	public isRecording: boolean = false;
 	public loops: Loop[] = [];
 	public maxAmountOfLoops: number = 30;
-	public maxLoopDuration: number = 300;
+	public maxLoopDuration: number = 30; // seconds
 	public recordMono: boolean = true;
 	public volumeReduceAmount: number = 1.1;
 
 	private context: AudioContext;
 	private input: AudioNode;
 	private isOverdubPressed: boolean = false;
-	private loopLength: number = this.maxLoopDuration;
+	private tempLoopLength: number = this.maxLoopDuration+1;
+	private loopLength: number = this.tempLoopLength;
 	private nextLoopStartTime: number = null;
 	private output: AudioNode;
 	private playbackSchedulerTimeout: number;
@@ -275,7 +276,7 @@ class Looper {
 	 */
 	public reset(): void {
 		this.loops = [];
-		this.loopLength = this.maxLoopDuration;
+		this.loopLength = this.tempLoopLength;
 		this.playbackSchedulerTimeout = null;
 		this.nextLoopStartTime = null;
 		this._id = -1;
