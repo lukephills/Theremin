@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 const Modal = require('react-modal');
-import Audio from '../Audio';
 import ToggleButton from './ToggleButton'
 import { downloadModalChange, RecorderStateChange, PlayerStateChange } from '../Actions/actions';
 import {IGlobalState} from '../Constants/GlobalState';
@@ -108,7 +107,7 @@ class DownloadModal extends React.Component<any, any> {
 			this.props.dispatch(RecorderStateChange(STATE.PLAYING));
 			this.props.dispatch(PlayerStateChange(STATE.PLAYING));
 			// Press play button to start playing back the loop
-			Audio.onPlaybackPress();
+			this.props.Audio.onPlaybackPress();
 		}
 	}
 
@@ -123,7 +122,7 @@ class DownloadModal extends React.Component<any, any> {
 		});
 		this.forceUpdate();
 
-		Audio.Download((wav: Blob) => {
+		this.props.Audio.Download((wav: Blob) => {
 			this.setState({
 				title: this.downloadText,
 				buttonsDisabled: false,

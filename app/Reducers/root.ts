@@ -5,6 +5,7 @@ import { Player } from './rPlayer';
 import { Slider } from './rSlider';
 import { DownloadModal } from './rDownloadModal';
 import { StartModal } from './rStartModal';
+import { PlayButtonDisabled } from './rPlayButtonDisabled';
 
 export default combineReducers({
 	Waveform,
@@ -13,4 +14,5 @@ export default combineReducers({
 	Slider,
 	DownloadModal,
 	StartModal,
+	PlayButtonDisabled,
 });

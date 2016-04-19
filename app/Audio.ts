@@ -43,9 +43,16 @@ class Audio {
 	private _defaultCoordinates: CanvasUtils.ICoordinates = {x: 0, y: 0};
 
 	constructor() {
-		this.context = createIOSSafeAudioContext(44100);
 
+		this.initAudioContext();
+		this.createNodes();
+		this.routeSounds();
+		this.setupAnalysers();
 
+		this.looper = new Looper(this.thereminOutput, this.recordingGain)
+	}
+
+	public createNodes() {
 		// Gains
 		this.masterVolume = this.context.createGain();
 		this.thereminOutput = this.context.createGain();
@@ -68,19 +75,18 @@ class Audio {
 		// Oscillators
 		this.oscillators = [];
 		this.scuzz = this.context.createOscillator();
-		
-		
+
+
 		// AUDIO NODE SETUP
 		for (let i: number = 0; i < this.voiceCount; i++) {
 			this.oscillators.push(this.context.createOscillator());
 			this.filters.push(this.context.createBiquadFilter());
 			this.oscillatorGains.push(this.context.createGain());
 		}
+	}
 
-		this.routeSounds();
-		this.setupAnalysers();
-		//this.recorder = new Recorder(this.thereminOutput);
-		this.looper = new Looper(this.thereminOutput, this.recordingGain)
+	initAudioContext(){
+		this.context = createIOSSafeAudioContext(44100);
 	}
 
 	public Start(pos: CanvasUtils.ICoordinates = this._defaultCoordinates, index: number = 0): void {
@@ -217,4 +223,4 @@ class Audio {
 	}
 
 }
-export default new Audio();
+export default Audio;

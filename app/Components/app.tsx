@@ -12,7 +12,10 @@ import {WaveformStringType} from '../Constants/AppTypings';
 import { WAVEFORMS, DEFAULTS } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
 import Audio from '../Audio';
-import { downloadModalChange, RecorderStateChange } from '../Actions/actions';
+import {
+	downloadModalChange, startModalChange, PlayerStateChange, RecorderStateChange,
+	PlayButtonDisabled
+} from '../Actions/actions';
 
 import Visibility from '../Utils/visibility';
 import * as AudioUtils from '../Utils/AudioUtils';
@@ -23,7 +26,6 @@ import {RecordStateType} from '../Constants/AppTypings';
 import {STATE} from '../Constants/AppTypings';
 import {PlayerStateType} from '../Constants/AppTypings';
 
-
 interface IState {
 	delayVal?: number;
 	feedbackVal?: number;
@@ -31,6 +33,7 @@ interface IState {
 	recordState?: RecordStateType;
 	isDownloadOverlayActive?: boolean;
 	scuzzVal?: number;
+	startModalText?: string;
 	waveform?: string;
 	windowHeight?: number;
 	windowWidth?: number;
@@ -54,6 +57,7 @@ function select(state: IGlobalState) {
 @connect(select)
 class App extends React.Component<any, IState> {
 
+	public Audio: Audio
 	public canvas: HTMLCanvasElement;
 	public spectrumLive: Spectrum;
 	public spectrumRecording: Spectrum;
@@ -75,10 +79,13 @@ class App extends React.Component<any, IState> {
 			recordState: STATE.STOPPED,
 			isDownloadOverlayActive: false,
 			scuzzVal: DEFAULTS.Sliders.scuzz.value,
+			startModalText: DEFAULTS.Copy.en.startText,
 			waveform: WAVEFORMS[DEFAULTS.Waveform],
 			windowHeight: window.innerHeight,
 			windowWidth: window.innerWidth,
 		};
+
+		this.Audio = new Audio();
 
 		this.updateSize();
 
@@ -87,8 +94,8 @@ class App extends React.Component<any, IState> {
 		this._pixelRatio = CanvasUtils.getPixelRatio();
 
 		this.touches = new IdentifierIndexMap();
-		this.spectrumLive = new Spectrum(this.canvas, Audio.analysers.live);
-		this.spectrumRecording = new Spectrum(this.canvas, Audio.analysers.recording);
+		
+		this.initializeSpectrum();
 
 		this.Start = this.Start.bind(this);
 		this.Stop = this.Stop.bind(this);
@@ -100,6 +107,11 @@ class App extends React.Component<any, IState> {
 		this.Download = this.Download.bind(this);
 		this.handleResize = this.handleResize.bind(this);
 		this.startPress = this.startPress.bind(this);
+	}
+
+	private initializeSpectrum() {
+		this.spectrumLive = new Spectrum(this.canvas, this.Audio.analysers.live);
+		this.spectrumRecording = new Spectrum(this.canvas, this.Audio.analysers.recording);
 	}
 
 	get mobileLandscapeSize(): boolean {
@@ -138,13 +150,37 @@ class App extends React.Component<any, IState> {
 
 		// Make sure all sounds stop when app is awoken.
 		Visibility.onVisible = () => {
-			Audio.StopAll();
+			this.Audio.StopAll();
 		}
 
 		// Stop when switch to another tab in browser
 		Visibility.onInvisible = () => {
-			Audio.StopAll();
+			this.Audio.StopAll();
 		}
+
+		if (isCordovaIOS()){
+			document.addEventListener("active", onActive, false);
+			function onActive() {
+				setTimeout(() => {
+					AudioUtils.isIOSAudioUnlocked(this.Audio.context, (isUnlocked) => {
+						if (!isUnlocked) {
+							this.resetOnIOSLockedAudio();
+						}
+					});
+				}, 0);
+			}
+		}
+	}
+	
+	private resetOnIOSLockedAudio() {
+		this.props.dispatch(startModalChange(true));
+		this.setState({startModalText: DEFAULTS.Copy.en.resumeText});
+	
+		//Reset any record playback, download states
+		this.props.dispatch(RecorderStateChange(STATE.STOPPED));
+		this.props.dispatch(PlayerStateChange(STATE.STOPPED));
+		this.props.dispatch(PlayButtonDisabled(true));
+		this.props.dispatch(downloadModalChange(false));
 	}
 
 	public componentWillUnmount() {
@@ -190,7 +226,7 @@ class App extends React.Component<any, IState> {
 						onPlaybackButtonChange={this.Playback}
 						onDownloadButtonChange={this.Download}
 					    buttonSize={buttonSize}
-					    maxLoopDuration={Audio.looper.maxLoopDuration}
+					    maxLoopDuration={this.Audio.looper.maxLoopDuration}
 					/>
 					<WaveformSelectGroup
 						style={Object.assign({},STYLE.waveformSelectGroup.container,
@@ -215,6 +251,7 @@ class App extends React.Component<any, IState> {
 				    windowWidth={this.state.windowWidth}
 			    />
 				<DownloadModal
+					Audio={this.Audio}
 					isActive={this.props.isDownloadModalOpen}
 				    style={Object.assign({},STYLE.downloadModal)}
 					windowWidth={this.state.windowWidth}
@@ -223,15 +260,40 @@ class App extends React.Component<any, IState> {
 				<StartModal
 					isActive={this.props.isStartModalOpen}
 					onStartPress={this.startPress}
+					buttonText={this.state.startModalText}
 					style={Object.assign({}, STYLE.startModal)}
 				/>
 			</div>
 		);
 	}
 
-	private startPress(cb) {
+	/**
+	 * Start Press - only for ios
+	 * @param onStartPressed
+	 */
+	private startPress(onStartPressed) {
 		this.handleResize();
-		AudioUtils.startIOSAudio(Audio.context, cb);
+		if (this.Audio.context) {
+			this.Audio.context.close();
+		}
+		this.Audio = new Audio();
+
+		AudioUtils.isIOSAudioUnlocked(this.Audio.context, (isUnlocked) => {
+			if (isUnlocked){
+				onStartPressed();
+			} else {
+				if (window.cordova){
+					navigator.notification.alert("Couldn't unlock audio. Try restarting or contact support", () => {
+						return;
+					}, 'ERROR');
+				} else {
+					console.error("Couldn't unlock audio. Try reloading web page");
+				}
+			}
+		});
+
+		// Reinitialize the spectrums with the updated Audio
+		this.initializeSpectrum();
 	}
 
 	private handleResize() {
@@ -253,13 +315,13 @@ class App extends React.Component<any, IState> {
 		if (this._isAnimating === false) {
 			this.Draw();
 		}
-		Audio.Start(pos, index);
+		this.Audio.Start(pos, index);
 	}
 
 	public Stop(e: Event, identifier: number = 0): void {
 		const index = this.touches.GetIndexFromIdentifier(identifier);
 		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
-		Audio.Stop(pos, index);
+		this.Audio.Stop(pos, index);
 
 		//Remove from list of touch ids
 		this.touches.Remove(identifier)
@@ -268,19 +330,19 @@ class App extends React.Component<any, IState> {
 	public Move(e: Event, id: number = 0) {
 		const index = this.touches.GetIndexFromIdentifier(id);
 		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
-		Audio.Move(pos, index);
+		this.Audio.Move(pos, index);
 	}
 
 	public SliderChange(slider, value) {
 		switch (slider) {
 			case 'delay':
-				Audio.delay.delayTime.value = value;
+				this.Audio.delay.delayTime.value = value;
 				break;
 			case 'feedback':
-				Audio.feedback.gain.value = value;
+				this.Audio.feedback.gain.value = value;
 				break;
 			case 'scuzz':
-				Audio.scuzzGain.gain.value = value;
+				this.Audio.scuzzGain.gain.value = value;
 				break;
 			default:
 				console.error(`Slider name ${slider} not found`);
@@ -289,15 +351,15 @@ class App extends React.Component<any, IState> {
 	}
 
 	public SetWaveform(value: WaveformStringType) {
-		Audio.SetWaveform(value);
+		this.Audio.SetWaveform(value);
 	}
 
 	public Record(){
-		Audio.onRecordPress();
+		this.Audio.onRecordPress();
 	}
 
 	public Playback() {
-		Audio.onPlaybackPress();
+		this.Audio.onPlaybackPress();
 	}
 
 	public Download() {

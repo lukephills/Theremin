@@ -1,20 +1,20 @@
 /**
- * IOS needs to start audio on first touchUp in order for web audio to run
+ * Pass this function an audio context to check to see if it is unlocked
+ * An isUnlocked boolean is passed as a parameter of the callback function
  */
-let isUnlocked = false;
-export function startIOSAudio(context: AudioContext, cb): void {
-
-	if (isUnlocked) return;
+export function isIOSAudioUnlocked(context: AudioContext, cb): void {
+	let isUnlocked;
 	// create empty buffer and play it
 	const source = createEmptyBuffer(context)
-	
 	// by checking the play state after some time, we know if we're really unlocked
 	setTimeout(function() {
 		if(((<any>source).playbackState === (<any>source).PLAYING_STATE ||
 			(<any>source).playbackState === (<any>source).FINISHED_STATE)) {
 			isUnlocked = true;
-			cb();
+		} else {
+			isUnlocked = false;
 		}
+		cb(isUnlocked);
 	}, 0);
 }
 
@@ -29,6 +29,7 @@ export function createEmptyBuffer(context): AudioBufferSourceNode {
 /**
  * IOS safe audio context
  * Sometimes IOS changes the sample rate to 48000 and everything sounds distorted
+ * https://github.com/Jam3/ios-safe-audio-context
  * http://stackoverflow.com/questions/17892345/webkit-audio-distorts-on-ios-6-iphone-5-first-time-after-power-cycling/34501159#34501159
  * @returns {AudioContext}
  * @constructor

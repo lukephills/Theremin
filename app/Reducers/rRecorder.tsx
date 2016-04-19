@@ -1,4 +1,3 @@
-import { DEFAULTS } from '../Constants/Defaults';
 import { IRecorder } from '../Constants/GlobalState';
 import {RECORDER_STATE_CHANGE} from '../Constants/ActionTypes';
 import {STATE} from '../Constants/AppTypings';

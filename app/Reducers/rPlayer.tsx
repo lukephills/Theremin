@@ -1,5 +1,4 @@
 import { PLAYER_STATE_CHANGE } from '../Constants/ActionTypes';
-import { DEFAULTS } from '../Constants/Defaults';
 import { IPlayer } from '../Constants/GlobalState';
 import { STATE } from '../Constants/AppTypings';
 

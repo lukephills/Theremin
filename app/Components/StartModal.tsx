@@ -94,7 +94,7 @@ class StartModal extends React.Component<any, IProps> {
 		            onMouseUp={this.onTouchEnd}
 		            onMouseLeave={this.onTouchCancel}
 		>
-			<span>START</span>
+			<span>{this.props.buttonText}</span>
 		</div>
 	}
 
@@ -106,7 +106,6 @@ class StartModal extends React.Component<any, IProps> {
 	}
 
 	private onTouchDown(e) {
-		console.log('touch down start')
 		e.preventDefault();
 		this.setState({buttonDown: true});
 	}

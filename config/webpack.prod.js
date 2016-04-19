@@ -6,7 +6,7 @@ var webpack = require('webpack');
 var APP_DIR = path.join(__dirname, '..', 'app');
 
 module.exports = {
-  // devtool: 'source-map',
+  devtool: 'source-map',
   entry: './app/index.tsx',
   module: {
     //preLoaders: [{
@@ -44,12 +44,12 @@ module.exports = {
         'NODE_ENV': JSON.stringify('production')
       }
     }),
-    new webpack.optimize.UglifyJsPlugin({
-     compressor: {
-       warnings: false
-     },
-      mangle: false
-    }),
+    // new webpack.optimize.UglifyJsPlugin({
+    //  compressor: {
+    //    warnings: false
+    //  },
+    //   mangle: false
+    // }),
     new CopyWebpackPlugin([
       { from: 'index.html', to: '../' },
       { from: 'manifest.json', to: '../' },

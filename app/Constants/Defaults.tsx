@@ -64,6 +64,8 @@ export const DEFAULTS: any = {
 			recordingTooLong: 'The recording is too large. Try a shorter length.',
 			cantShare: `Can't share file`,
 			sharePrompt: 'Would you like to share your recording?',
+			startText: 'Start',
+			resumeText: 'Resume',
 			downloadPrompt: 'Would you like to download your recording?',
 		},
 	},

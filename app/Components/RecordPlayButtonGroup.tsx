@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import ToggleButton from './ToggleButton';
 import MultiStateSwitch from './MultiStateSwitch';
 import {IGlobalState, IPlayer, IRecorder} from '../Constants/GlobalState';
-import { PlayerStateChange, RecorderStateChange } from '../Actions/actions';
+import { PlayerStateChange, RecorderStateChange, PlayButtonDisabled } from '../Actions/actions';
 import StaticCanvas from './StaticCanvas';
 import {STYLE_CONST} from './Styles/styles';
 import {RecordStateType} from '../Constants/AppTypings';
@@ -14,6 +14,7 @@ interface IProps extends IPlayer, IRecorder {
 	buttonSize: number;
 	dispatch?: Function;
 	style?: any;
+	playButtonDisabled?: boolean;
 	//isPlaybackDisabled: boolean;
 	onRecordButtonChange(): void;
 	onPlaybackButtonChange(): void;
@@ -23,6 +24,7 @@ interface IProps extends IPlayer, IRecorder {
 interface IState {
 	recordState?: RecordStateType;
 	playerState?: PlayerStateType;
+	// playButtonDisabled?: boolean;
 	downloadButtonHighlighted?: boolean;
 }
 
@@ -30,13 +32,14 @@ function select(state: IGlobalState): any {
 	return {
 		playerState: state.Player.playerState,
 		recordState: state.Recorder.recordState,
+		playButtonDisabled: state.PlayButtonDisabled.playButtonDisabled,
 	};
 }
 
 @connect(select)
 class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
-	playButtonDisabled: boolean = true;
+	// playButtonDisabled: boolean = true;
 	private _touchIdentifiers;
 	private maxLoopDurationTimer;
 
@@ -45,6 +48,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 		this.state = {
 			downloadButtonHighlighted: false,
+			// playButtonDisabled: true,
 		}
 		this._touchIdentifiers = {}
 
@@ -70,18 +74,18 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 				<MultiStateSwitch
 					onDown={(e) => this.play(e)}
-				    disabled={this.playButtonDisabled}
+				    disabled={this.props.playButtonDisabled}
 				>
 					<StaticCanvas
 						height={this.props.buttonSize}
 						width={this.props.buttonSize}
 						draw={this.draw}
-						options={{id: 'play', disabled: this.playButtonDisabled}}
+						options={{id: 'play', disabled: this.props.playButtonDisabled}}
 					/>
 				</MultiStateSwitch>
 
 				<ToggleButton
-					disabled={this.playButtonDisabled}
+					disabled={this.props.playButtonDisabled}
 					onTouchStart={this.onTouchStartDownloadButton}
 					onTouchCancel={this.onTouchCancelDownloadButton}
 					onTouchEnd={this.onTouchEndDownloadButton}
@@ -148,17 +152,17 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 				switch (this.props.playerState) {
 					case STATE.PLAYING:
-						this.drawIconStop(ctx, cx, cy, units, (this.playButtonDisabled ? STYLE_CONST.GREY : STYLE_CONST.RED))
+						this.drawIconStop(ctx, cx, cy, units, (this.props.playButtonDisabled ? STYLE_CONST.GREY : STYLE_CONST.RED))
 					break;
 					case STATE.STOPPED:
-						this.drawIconPlay(ctx, cx, cy, units, (this.playButtonDisabled ? STYLE_CONST.GREY : STYLE_CONST.GREEN))
+						this.drawIconPlay(ctx, cx, cy, units, (this.props.playButtonDisabled ? STYLE_CONST.GREY : STYLE_CONST.GREEN))
 					break;
 				}
 				ctx.stroke();
 			break;
 
 			case 'download':
-				if (this.playButtonDisabled) {
+				if (this.props.playButtonDisabled) {
 					ctx.strokeStyle = STYLE_CONST.GREY;
 				}
 				if (this.state.downloadButtonHighlighted) {
@@ -228,7 +232,6 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 		// Stop recording if play is pressed whilst recording/overdubbing
 		if (this.props.recordState === (STATE.OVERDUBBING || STATE.RECORDING)) {
-
 			this.recorderChangeDispatch(STATE.STOPPED, false);
 		}
 		switch (this.props.playerState) {
@@ -246,7 +249,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 	private record(e) {
 		e.preventDefault();
 
-		this.playButtonDisabled = false;
+		this.props.dispatch(PlayButtonDisabled(false))
 
 		switch (this.props.recordState) {
 			case STATE.RECORDING:

@@ -6,6 +6,7 @@ import {
 	SLIDER_CHANGE,
 	DOWNLOAD_MODAL_CHANGE, 
 	START_MODAL_CHANGE,
+	PLAY_BUTTON_DISABLED_CHANGE,
 } from '../Constants/ActionTypes';
 import {RecordStateType, PlayerStateType} from '../Constants/AppTypings';
 
@@ -32,6 +33,13 @@ export function RecorderStateChange(recordState: RecordStateType): any {
 		type: RECORDER_STATE_CHANGE,
 		recordState,
 	};
+}
+
+export function PlayButtonDisabled(isDisabled: boolean): any {
+	return {
+		type: PLAY_BUTTON_DISABLED_CHANGE,
+		isDisabled,
+	}
 }
 
 export function SliderAction(sliderName: string, value: number): any {

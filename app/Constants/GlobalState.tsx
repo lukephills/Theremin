@@ -8,10 +8,15 @@ export interface IGlobalState {
 	Slider?: ISlider;
 	DownloadModal?: IModal;
 	StartModal?: IModal;
+	PlayButtonDisabled?: IPlayButtonDisabled;
 }
 
 export interface IWaveform {
 	wave?: string;
+}
+
+export interface IPlayButtonDisabled {
+	playButtonDisabled: boolean;
 }
 
 export interface IPlayer {
