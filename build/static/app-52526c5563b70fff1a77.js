@@ -9340,25 +9340,19 @@
 	 * An isUnlocked boolean is passed as a parameter of the callback function
 	 */
 	function isIOSAudioUnlocked(context, cb) {
-	    var isUnlocked = undefined;
 	    // create empty buffer and play it
 	    var source = createEmptyBuffer(context);
 	    // by checking the play state after some time, we know if we're really unlocked
 	    setTimeout(function () {
-	        if (source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE) {
-	            isUnlocked = true;
-	        } else {
-	            isUnlocked = false;
-	        }
-	        cb(isUnlocked);
-	    }, 0);
+	        cb(source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE);
+	    }, 1);
 	}
 	function createEmptyBuffer(context) {
+	    var buffer = context.createBuffer(1, 1, 22050);
 	    var source = context.createBufferSource();
-	    source.buffer = context.createBuffer(1, 1, 48000);
-	    ;
+	    source.buffer = buffer;
 	    source.connect(context.destination);
-	    source.start(0);
+	    source.start(context.currentTime);
 	    return source;
 	}
 	/**
@@ -40351,6 +40345,7 @@
 	
 	        _this._isAnimating = false;
 	        _this._pixelRatio = CanvasUtils.getPixelRatio();
+	        _this._IOSAudioContextUnlockFailCounter = 0;
 	        _this.state = {
 	            delayVal: _Defaults.DEFAULTS.Sliders.delay.value,
 	            feedbackVal: _Defaults.DEFAULTS.Sliders.feedback.value,
@@ -40498,26 +40493,57 @@
 	    }, {
 	        key: "startPress",
 	        value: function startPress(onStartPressed) {
+	            var _this4 = this;
+	
 	            this.handleResize();
-	            if (this.Audio.context) {
-	                this.Audio.context.close();
-	            }
-	            this.Audio = new _Audio2.default();
+	            this.setState({ startModalText: 'Loading...' });
+	            // if (this.Audio.context.state === 'suspended' ) {
+	            // 	this.Audio.context.resume();
+	            // } else {
+	            // 	console.log('audio context not suspended')
+	            // 	// this.Audio.context.close();
+	            // 	// this.Audio = new Audio();
+	            // }
 	            AudioUtils.isIOSAudioUnlocked(this.Audio.context, function (isUnlocked) {
 	                if (isUnlocked) {
-	                    onStartPressed();
+	                    _this4.onIOSAudioUnlocked(onStartPressed);
 	                } else {
-	                    if (window.cordova) {
-	                        navigator.notification.alert("Couldn't unlock audio. Try restarting or contact support", function () {
-	                            return;
-	                        }, 'ERROR');
-	                    } else {
-	                        console.error("Couldn't unlock audio. Try reloading web page");
-	                    }
+	                    _this4.onIOSAudioNotUnlocked(onStartPressed);
 	                }
 	            });
+	        }
+	    }, {
+	        key: "onIOSAudioUnlocked",
+	        value: function onIOSAudioUnlocked(onUnlocked) {
+	            console.log('UNLOCKED');
+	            this._IOSAudioContextUnlockFailCounter = 0;
+	            onUnlocked();
+	        }
+	    }, {
+	        key: "onIOSAudioNotUnlocked",
+	        value: function onIOSAudioNotUnlocked(onNotUnlocked) {
+	            console.log('NOT UNLOCKED');
+	            this.Audio.context.close();
+	            this.Audio = new _Audio2.default();
 	            // Reinitialize the spectrums with the updated Audio
 	            this.initializeSpectrum();
+	            if (window.cordova) {
+	                console.log(this.Audio.context);
+	                if (this._IOSAudioContextUnlockFailCounter < 100) {
+	                    this._IOSAudioContextUnlockFailCounter++;
+	                    console.log('try again', this._IOSAudioContextUnlockFailCounter);
+	                    this.startPress(onNotUnlocked);
+	                } else {
+	                    //TODO: iphone 4 test fix this & iphone 6
+	                    this.setState({ startModalText: _Defaults.DEFAULTS.Copy.en.startText });
+	                    navigator.notification.alert("Couldn't unlock audio. Try restarting or contact support", function () {
+	                        return;
+	                    }, 'ERROR');
+	                    this._IOSAudioContextUnlockFailCounter = 0;
+	                }
+	            } else {
+	                console.error("Couldn't unlock audio. Try reloading web page");
+	            }
 	        }
 	    }, {
 	        key: "handleResize",
@@ -43194,4 +43220,4 @@
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=app-713b24ebb995998f5653.js.map
+//# sourceMappingURL=app-52526c5563b70fff1a77.js.map

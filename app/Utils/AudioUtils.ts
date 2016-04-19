@@ -3,26 +3,21 @@
  * An isUnlocked boolean is passed as a parameter of the callback function
  */
 export function isIOSAudioUnlocked(context: AudioContext, cb): void {
-	let isUnlocked;
 	// create empty buffer and play it
-	const source = createEmptyBuffer(context)
+	const source = createEmptyBuffer(context);
 	// by checking the play state after some time, we know if we're really unlocked
-	setTimeout(function() {
-		if(((<any>source).playbackState === (<any>source).PLAYING_STATE ||
-			(<any>source).playbackState === (<any>source).FINISHED_STATE)) {
-			isUnlocked = true;
-		} else {
-			isUnlocked = false;
-		}
-		cb(isUnlocked);
-	}, 0);
+	setTimeout(() => {
+		cb(((<any>source).playbackState === (<any>source).PLAYING_STATE ||
+		(<any>source).playbackState === (<any>source).FINISHED_STATE));
+	}, 1);
 }
 
 export function createEmptyBuffer(context): AudioBufferSourceNode {
+	const buffer = context.createBuffer(1, 1, 22050);
 	const source = context.createBufferSource();
-	source.buffer = context.createBuffer(1, 1, 48000);;
+	source.buffer = buffer;
 	source.connect(context.destination);
-	source.start(0);
+	source.start(context.currentTime);
 	return source;
 }
 
