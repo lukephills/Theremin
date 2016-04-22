@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import ToggleButton from './ToggleButton';
 import MultiStateSwitch from './MultiStateSwitch';
 import {IGlobalState, IPlayer, IRecorder} from '../Constants/GlobalState';
-import { PlayerStateChange, RecorderStateChange, PlayButtonDisabled } from '../Actions/actions';
+import {PlayerStateChange, RecorderStateChange, PlayButtonDisabled, startModalChange} from '../Actions/actions';
 import StaticCanvas from './StaticCanvas';
 import {STYLE_CONST} from './Styles/styles';
 import {RecordStateType} from '../Constants/AppTypings';
@@ -249,37 +249,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 	private record(e) {
 		e.preventDefault();
 
-		this.props.dispatch(PlayButtonDisabled(false))
-
-		switch (this.props.recordState) {
-			case STATE.RECORDING:
-				clearTimeout(this.maxLoopDurationTimer);
-				this.recorderChangeDispatch(STATE.OVERDUBBING);
-				break;
-			case STATE.OVERDUBBING:
-				this.recorderChangeDispatch(STATE.STOPPED);
-				if (this.props.playerState === STATE.PLAYING){
-					this.playerChangeDispatch(STATE.STOPPED, false);
-				}
-				break;
-			case STATE.STOPPED:
-				if (this.props.playerState === STATE.PLAYING){
-					this.playerChangeDispatch(STATE.STOPPED, false);
-					this.recorderChangeDispatch(STATE.OVERDUBBING);
-				} else {
-					this.maxLoopDurationTimer = setTimeout(() => {
-						this.recorderChangeDispatch(STATE.OVERDUBBING);
-					}, this.props.maxLoopDuration * 1000);
-					this.recorderChangeDispatch(STATE.RECORDING);
-				}
-				break;
-			case STATE.PLAYING:
-				this.recorderChangeDispatch(STATE.OVERDUBBING);
-				if (this.props.playerState === STATE.PLAYING){
-					this.playerChangeDispatch(STATE.STOPPED, false);
-				}
-				break;
-		}
+		this.props.dispatch(startModalChange(true))
 	}
 
 	recorderChangeDispatch(newState, buttonPressed: boolean = true){

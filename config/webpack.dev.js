@@ -2,6 +2,7 @@ var webpack = require('webpack');
 var path = require('path');
 
 var APP_DIR = path.join(__dirname, '..', 'app');
+var IMG_DIR = path.join(__dirname, '..', 'app/Assets/images');
 
 module.exports = {
     debug: true,
@@ -28,7 +29,12 @@ module.exports = {
                 loader: "style-loader!css-loader"
             },
             { test: /\.woff$/, loader: 'file?name=public/fonts/[name].[ext]' },
-            { test: /\.worker.js$/, loader: "worker-loader" }
+            { test: /\.worker.js$/, loader: "worker-loader" },
+            {
+                test: /\.(jpg|png)$/,
+                loader: 'url?limit=25000',
+                include: IMG_DIR
+            },
         ]
     },
     output: {

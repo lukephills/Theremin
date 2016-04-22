@@ -4,12 +4,18 @@ import { connect } from 'react-redux';
 const Modal = require('react-modal');
 import { startModalChange } from '../Actions/actions';
 import { IGlobalState } from '../Constants/GlobalState';
+import {DEFAULTS} from '../Constants/Defaults';
+
+const appleStoreImage = require('../Assets/images/apple-app-store.png');
+const chromeStoreImage = require('../Assets/images/chrome-web-store.png');
+const androidStoreImage = require('../Assets/images/google-play-store.png');
 
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 interface IProps {
 	onStartPress?: Function;
-	buttonDown?: boolean
+	buttonDown?: boolean;
+	startText?: string;
 }
 
 function select(state: IGlobalState): any {
@@ -25,6 +31,7 @@ class StartModal extends React.Component<any, IProps> {
 		super(props);
 		this.state = {
 			buttonDown: false,
+			startText: DEFAULTS.Copy.en.startText,
 		}
 		// this.startApp = this.startApp.bind(this);
 		this.onTouchDown = this.onTouchDown.bind(this);
@@ -33,54 +40,75 @@ class StartModal extends React.Component<any, IProps> {
 	}
 
 	public render(): React.ReactElement<{}> {
-		let {overlay, title, subtitle, button, buttonPressed} = this.props.style;
+
+		const largeSize = this.props.windowWidth > 700;
+
+		const {
+			overlay,
+			content_large,
+			title,
+			button,
+			subtitle,
+			buttonPressed,
+			buttonContainer,
+		} = this.props.style;
+
 		let {content} = this.props.style;
-		const contentPadding = 0;
 		content = Object.assign({}, content, {
-			top: contentPadding,
-			left: contentPadding,
-			right: contentPadding,
-			bottom: contentPadding,
+			top: 0,
+			left: 0,
+			right: 0,
+			bottom: 0,
+			margin: 'auto',
+		});
+
+		//TODO: move to styles
+		const appStoreImagesContainer = Object.assign({}, {
+			display: 'flex',
+			justifyContent: 'space-between',
+			alignItems: 'center',
+			width: 550,
 		})
-		title = Object.assign({}, title, {
-			fontSize: window.innerWidth / 7 < 80 ? window.innerWidth / 7 : 80,
-			marginBottom: window.innerWidth / 20,
-		});
+		const appStoreImageContainer = Object.assign({}, {
+			maxWidth: 160,
+		})
+		const appStoreImage = Object.assign({}, {
+			width: '100%',
+		})
 
-		subtitle = Object.assign({}, subtitle, {
-			fontSize: window.innerWidth / 20 < 28 ?  window.innerWidth / 20 : 28,
-			marginBottom: window.innerWidth / 20,
-		});
-
-		button = Object.assign({}, button, {
-			fontSize: window.innerWidth / 15 < 62 ? window.innerWidth / 15 : 62,
-		});
 
 		return (
 			<Modal isOpen={this.props.isOpen}
 			       onRequestClose={this.startApp}
-			       style={{content, overlay}}>
+			       style={{content: Object.assign({}, content, largeSize && content_large), overlay}}>
+				<div key="start-modal">
+					<span>Theremin App</span>
 
-				<ReactCSSTransitionGroup transitionName="example"
-				                         transitionAppear={true}
-				                         transitionAppearTimeout={0}
-				                         transitionEnterTimeout={0}
-				                         transitionLeaveTimeout={0}>
-					<div key="start-modal">
-						{this.startModalCopy(title, subtitle, button, buttonPressed)}
+					<ul>
+						<li>Record yourself</li>
+						<li>Create loops, add overdubs &amp; play over the top</li>
+						<li>Share/download your recording as a .wav file</li>
+						<li>Use all 10 fingers with multitouch</li>
+						<li>Works Offline</li>
+					</ul>
+					<div style={appStoreImagesContainer}>
+						<div style={appStoreImageContainer}>
+							<img src={appleStoreImage} style={appStoreImage} />
+						</div>
+						<div style={appStoreImageContainer}>
+							<img src={chromeStoreImage} style={appStoreImage} />
+						</div>
+						<div style={appStoreImageContainer}>
+							<img src={androidStoreImage} style={appStoreImage} />
+						</div>
 					</div>
-				</ReactCSSTransitionGroup>
+					{this.startModalCopy(title, subtitle, button, buttonPressed)}
+				</div>
 			</Modal>
 		);
 	}
 
 	private startModalCopy(titleStyle, subtitleStyle, buttonStyle, buttonPressedStyle) {
-		// if (window.cordova && cordova.platformId === 'ios'){
-		//TODO: get rid of start button for android and chrome
-		// }
-		// TODO: if ( no splash screen ) {
-		//     this.startText(titleStyle, subtitleStyle)
-		// }
 		return this.startButton(buttonStyle, buttonPressedStyle)
 	}
 
@@ -94,20 +122,13 @@ class StartModal extends React.Component<any, IProps> {
 		            onMouseUp={this.onTouchEnd}
 		            onMouseLeave={this.onTouchCancel}
 		>
-			<span>{this.props.buttonText}</span>
+			<span>{this.state.startText}</span>
 		</div>
-	}
-
-	private startText(titleStyle, subtitleStyle) {
-		return <span>
-			<span style={titleStyle}>THEREMIN</span>
-			<span style={subtitleStyle}>femurdesign.com</span>
-		</span>
 	}
 
 	private onTouchDown(e) {
 		e.preventDefault();
-		this.setState({buttonDown: true});
+		this.setState({buttonDown: true, startText: DEFAULTS.Copy.en.resumeText});
 	}
 
 	private onTouchEnd(e) {

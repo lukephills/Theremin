@@ -52,6 +52,7 @@
     "style-loader": "^0.13.0",
     "tslint": "^3.3.0",
     "tslint-loader": "^2.1.0",
+    "url-loader": "^0.5.7",
     "webpack": "^1.12.12",
     "webpack-dev-middleware": "^1.5.1",
     "webpack-hot-middleware": "^2.6.4"
