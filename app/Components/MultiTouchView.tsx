@@ -9,6 +9,7 @@ import TouchEvent = __React.TouchEvent;
 interface IProps {
 	width: number;
 	height: number;
+	style: any;
 	canvas: HTMLCanvasElement;
 	onDown(event: Event, identifier: number): void;
 	onMove(event: Event, identifier: number): void;
@@ -76,7 +77,7 @@ class MultiTouchView extends React.Component<IProps, IState> {
 				width: this.props.width,
 				height: this.props.height,
 			},
-			STYLE.touchArea
+			this.props.style
 		);
 	}
 

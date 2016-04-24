@@ -245,6 +245,7 @@ class App extends React.Component<any, IState> {
 				    onUp={this.Stop}
 				    onMove={this.Move}
 				    onLeave={this.Stop}
+				    style={STYLE.touchArea}
 				/>
 				<RangeSliderGroup
 					sliderChange={this.SliderChange}

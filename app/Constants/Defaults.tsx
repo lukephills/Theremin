@@ -50,7 +50,7 @@ export const DEFAULTS: any = {
 			name: 'scuzz',
 			step: 1,
 			transformValue: (value) => {
-				return value;
+				return (value).toFixed();;
 			},
 			value: 50,
 			waveform: 'sine',

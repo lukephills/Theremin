@@ -1,5 +1,5 @@
 import * as React from 'react';
-const Slider = require('rc-slider');
+import Slider from './Slider';
 import { connect } from 'react-redux';
 
 import { DEFAULTS } from '../Constants/Defaults';
@@ -24,28 +24,32 @@ class RangeSliderGroup extends React.Component<any, any> {
 	}
 
 	public componentDidMount() {
-		this.setSliderStyles();
+		// this.setSliderStyles();
 	}
 
 	public render(): React.ReactElement<{}> {
-		this.setSliderStyles();
+		// this.setSliderStyles();
+		const sliderHeight = this.props.smallScreen ? STYLE.slider_smallScreen.height : STYLE.slider.height;
 		return (
 			<div style={STYLE.sliderGroup}>
 				{Object.keys(this.sliders).map((sliderName: any, id: number) => {
 					return (
-						<div key={id} style={this.getSliderStyles()}>
+						<div key={id} style={this.getSliderContainerStyles()}>
 							<span style={this.getWaveformTitleStyles(sliderName)}>
 								{this.sliders[sliderName].transformValue(this.props.slider[sliderName])}
 								{' '}
 								{sliderName.toUpperCase()}
 							</span>
 							<Slider
+								height={sliderHeight}
+								width={this.props.windowWidth - (STYLE_CONST.PADDING*2)}
+								style={{}}
+								sliderColor={this.getSliderColor(id)}
 								min={this.sliders[sliderName].min}
 								max={this.sliders[sliderName].max}
 								step={this.sliders[sliderName].step}
 								value={this.props.slider[sliderName]}
 								onChange={(value) => this.onSliderChange(sliderName, value)}
-								tipFormatter={null}
 							/>
 						</div>
 					)
@@ -54,7 +58,12 @@ class RangeSliderGroup extends React.Component<any, any> {
 		);
 	}
 
+	private getSliderColor(i: number){
+		return `rgba(${STYLE_CONST.GREEN_VALUES},${1-(i*0.2)})`;
+	}
+
 	private onSliderChange(slider: string, value: number){
+		// console.log(slider, value);
 		this.props.sliderChange(slider,value);
 		this.props.dispatch(SliderAction(slider, value));
 	}
@@ -73,33 +82,33 @@ class RangeSliderGroup extends React.Component<any, any> {
 		);
 	}
 
-	private getSliderStyles(){
+	private getSliderContainerStyles(){
 		return Object.assign(
 			{},
 			STYLE.sliderContainer,
-			this.props.smallScreen && STYLE.sliderContainer_smallScreen,
-			{
-				display: 'flex',
-				flexDirection: 'row-reverse',
-				alignItems: 'center',
-			}
+			this.props.smallScreen && STYLE.sliderContainer_smallScreen
+			// {
+			// 	display: 'flex',
+			// 	flexDirection: 'row-reverse',
+			// 	alignItems: 'center',
+			// }
 		);
 
 	}
 
-	private setSliderStyles() {
-		const height = this.props.smallScreen ? STYLE.slider_smallScreen.height : STYLE.slider.height;
-		const sliders: any = document.querySelectorAll('.rc-slider');
-		for (var i = 0; i < sliders.length; i++) {
-			sliders[i].style.height = `${height}px`;
-			sliders[i].style.backgroundColor = STYLE_CONST.WHITE;
-		}
-		const sliderTracks: any = document.querySelectorAll('.rc-slider-track');
-		for (var i = 0; i < sliderTracks.length; i++) {
-			sliderTracks[i].style.backgroundColor = `rgba(${STYLE_CONST.GREEN_VALUES},${1-(i*0.2)})`;
-			sliderTracks[i].style.height = `${height}px`;
-		}
-	}
+	// private setSliderStyles(id) {
+	// 	const height = this.props.smallScreen ? STYLE.slider_smallScreen.height : STYLE.slider.height;
+	// 	const sliders: any = document.querySelectorAll('.rc-slider');
+	// 	for (var i = 0; i < sliders.length; i++) {
+	// 		sliders[i].style.height = `${height}px`;
+	// 		sliders[i].style.backgroundColor = STYLE_CONST.WHITE;
+	// 	}
+	// 	const sliderTracks: any = document.querySelectorAll('.rc-slider-track');
+	// 	for (var i = 0; i < sliderTracks.length; i++) {
+	// 		sliderTracks[i].style.backgroundColor = `rgba(${STYLE_CONST.GREEN_VALUES},${1-(i*0.2)})`;
+	// 		sliderTracks[i].style.height = `${height}px`;
+	// 	}
+	// }
 }
 
 export default RangeSliderGroup;

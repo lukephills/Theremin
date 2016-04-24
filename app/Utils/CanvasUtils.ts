@@ -44,14 +44,18 @@ export interface ICoordinates {
 }
 
 
-export function getPercentagePosition(e: any): ICoordinates {
-	const _round = require('lodash/round');
-	return {
-		x: _round(((e.pageX - e.target.offsetLeft) / e.target.offsetWidth) * 100, 2),
-		y: _round((100 - ((e.pageY - e.target.offsetTop) / e.target.offsetHeight) * 100), 2),
-	}
+export function numberWithinRange(num: number, min: number,max: number): number {
+	num = num > max ? max : num;
+	num = num < min ? min : num;
+	return num;
 }
 
+export function getPercentagePosition(e: any): ICoordinates {
+	const _round = require('lodash/round');
+	let x = numberWithinRange(_round(((e.pageX - e.target.offsetLeft) / e.target.offsetWidth) * 100, 2), 0, 100);
+	let y = numberWithinRange(_round((100 - ((e.pageY - e.target.offsetTop) / e.target.offsetHeight) * 100), 2), 0, 100);
+	return {x, y}
+}
 
 export function hitTest(x: number, y: number, targetX: number, targetY: number, targetWidth: number, targetHeight: number) {
 	return (
