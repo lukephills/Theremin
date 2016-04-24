@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 
 import { DEFAULTS } from '../Constants/Defaults';
 import { STYLE, STYLE_CONST } from './Styles/styles';
-import {SliderAction} from '../Actions/actions'
 
 import {IGlobalState} from '../Constants/GlobalState';
 import MultiTouchView from './MultiTouchView2';
@@ -44,12 +43,13 @@ class Slider extends React.Component<IProps, any> {
 		//Create canvas with the device resolution.
 		this.canvas = CanvasUtils.createCanvas(this.props.width, this.props.height);
 		this._pixelRatio = CanvasUtils.getPixelRatio();
-		this.value = this.props.value;
-
+		this.value = this.GetPercentageBetweenRange(this.props.value, this.props.max, this.props.min);
+		
 		this.onDown = this.onDown.bind(this);
 		this.onUp = this.onUp.bind(this);
 		this.onMove = this.onMove.bind(this);
 		this.handleResize = this.handleResize.bind(this);
+		this.DrawOnce = this.DrawOnce.bind(this)
 	}
 
 	public componentDidMount() {
@@ -81,7 +81,7 @@ class Slider extends React.Component<IProps, any> {
 				onMouseMove={this.onMove}
 				onTouchMove={this.onMove}
 			    style={this.props.style}
-			    draw={this.DrawOnce.bind(this)}
+			    draw={this.DrawOnce}
 				fireMouseLeaveOnElementExit={false}
 			/>
 		);
@@ -121,9 +121,14 @@ class Slider extends React.Component<IProps, any> {
 		x = Math.ceil(x / step) * step;
 		return x;
 	}
-	
-	CalculateValue(x: number) {
-		const {min, max} = this.props;
+
+	//TODO: add to utils
+	GetPercentageBetweenRange(x: number, max: number, min: number){
+		return (100 * x)/(max - min);
+	}
+
+	//TODO: add to utils
+	GetValFromPercentageRange(x: number, max: number, min: number) {
 		return ((max - min)/100) * x;
 	}
 
@@ -131,21 +136,23 @@ class Slider extends React.Component<IProps, any> {
 		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
 		this.value = pos.x;
 		this.DrawOnce();
-		this.props.onChange(this.CalculateValue(pos.x));
+		this.props.onChange(this.GetValFromPercentageRange(pos.x, this.props.max, this.props.min));
 	}
 
 	onUp(e, id){
+		console.log(e.offsetX);
+		//TODO: NEED TO USE e.offsetX to get value from position
 		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
 		this.value = pos.x;
 		this.DrawOnce();
-		this.props.onChange(this.CalculateValue(pos.x));
+		this.props.onChange(this.GetValFromPercentageRange(pos.x, this.props.max, this.props.min));
 	}
 
 	onMove(e, id){
 		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
 		this.value = pos.x;
 		this.DrawOnce();
-		this.props.onChange(this.CalculateValue(pos.x));
+		this.props.onChange(this.GetValFromPercentageRange(pos.x, this.props.max, this.props.min));
 	}
 
 

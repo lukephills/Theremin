@@ -16,7 +16,7 @@ function select(state: IGlobalState): any {
 @connect(select)
 class RangeSliderGroup extends React.Component<any, any> {
 
-	private sliders: any;
+	private sliders;
 
 	constructor(props){
 		super(props);
@@ -32,28 +32,54 @@ class RangeSliderGroup extends React.Component<any, any> {
 		const sliderHeight = this.props.smallScreen ? STYLE.slider_smallScreen.height : STYLE.slider.height;
 		return (
 			<div style={STYLE.sliderGroup}>
-				{Object.keys(this.sliders).map((sliderName: any, id: number) => {
-					return (
-						<div key={id} style={this.getSliderContainerStyles()}>
-							<span style={this.getWaveformTitleStyles(sliderName)}>
-								{this.sliders[sliderName].transformValue(this.props.slider[sliderName])}
-								{' '}
-								{sliderName.toUpperCase()}
-							</span>
-							<Slider
-								height={sliderHeight}
-								width={this.props.windowWidth - (STYLE_CONST.PADDING*2)}
-								style={{}}
-								sliderColor={this.getSliderColor(id)}
-								min={this.sliders[sliderName].min}
-								max={this.sliders[sliderName].max}
-								step={this.sliders[sliderName].step}
-								value={this.props.slider[sliderName]}
-								onChange={(value) => this.onSliderChange(sliderName, value)}
-							/>
-						</div>
-					)
-				})}
+				<div style={this.getSliderContainerStyles()}>
+					<span style={this.getWaveformTitleStyles('delay')}>
+						{this.sliders.delay.transformValue(this.props.slider['delay'])}
+						{' DELAY'}</span>
+					<Slider
+						height={sliderHeight}
+						width={this.props.windowWidth - (STYLE_CONST.PADDING*2)}
+						style={{}}
+						sliderColor={this.getSliderColor(0)}
+						min={this.sliders.delay.min}
+						max={this.sliders.delay.max}
+						step={this.sliders.delay.step}
+						value={this.props.slider.delay}
+						onChange={(value) => this.onSliderChange('delay', value)}
+					/>
+				</div>
+				<div style={this.getSliderContainerStyles()}>
+					<span style={this.getWaveformTitleStyles('feedback')}>
+						{this.sliders.feedback.transformValue(this.props.slider['feedback'])}
+						{' FEEDBACK'}</span>
+					<Slider
+						height={sliderHeight}
+						width={this.props.windowWidth - (STYLE_CONST.PADDING*2)}
+						style={{}}
+						sliderColor={this.getSliderColor(1)}
+						min={this.sliders.feedback.min}
+						max={this.sliders.feedback.max}
+						step={this.sliders.feedback.step}
+						value={this.sliders.feedback.value}
+						onChange={(value) => this.onSliderChange('feedback', value)}
+					/>
+				</div>
+				<div style={this.getSliderContainerStyles()}>
+					<span style={this.getWaveformTitleStyles('scuzz')}>
+						{this.sliders.scuzz.transformValue(this.props.slider['scuzz'])}
+						{' SCUZZ'}</span>
+					<Slider
+						height={sliderHeight}
+						width={this.props.windowWidth - (STYLE_CONST.PADDING*2)}
+						style={{}}
+						sliderColor={this.getSliderColor(2)}
+						min={this.sliders.scuzz.min}
+						max={this.sliders.scuzz.max}
+						step={this.sliders.scuzz.step}
+						value={this.sliders.scuzz.value}
+						onChange={(value) => this.onSliderChange('scuzz', value)}
+					/>
+				</div>
 			</div>
 		);
 	}

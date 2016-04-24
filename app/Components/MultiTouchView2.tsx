@@ -34,9 +34,6 @@ class MultiTouchView extends React.Component<IProps, {}> {
 			fireMouseLeaveOnElementExit: false,
 		};
 
-
-
-
 		this.onMouseDown = this.onMouseDown.bind(this);
 		this.onMouseUp = this.onMouseUp.bind(this);
 		this.onMouseMove = this.onMouseMove.bind(this);
