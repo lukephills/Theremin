@@ -13,10 +13,10 @@ interface IProps {
 	onTouchMove?(event: Touch, identifier: number): void;
 	onTouchCancel?(event: Touch, identifier: number): void;
 	onTouchEnd?(event: Touch, identifier: number): void;
-	onMouseDown?(event: Event, identifier: number): void;
-	onMouseMove?(event: Event, identifier: number): void;
-	onMouseUp?(event: Event, identifier: number): void;
-	onMouseLeave?(event: Event, identifier: number): void;
+	onMouseDown?(event: MouseEvent, identifier: number): void;
+	onMouseMove?(event: MouseEvent, identifier: number): void;
+	onMouseUp?(event: MouseEvent, identifier: number): void;
+	onMouseLeave?(event: MouseEvent, identifier: number): void;
 }
 
 const MOUSE_ID = -999;
@@ -70,6 +70,8 @@ class MultiTouchView extends React.Component<IProps, {}> {
 		if (this.props.width !== this.canvasWidth || this.props.height !== this.canvasHeight) {
 			this.handleResize();
 		}
+
+		console.log('multitouch rendered', this.props.canvas);
 
 		return (
 			<div
@@ -165,8 +167,10 @@ class MultiTouchView extends React.Component<IProps, {}> {
 		for (let i = 0; i < touches.length; i++) {
 			const touch: any = touches[i];
 			const isTouchInBounds: boolean = CanvasUtils.hitTest(touch.clientX, touch.clientY, touch.target.offsetLeft, touch.target.offsetTop, touch.target.clientWidth, touch.target.clientHeight);
-			//TODO: test in bounds function doesn't seem to be working properly
-			if (isTouchInBounds && this._pointers[touch.identifier]) {
+
+			//TODO: we might not want to check if touchmove is in bounds
+			if (this._pointers[touch.identifier]) {
+			// if (isTouchInBounds && this._pointers[touch.identifier]) {
 				if (this.props.onTouchMove) {
 					this.props.onTouchMove(touch, touch.identifier);
 				}

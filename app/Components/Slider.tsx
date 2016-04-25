@@ -1,14 +1,12 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-
+import * as ReactDOM from 'react-dom';
 import { DEFAULTS } from '../Constants/Defaults';
-import { STYLE, STYLE_CONST } from './Styles/styles';
+import { STYLE_CONST } from './Styles/styles';
 
 import {IGlobalState} from '../Constants/GlobalState';
-import MultiTouchView from './MultiTouchView2';
+import MultiTouchArea from './MultiTouchArea';
 import * as CanvasUtils from '../Utils/CanvasUtils';
-
-const LodashRound = require('lodash/round');
 
 interface IProps {
 	height: number;
@@ -35,7 +33,7 @@ class Slider extends React.Component<IProps, any> {
 	private canvas
 	private _pixelRatio;
 	private value: number;
-	
+	private domNode;
 
 	constructor(props){
 		super(props);
@@ -43,34 +41,24 @@ class Slider extends React.Component<IProps, any> {
 		//Create canvas with the device resolution.
 		this.canvas = CanvasUtils.createCanvas(this.props.width, this.props.height);
 		this._pixelRatio = CanvasUtils.getPixelRatio();
-		this.value = this.GetPercentageBetweenRange(this.props.value, this.props.max, this.props.min);
+		this.value = CanvasUtils.getPercentageBetweenRange(this.props.value, this.props.min, this.props.max);
 		
 		this.onDown = this.onDown.bind(this);
 		this.onUp = this.onUp.bind(this);
 		this.onMove = this.onMove.bind(this);
-		this.handleResize = this.handleResize.bind(this);
 		this.DrawOnce = this.DrawOnce.bind(this)
 	}
 
 	public componentDidMount() {
 		this.DrawOnce();
-		window.addEventListener('resize', this.handleResize);
-	}
-
-	public componentWillUnmount() {
-		window.removeEventListener('resize', this.handleResize);
-	}
-
-	handleResize(){
-		// // Resize the canvas element
-		// CanvasUtils.canvasResize(this.canvas, this.props.width, this.props.height);
+		this.domNode = ReactDOM.findDOMNode(this);
 	}
 
 	public render(): React.ReactElement<{}> {
-		this.DrawOnce();
+		// console.log('render')
 		
 		return (
-			<MultiTouchView
+			<MultiTouchArea
 				canvas={this.canvas}
 				width={this.props.width}
 				height={this.props.height}
@@ -87,13 +75,12 @@ class Slider extends React.Component<IProps, any> {
 		);
 	}
 
-
-	private DrawOnce() {
+	private DrawOnce(x = this.value) {
 		const ctx: CanvasRenderingContext2D = this.canvas.getContext('2d');
 		const width: number = this.canvas.width / this._pixelRatio;
 		const height: number = this.canvas.height / this._pixelRatio;
 		const cy = height/2;
-		const sliderLength = (width/100) * this.value;
+		const sliderLength = (width/100) * x;
 
 		// Clear everything
 		ctx.clearRect(0, 0, width, height);
@@ -115,51 +102,33 @@ class Slider extends React.Component<IProps, any> {
 		ctx.fill();
 	}
 
-	//TODO: add step functionality
+	//TODO: add slider step functionality
 	private calculateStep(x: number) {
 		let step = this.props.step ? this.props.step : 0;
 		x = Math.ceil(x / step) * step;
 		return x;
 	}
 
-	//TODO: add to utils
-	GetPercentageBetweenRange(x: number, max: number, min: number){
-		return (100 * x)/(max - min);
-	}
-
-	//TODO: add to utils
-	GetValFromPercentageRange(x: number, max: number, min: number) {
-		return ((max - min)/100) * x;
-	}
-
 	onDown(e, id){
-		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
-		this.value = pos.x;
-		this.DrawOnce();
-		this.props.onChange(this.GetValFromPercentageRange(pos.x, this.props.max, this.props.min));
+		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.domNode as HTMLElement);
+		// this.value = pos.x;
+		this.DrawOnce(pos.x);
+		this.props.onChange(CanvasUtils.getValueFromPercentageRange(pos.x, this.props.min, this.props.max));
 	}
 
 	onUp(e, id){
-		console.log(e.offsetX);
-		//TODO: NEED TO USE e.offsetX to get value from position
-		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
-		this.value = pos.x;
-		this.DrawOnce();
-		this.props.onChange(this.GetValFromPercentageRange(pos.x, this.props.max, this.props.min));
+		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.domNode as HTMLElement);
+		// this.value = pos.x;
+		this.DrawOnce(pos.x);
+		this.props.onChange(CanvasUtils.getValueFromPercentageRange(pos.x, this.props.min, this.props.max));
 	}
 
 	onMove(e, id){
-		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
-		this.value = pos.x;
-		this.DrawOnce();
-		this.props.onChange(this.GetValFromPercentageRange(pos.x, this.props.max, this.props.min));
+		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.domNode as HTMLElement);
+		// this.value = pos.x;
+		this.DrawOnce(pos.x);
+		this.props.onChange(CanvasUtils.getValueFromPercentageRange(pos.x, this.props.min, this.props.max));
 	}
-
-
-	// private onSliderChange(slider: string, value: number){
-	// 	this.props.sliderChange(slider,value);
-	// 	this.props.dispatch(SliderAction(slider, value));
-	// }
 
 	// private getWaveformTitleStyles(slider) {
 	// 	const smlFontSize = this.props.windowWidth / 15;
@@ -175,33 +144,7 @@ class Slider extends React.Component<IProps, any> {
 	// 	);
 	// }
 
-	// private getSliderStyles(){
-	// 	return Object.assign(
-	// 		{},
-	// 		STYLE.sliderContainer,
-	// 		this.props.smallScreen && STYLE.sliderContainer_smallScreen,
-	// 		{
-	// 			display: 'flex',
-	// 			flexDirection: 'row-reverse',
-	// 			alignItems: 'center',
-	// 		}
-	// 	);
-	//
-	// }
 
-	// private setSliderStyles() {
-	// 	const height = this.props.smallScreen ? STYLE.slider_smallScreen.height : STYLE.slider.height;
-	// 	const sliders: any = document.querySelectorAll('.rc-slider');
-	// 	for (var i = 0; i < sliders.length; i++) {
-	// 		sliders[i].style.height = `${height}px`;
-	// 		sliders[i].style.backgroundColor = STYLE_CONST.WHITE;
-	// 	}
-	// 	const sliderTracks: any = document.querySelectorAll('.rc-slider-track');
-	// 	for (var i = 0; i < sliderTracks.length; i++) {
-	// 		sliderTracks[i].style.backgroundColor = `rgba(${STYLE_CONST.GREEN_VALUES},${1-(i*0.2)})`;
-	// 		sliderTracks[i].style.height = `${height}px`;
-	// 	}
-	// }
 }
 
 export default Slider;

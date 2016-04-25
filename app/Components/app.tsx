@@ -5,7 +5,7 @@ import {STYLE, STYLE_CONST} from './Styles/styles';
 import RecordPlayButtonGroup from './RecordPlayButtonGroup';
 import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
-import MultiTouchView from './MultiTouchView2';
+import MultiTouchArea from './MultiTouchArea';
 import DownloadModal from './DownloadModal';
 import StartModal from './StartModal';
 import {WaveformStringType} from '../Constants/AppTypings';
@@ -237,7 +237,7 @@ class App extends React.Component<any, IState> {
 					/>
 				</div>
 
-				<MultiTouchView
+				<MultiTouchArea
 					canvas={this.canvas}
 					width={this._touchAreaWidth}
 					height={this._touchAreaHeight}
@@ -346,9 +346,9 @@ class App extends React.Component<any, IState> {
 		this.forceUpdate();
 	}
 
-	public Start(e: Event | Touch, identifier: number = 0): void {
+	public Start(e: MouseEvent | Touch, identifier: number = 0): void {
 		const index = this.touches.Add(identifier);
-		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
+		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.canvas);
 		//Only start animating when the touch is down
 		if (this._isAnimating === false) {
 			this.Draw();
@@ -356,18 +356,18 @@ class App extends React.Component<any, IState> {
 		this.Audio.Start(pos, index);
 	}
 
-	public Stop(e: Event | Touch, identifier: number = 0): void {
+	public Stop(e: MouseEvent | Touch, identifier: number = 0): void {
 		const index = this.touches.GetIndexFromIdentifier(identifier);
-		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
+		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.canvas);
 		this.Audio.Stop(pos, index);
 
 		//Remove from list of touch ids
 		this.touches.Remove(identifier)
 	}
 
-	public Move(e: Event | Touch, id: number = 0) {
+	public Move(e: MouseEvent | Touch, id: number = 0) {
 		const index = this.touches.GetIndexFromIdentifier(id);
-		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
+		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.canvas);
 		this.Audio.Move(pos, index);
 	}
 

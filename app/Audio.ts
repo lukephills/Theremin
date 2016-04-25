@@ -1,4 +1,3 @@
-//import {ICoordinates} from './Components/MultiTouchView';
 import {createIOSSafeAudioContext} from './Utils/AudioUtils';
 require('./Utils/audio-shim');
 import { DEFAULTS } from './Constants/Defaults';
@@ -39,8 +38,9 @@ class Audio {
 	public oscillators: OscillatorNode[];
 	public scuzz: OscillatorNode;
 
-	private _frequencyMultiplier: number = 15;
-	private _defaultCoordinates: CanvasUtils.ICoordinates = {x: 0, y: 0};
+	private _frequencyMultiplier = 15;
+	private _defaultCoordinates: CanvasUtils.Coordinate = {x: 0, y: 0};
+	private _minFrequency = 0.8;
 
 	constructor() {
 
@@ -89,7 +89,7 @@ class Audio {
 		this.context = createIOSSafeAudioContext(44100);
 	}
 
-	public Start(pos: CanvasUtils.ICoordinates = this._defaultCoordinates, index: number = 0): void {
+	public Start(pos: CanvasUtils.Coordinate = this._defaultCoordinates, index: number = 0): void {
 		if (index < this.voiceCount) {
 			this.SetFilterFrequency(pos.y, index);
 			this.oscillatorGains[index].gain.value = 1;
@@ -97,7 +97,7 @@ class Audio {
 		}
 	}
 
-	public Stop(pos: CanvasUtils.ICoordinates = this._defaultCoordinates, index: number = 0): void {
+	public Stop(pos: CanvasUtils.Coordinate = this._defaultCoordinates, index: number = 0): void {
 		if (index < this.voiceCount) {
 			this.oscillators[index].frequency.value = pos.x * this._frequencyMultiplier;
 			this.oscillatorGains[index].gain.value = 0;
@@ -110,7 +110,7 @@ class Audio {
 		}
 	}
 
-	public Move(pos: CanvasUtils.ICoordinates = this._defaultCoordinates, index: number = 0): void {
+	public Move(pos: CanvasUtils.Coordinate = this._defaultCoordinates, index: number = 0): void {
 		if (index < this.voiceCount) {
 			this.oscillators[index].frequency.value = pos.x * this._frequencyMultiplier;
 			this.SetFilterFrequency(pos.y, index);
@@ -125,7 +125,8 @@ class Audio {
 
 	public SetFilterFrequency(y: number, id: number): void {
 		if (id < this.voiceCount) {
-			this.filters[id].frequency.value = (this.context.sampleRate / 2) * (y / 100);
+			if (y === 0) y = this._minFrequency;
+			this.filters[id].frequency.value = (this.context.sampleRate / 2) * (y / 150);
 		}
 	}
 
@@ -137,25 +138,15 @@ class Audio {
 		this.looper.onPlaybackPress();
 	}
 
-
-
 	public StopPlayback(): void {
 		this.recording.stop(0);
 	}
 
 	public Download(cb: Function): void {
-
-
-
 		this.looper.exportWav((recording: Blob) => {
 			//TODO: create a promise?
 			setTimeout(cb(recording),0);
 		});
-
-
-		//this.recorder.exportWAV((recording: Blob) => {
-		//	cb(recording);
-		//});
 	}
 
 	private setupAnalysers(): void {
