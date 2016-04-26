@@ -75,12 +75,12 @@ class Slider extends React.Component<IProps, any> {
 		);
 	}
 
-	private DrawOnce(x = this.value) {
+	private DrawOnce() {
 		const ctx: CanvasRenderingContext2D = this.canvas.getContext('2d');
 		const width: number = this.canvas.width / this._pixelRatio;
 		const height: number = this.canvas.height / this._pixelRatio;
 		const cy = height/2;
-		const sliderLength = (width/100) * x;
+		const sliderLength = (width/100) * this.value;
 
 		// Clear everything
 		ctx.clearRect(0, 0, width, height);
@@ -111,22 +111,22 @@ class Slider extends React.Component<IProps, any> {
 
 	onDown(e, id){
 		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.domNode as HTMLElement);
-		// this.value = pos.x;
-		this.DrawOnce(pos.x);
+		this.value = pos.x;
+		this.DrawOnce();
 		this.props.onChange(CanvasUtils.getValueFromPercentageRange(pos.x, this.props.min, this.props.max));
 	}
 
 	onUp(e, id){
 		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.domNode as HTMLElement);
-		// this.value = pos.x;
-		this.DrawOnce(pos.x);
+		this.value = pos.x;
+		this.DrawOnce();
 		this.props.onChange(CanvasUtils.getValueFromPercentageRange(pos.x, this.props.min, this.props.max));
 	}
 
 	onMove(e, id){
 		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.domNode as HTMLElement);
-		// this.value = pos.x;
-		this.DrawOnce(pos.x);
+		this.value = pos.x;
+		this.DrawOnce();
 		this.props.onChange(CanvasUtils.getValueFromPercentageRange(pos.x, this.props.min, this.props.max));
 	}
 

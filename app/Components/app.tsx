@@ -164,11 +164,12 @@ class App extends React.Component<any, IState> {
 			function onActive() {
 				setTimeout(() => {
 					AudioUtils.isIOSAudioUnlocked(this.Audio.context, (isUnlocked) => {
+						console.log('is unlocked:', isUnlocked)
 						if (!isUnlocked) {
 							this.resetOnIOSLockedAudio();
 						}
 					});
-				}, 0);
+				}, 100);
 			}
 		}
 	}
@@ -178,6 +179,8 @@ class App extends React.Component<any, IState> {
 		this.setState({startModalText: DEFAULTS.Copy.en.resumeText});
 	
 		//Reset any record playback, download states
+
+		//FIXME: This depends on what state the recording was in
 		this.props.dispatch(RecorderStateChange(STATE.STOPPED));
 		this.props.dispatch(PlayerStateChange(STATE.STOPPED));
 		this.props.dispatch(PlayButtonDisabled(true));

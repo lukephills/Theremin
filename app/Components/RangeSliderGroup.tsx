@@ -1,19 +1,11 @@
 import * as React from 'react';
 import Slider from './Slider';
-import { connect } from 'react-redux';
+import SliderToolTip from './SliderToolTip';
+
 
 import { DEFAULTS } from '../Constants/Defaults';
 import { STYLE, STYLE_CONST } from './Styles/styles';
-import {SliderAction} from '../Actions/actions'
-import {IGlobalState, ISlider} from '../Constants/GlobalState';
 
-function select(state: IGlobalState): any {
-	return {
-		slider: state.Slider,
-	};
-}
-
-@connect(select)
 class RangeSliderGroup extends React.Component<any, any> {
 
 	private sliders;
@@ -33,9 +25,12 @@ class RangeSliderGroup extends React.Component<any, any> {
 		return (
 			<div style={STYLE.sliderGroup}>
 				<div style={this.getSliderContainerStyles()}>
-					<span style={this.getWaveformTitleStyles('delay')}>
-						{this.sliders.delay.transformValue(this.props.slider['delay'])}
-						{' DELAY'}</span>
+					<SliderToolTip
+						id="sliderTooltip-delay"
+						style={this.getWaveformTitleStyles('delay')}
+					    text="DELAY"
+					    value={this.sliders.delay.transformValue(this.sliders.delay.value)}
+					/>
 					<Slider
 						height={sliderHeight}
 						width={this.props.windowWidth - (STYLE_CONST.PADDING*2)}
@@ -44,14 +39,17 @@ class RangeSliderGroup extends React.Component<any, any> {
 						min={this.sliders.delay.min}
 						max={this.sliders.delay.max}
 						step={this.sliders.delay.step}
-						value={this.props.slider.delay}
+						value={this.sliders.delay.value}
 						onChange={(value) => this.onSliderChange('delay', value)}
 					/>
 				</div>
 				<div style={this.getSliderContainerStyles()}>
-					<span style={this.getWaveformTitleStyles('feedback')}>
-						{this.sliders.feedback.transformValue(this.props.slider['feedback'])}
-						{' FEEDBACK'}</span>
+					<SliderToolTip
+						id="sliderTooltip-feedback"
+						style={this.getWaveformTitleStyles('feedback')}
+						text="FEEDBACK"
+						value={this.sliders.feedback.transformValue(this.sliders.feedback.value)}
+					/>
 					<Slider
 						height={sliderHeight}
 						width={this.props.windowWidth - (STYLE_CONST.PADDING*2)}
@@ -65,9 +63,12 @@ class RangeSliderGroup extends React.Component<any, any> {
 					/>
 				</div>
 				<div style={this.getSliderContainerStyles()}>
-					<span style={this.getWaveformTitleStyles('scuzz')}>
-						{this.sliders.scuzz.transformValue(this.props.slider['scuzz'])}
-						{' SCUZZ'}</span>
+					<SliderToolTip
+						id="sliderTooltip-scuzz"
+						style={this.getWaveformTitleStyles('scuzz')}
+						text="SCUZZ"
+						value={this.sliders.scuzz.transformValue(this.sliders.scuzz.value)}
+					/>
 					<Slider
 						height={sliderHeight}
 						width={this.props.windowWidth - (STYLE_CONST.PADDING*2)}
@@ -89,9 +90,13 @@ class RangeSliderGroup extends React.Component<any, any> {
 	}
 
 	private onSliderChange(slider: string, value: number){
-		// console.log(slider, value);
 		this.props.sliderChange(slider,value);
-		this.props.dispatch(SliderAction(slider, value));
+
+		//TODO: I'm setting the sliderToolTip directly to stop the slider canvases from
+		// rerendering when they don't need to. Find a better way to do this.
+		document.getElementById('sliderTooltip-'+slider).innerHTML =
+			this.sliders[slider].transformValue(value) + ' ' + slider.toUpperCase();
+		// this.props.dispatch(SliderAction(slider, value))
 	}
 
 	private getWaveformTitleStyles(slider) {
@@ -113,28 +118,8 @@ class RangeSliderGroup extends React.Component<any, any> {
 			{},
 			STYLE.sliderContainer,
 			this.props.smallScreen && STYLE.sliderContainer_smallScreen
-			// {
-			// 	display: 'flex',
-			// 	flexDirection: 'row-reverse',
-			// 	alignItems: 'center',
-			// }
 		);
-
 	}
-
-	// private setSliderStyles(id) {
-	// 	const height = this.props.smallScreen ? STYLE.slider_smallScreen.height : STYLE.slider.height;
-	// 	const sliders: any = document.querySelectorAll('.rc-slider');
-	// 	for (var i = 0; i < sliders.length; i++) {
-	// 		sliders[i].style.height = `${height}px`;
-	// 		sliders[i].style.backgroundColor = STYLE_CONST.WHITE;
-	// 	}
-	// 	const sliderTracks: any = document.querySelectorAll('.rc-slider-track');
-	// 	for (var i = 0; i < sliderTracks.length; i++) {
-	// 		sliderTracks[i].style.backgroundColor = `rgba(${STYLE_CONST.GREEN_VALUES},${1-(i*0.2)})`;
-	// 		sliderTracks[i].style.height = `${height}px`;
-	// 	}
-	// }
 }
 
 export default RangeSliderGroup;

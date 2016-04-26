@@ -70,9 +70,6 @@ class MultiTouchView extends React.Component<IProps, {}> {
 		if (this.props.width !== this.canvasWidth || this.props.height !== this.canvasHeight) {
 			this.handleResize();
 		}
-
-		console.log('multitouch rendered', this.props.canvas);
-
 		return (
 			<div
 				style={this.getStyles()}
