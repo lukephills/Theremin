@@ -164,12 +164,12 @@ class DownloadModal extends React.Component<any, any> {
 		} else {
 			var reader = new FileReader();
 			reader.onloadend = function() {
-				console.log('ended');
 				window.plugins.socialsharing.share(
 					null,
-					filename,
+					'Theremin recording',
 					reader.result,
-					null, this.successSharing, this.errorSharing)
+					'http://femurdesign.com',
+					this.successSharing, this.errorSharing)
 			}
 			
 			reader.onerror = function(e: any) {

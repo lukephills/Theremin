@@ -1,22 +1,14 @@
 import * as React from 'react';
-const Slider = require('rc-slider');
-import { connect } from 'react-redux';
+import Slider from './Slider';
+import SliderToolTip from './SliderToolTip';
+
 
 import { DEFAULTS } from '../Constants/Defaults';
 import { STYLE, STYLE_CONST } from './Styles/styles';
-import {SliderAction} from '../Actions/actions'
-import {IGlobalState, ISlider} from '../Constants/GlobalState';
 
-function select(state: IGlobalState): any {
-	return {
-		slider: state.Slider,
-	};
-}
-
-@connect(select)
 class RangeSliderGroup extends React.Component<any, any> {
 
-	private sliders: any;
+	private sliders;
 
 	constructor(props){
 		super(props);
@@ -24,39 +16,87 @@ class RangeSliderGroup extends React.Component<any, any> {
 	}
 
 	public componentDidMount() {
-		this.setSliderStyles();
+		// this.setSliderStyles();
 	}
 
 	public render(): React.ReactElement<{}> {
-		this.setSliderStyles();
+		// this.setSliderStyles();
+		const sliderHeight = this.props.smallScreen ? STYLE.slider_smallScreen.height : STYLE.slider.height;
 		return (
 			<div style={STYLE.sliderGroup}>
-				{Object.keys(this.sliders).map((sliderName: any, id: number) => {
-					return (
-						<div key={id} style={this.getSliderStyles()}>
-							<span style={this.getWaveformTitleStyles(sliderName)}>
-								{this.sliders[sliderName].transformValue(this.props.slider[sliderName])}
-								{' '}
-								{sliderName.toUpperCase()}
-							</span>
-							<Slider
-								min={this.sliders[sliderName].min}
-								max={this.sliders[sliderName].max}
-								step={this.sliders[sliderName].step}
-								value={this.props.slider[sliderName]}
-								onChange={(value) => this.onSliderChange(sliderName, value)}
-								tipFormatter={null}
-							/>
-						</div>
-					)
-				})}
+				<div style={this.getSliderContainerStyles()}>
+					<SliderToolTip
+						id="sliderTooltip-delay"
+						style={this.getWaveformTitleStyles('delay')}
+					    text="DELAY"
+					    value={this.sliders.delay.transformValue(this.sliders.delay.value)}
+					/>
+					<Slider
+						height={sliderHeight}
+						width={this.props.windowWidth - (STYLE_CONST.PADDING*2)}
+						style={{}}
+						sliderColor={this.getSliderColor(0)}
+						min={this.sliders.delay.min}
+						max={this.sliders.delay.max}
+						step={this.sliders.delay.step}
+						value={this.sliders.delay.value}
+						onChange={(value) => this.onSliderChange('delay', value)}
+					/>
+				</div>
+				<div style={this.getSliderContainerStyles()}>
+					<SliderToolTip
+						id="sliderTooltip-feedback"
+						style={this.getWaveformTitleStyles('feedback')}
+						text="FEEDBACK"
+						value={this.sliders.feedback.transformValue(this.sliders.feedback.value)}
+					/>
+					<Slider
+						height={sliderHeight}
+						width={this.props.windowWidth - (STYLE_CONST.PADDING*2)}
+						style={{}}
+						sliderColor={this.getSliderColor(1)}
+						min={this.sliders.feedback.min}
+						max={this.sliders.feedback.max}
+						step={this.sliders.feedback.step}
+						value={this.sliders.feedback.value}
+						onChange={(value) => this.onSliderChange('feedback', value)}
+					/>
+				</div>
+				<div style={this.getSliderContainerStyles()}>
+					<SliderToolTip
+						id="sliderTooltip-scuzz"
+						style={this.getWaveformTitleStyles('scuzz')}
+						text="SCUZZ"
+						value={this.sliders.scuzz.transformValue(this.sliders.scuzz.value)}
+					/>
+					<Slider
+						height={sliderHeight}
+						width={this.props.windowWidth - (STYLE_CONST.PADDING*2)}
+						style={{}}
+						sliderColor={this.getSliderColor(2)}
+						min={this.sliders.scuzz.min}
+						max={this.sliders.scuzz.max}
+						step={this.sliders.scuzz.step}
+						value={this.sliders.scuzz.value}
+						onChange={(value) => this.onSliderChange('scuzz', value)}
+					/>
+				</div>
 			</div>
 		);
 	}
 
+	private getSliderColor(i: number){
+		return `rgba(${STYLE_CONST.GREEN_VALUES},${1-(i*0.2)})`;
+	}
+
 	private onSliderChange(slider: string, value: number){
 		this.props.sliderChange(slider,value);
-		this.props.dispatch(SliderAction(slider, value));
+
+		//TODO: I'm setting the sliderToolTip directly to stop the slider canvases from
+		// rerendering when they don't need to. Find a better way to do this.
+		document.getElementById('sliderTooltip-'+slider).innerHTML =
+			this.sliders[slider].transformValue(value) + ' ' + slider.toUpperCase();
+		// this.props.dispatch(SliderAction(slider, value))
 	}
 
 	private getWaveformTitleStyles(slider) {
@@ -73,32 +113,12 @@ class RangeSliderGroup extends React.Component<any, any> {
 		);
 	}
 
-	private getSliderStyles(){
+	private getSliderContainerStyles(){
 		return Object.assign(
 			{},
 			STYLE.sliderContainer,
-			this.props.smallScreen && STYLE.sliderContainer_smallScreen,
-			{
-				display: 'flex',
-				flexDirection: 'row-reverse',
-				alignItems: 'center',
-			}
+			this.props.smallScreen && STYLE.sliderContainer_smallScreen
 		);
-
-	}
-
-	private setSliderStyles() {
-		const height = this.props.smallScreen ? STYLE.slider_smallScreen.height : STYLE.slider.height;
-		const sliders: any = document.querySelectorAll('.rc-slider');
-		for (var i = 0; i < sliders.length; i++) {
-			sliders[i].style.height = `${height}px`;
-			sliders[i].style.backgroundColor = STYLE_CONST.WHITE;
-		}
-		const sliderTracks: any = document.querySelectorAll('.rc-slider-track');
-		for (var i = 0; i < sliderTracks.length; i++) {
-			sliderTracks[i].style.backgroundColor = `rgba(${STYLE_CONST.GREEN_VALUES},${1-(i*0.2)})`;
-			sliderTracks[i].style.height = `${height}px`;
-		}
 	}
 }
 

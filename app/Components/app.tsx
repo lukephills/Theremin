@@ -5,7 +5,7 @@ import {STYLE, STYLE_CONST} from './Styles/styles';
 import RecordPlayButtonGroup from './RecordPlayButtonGroup';
 import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
-import MultiTouchView from './MultiTouchView';
+import MultiTouchArea from './MultiTouchArea';
 import DownloadModal from './DownloadModal';
 import StartModal from './StartModal';
 import {WaveformStringType} from '../Constants/AppTypings';
@@ -164,11 +164,12 @@ class App extends React.Component<any, IState> {
 			function onActive() {
 				setTimeout(() => {
 					AudioUtils.isIOSAudioUnlocked(this.Audio.context, (isUnlocked) => {
+						console.log('is unlocked:', isUnlocked)
 						if (!isUnlocked) {
 							this.resetOnIOSLockedAudio();
 						}
 					});
-				}, 0);
+				}, 100);
 			}
 		}
 	}
@@ -178,6 +179,8 @@ class App extends React.Component<any, IState> {
 		this.setState({startModalText: DEFAULTS.Copy.en.resumeText});
 	
 		//Reset any record playback, download states
+
+		//FIXME: This depends on what state the recording was in
 		this.props.dispatch(RecorderStateChange(STATE.STOPPED));
 		this.props.dispatch(PlayerStateChange(STATE.STOPPED));
 		this.props.dispatch(PlayButtonDisabled(true));
@@ -237,14 +240,18 @@ class App extends React.Component<any, IState> {
 					/>
 				</div>
 
-				<MultiTouchView
+				<MultiTouchArea
 					canvas={this.canvas}
 					width={this._touchAreaWidth}
 					height={this._touchAreaHeight}
-				    onDown={this.Start}
-				    onUp={this.Stop}
-				    onMove={this.Move}
-				    onLeave={this.Stop}
+					onMouseDown={this.Start}
+					onTouchStart={this.Start}
+					onMouseUp={this.Stop}
+					onTouchEnd={this.Stop}
+					onMouseMove={this.Move}
+					onTouchMove={this.Move}
+					fireMouseLeaveOnElementExit={true}
+				    style={STYLE.touchArea}
 				/>
 				<RangeSliderGroup
 					sliderChange={this.SliderChange}
@@ -342,9 +349,9 @@ class App extends React.Component<any, IState> {
 		this.forceUpdate();
 	}
 
-	public Start(e: Event, identifier: number = 0): void {
+	public Start(e: MouseEvent | Touch, identifier: number = 0): void {
 		const index = this.touches.Add(identifier);
-		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
+		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.canvas);
 		//Only start animating when the touch is down
 		if (this._isAnimating === false) {
 			this.Draw();
@@ -352,18 +359,18 @@ class App extends React.Component<any, IState> {
 		this.Audio.Start(pos, index);
 	}
 
-	public Stop(e: Event, identifier: number = 0): void {
+	public Stop(e: MouseEvent | Touch, identifier: number = 0): void {
 		const index = this.touches.GetIndexFromIdentifier(identifier);
-		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
+		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.canvas);
 		this.Audio.Stop(pos, index);
 
 		//Remove from list of touch ids
 		this.touches.Remove(identifier)
 	}
 
-	public Move(e: Event, id: number = 0) {
+	public Move(e: MouseEvent | Touch, id: number = 0) {
 		const index = this.touches.GetIndexFromIdentifier(id);
-		const pos: CanvasUtils.ICoordinates = CanvasUtils.getPercentagePosition(e);
+		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.canvas);
 		this.Audio.Move(pos, index);
 	}
 

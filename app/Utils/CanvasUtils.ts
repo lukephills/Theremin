@@ -1,5 +1,4 @@
-import TouchEvent = __React.TouchEvent;
-import EventHandler = __React.EventHandler;
+
 /**
  * Gets the devices pixel ratio
  * @type {number}
@@ -38,20 +37,96 @@ export function createCanvas(width: number, height: number): HTMLCanvasElement {
 
 
 
-export interface ICoordinates {
+export interface Coordinate {
 	x: number;
 	y: number;
 }
 
+export interface Area {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+}
 
-export function getPercentagePosition(e: any): ICoordinates {
-	const _round = require('lodash/round');
+
+/**
+ * Takes a number and puts it within the range
+ * @param num
+ * @param min
+ * @param max
+ * @returns {number}
+ */
+export function numberWithinRange(num: number, min: number,max: number): number {
+	num = num > max ? max : num;
+	num = num < min ? min : num;
+	return num;
+}
+
+
+/**
+ * Takes a coordinate and forces it to be within an area
+ * @param coordinate
+ * @param area
+ * @returns {Coordinate}
+ */
+export function coordinateWithinArea(coordinate: Coordinate, area: Area):  Coordinate {
 	return {
-		x: _round(((e.pageX - e.target.offsetLeft) / e.target.offsetWidth) * 100, 2),
-		y: _round((100 - ((e.pageY - e.target.offsetTop) / e.target.offsetHeight) * 100), 2),
+		x: numberWithinRange(coordinate.x, area.x, area.x + area.width),
+		y: numberWithinRange(coordinate.y, area.y, area.y + area.height),
+	};
+}
+
+/**
+ * Get an Area from a dom element
+ * @param el: Element
+ * @returns {{x: number, y: number, width: number, height: number}}: Area
+ */
+export function getElementArea(el: HTMLElement): Area {
+	return {
+		x: el.offsetLeft,
+		y: el.offsetTop,
+		width: el.offsetWidth,
+		height: el.offsetHeight,
 	}
 }
 
+export function getCoordinateFromPointerEvent(e: MouseEvent | Touch): Coordinate {
+	return {
+		x: e.pageX,
+		y: e.pageY,
+	}
+}
+
+export function getPositionAsPercentageInArea(coordinate: Coordinate, area: Area): Coordinate {
+	return {
+		x: (coordinate.x - area.x) / area.width * 100,
+		y: 100 - ((coordinate.y - area.y) / area.height * 100),
+	}
+}
+
+//TODO: does this need rounding?
+export function getCoordinateFromEventAsPercentageWithinElement(e: MouseEvent | Touch, el: HTMLElement): Coordinate {
+	const area = getElementArea(el);
+	return getPositionAsPercentageInArea(coordinateWithinArea(getCoordinateFromPointerEvent(e),area),area);
+}
+
+//This was used previously to getCoordinateFromEventAsPercentageWithinElement
+// export function getPercentagePosition(e: any): Coordinate {
+// 	const _round = require('lodash/round');
+// 	let x = numberWithinRange(_round(((e.pageX - e.target.offsetLeft) / e.target.offsetWidth) * 100, 2), 0, 100);
+// 	let y = numberWithinRange(_round((100 - ((e.pageY - e.target.offsetTop) / e.target.offsetHeight) * 100), 2), 0, 100);
+// 	return {x, y}
+// }
+
+
+export function getPercentageBetweenRange(x: number, min: number, max: number){
+	return (100 * x)/(max - min);
+}
+
+export function getValueFromPercentageRange(x: number, min: number, max: number) {
+	return ((max - min)/100) * x;
+}
 
 export function hitTest(x: number, y: number, targetX: number, targetY: number, targetWidth: number, targetHeight: number) {
 	return (

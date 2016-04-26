@@ -32,6 +32,9 @@ export const DEFAULTS: any = {
 			transformValue: (value) => {
 				return (value * 1000).toFixed();
 			},
+			unTransformValue: (value) => {
+				return (value/1000).toFixed();
+			},
 			value: 0.225,
 		},
 		feedback: {
@@ -42,6 +45,9 @@ export const DEFAULTS: any = {
 			transformValue: (value) => {
 				return (value * 100).toFixed();
 			},
+			unTransformValue: (value) => {
+				return (value/100).toFixed();
+			},
 			value: 0.5,
 		},
 		scuzz: {
@@ -50,7 +56,10 @@ export const DEFAULTS: any = {
 			name: 'scuzz',
 			step: 1,
 			transformValue: (value) => {
-				return value;
+				return (value).toFixed();
+			},
+			unTransformValue: (value) => {
+				return (value).toFixed();
 			},
 			value: 50,
 			waveform: 'sine',
