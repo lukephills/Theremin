@@ -49,7 +49,11 @@ class SocialShareIcons extends React.Component<any, any> {
 
 	//TODO: add an image to go with twitter share
 	private shareOnTwitter(){
-		var popUp = window.open('http://twitter.com/home?status=Theremin - An Online Playable Touch Synthesizer+http://femurdesign.com/theremin/+via @femurdesign', 'popupwindow', 'scrollbars=yes,width=800,height=400');
+		// var popUp = window.open('http://twitter.com/home?status=Theremin - An Online Playable Touch Synthesizer+http://femurdesign.com/theremin/+via @femurdesign', 'popupwindow', 'scrollbars=yes,width=800,height=400');
+		var text = 'Theremin+by+@femurdesign.+Play+your+own+theremin+%23synth.';
+		var popUp = window.open('http://twitter.com/share?text='+text, 'popupwindow', 'scrollbars=yes,width=800,height=400');
+
+
 		popUp.focus();
 		return false
 	}
