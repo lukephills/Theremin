@@ -232,7 +232,7 @@ class App extends React.Component<any, IState> {
 						onPlaybackButtonChange={this.Playback}
 						onDownloadButtonChange={this.Download}
 					    buttonSize={buttonSize}
-					    maxLoopDuration={this.Audio.looper.maxLoopDuration}
+					    maxLoopDuration={30}
 					/>
 					<WaveformSelectGroup
 						style={Object.assign({},STYLE.waveformSelectGroup.container,

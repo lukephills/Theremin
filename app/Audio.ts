@@ -3,7 +3,6 @@ require('./Utils/audio-shim');
 import { DEFAULTS } from './Constants/Defaults';
 import * as CanvasUtils from './Utils/CanvasUtils';
 import {WaveformStringType} from './Constants/AppTypings';
-import Looper from './Utils/Looper/Looper'
 
 interface IAnalysers {
 	live: AnalyserNode;
@@ -15,7 +14,7 @@ class Audio {
 	public context: AudioContext;
 	public voiceCount: number = DEFAULTS.VoiceCount;
 	public recording: AudioBufferSourceNode;
-	public looper: Looper;
+	// public looper: Looper;
 
 
 	// Gains
@@ -49,7 +48,7 @@ class Audio {
 		this.routeSounds();
 		this.setupAnalysers();
 
-		this.looper = new Looper(this.thereminOutput, this.recordingGain)
+		// this.looper = new Looper(this.thereminOutput, this.recordingGain)
 	}
 
 	public createNodes() {
@@ -131,11 +130,11 @@ class Audio {
 	}
 
 	onRecordPress() {
-		this.looper.onRecordPress();
+		// this.looper.onRecordPress();
 	}
 
 	onPlaybackPress() {
-		this.looper.onPlaybackPress();
+		// this.looper.onPlaybackPress();
 	}
 
 	public StopPlayback(): void {
@@ -143,10 +142,10 @@ class Audio {
 	}
 
 	public Download(cb: Function): void {
-		this.looper.exportWav((recording: Blob) => {
-			//TODO: create a promise?
-			setTimeout(cb(recording),0);
-		});
+		// this.looper.exportWav((recording: Blob) => {
+		// 	//TODO: create a promise?
+		// 	setTimeout(cb(recording),0);
+		// });
 	}
 
 	private setupAnalysers(): void {
