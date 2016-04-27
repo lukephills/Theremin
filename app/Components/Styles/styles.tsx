@@ -197,6 +197,7 @@ export const STYLE: any = prefixer.prefix({
 		button: {
 			display:'flex',
 			textAlign: 'center',
+			padding: '10px 20px',
 			fontSize: 22,
 			lineHeight: '50px',
 			fontWeight: 300,
@@ -238,33 +239,68 @@ export const STYLE: any = prefixer.prefix({
 			textAlign: 'center',
 			fontSize: 22,
 			fontWeight: 400,
-			padding: 20,
+			padding: '20px 20px 0 20px',
 		},
 		subtitle: {
 			display:'flex',
 			justifyContent: 'center',
-			fontSize: 18,
-			marginBottom: 40,
+			textAlign: 'center',
+			fontSize: 17,
+			padding: '10px 20px 10px 20px',
 		},
 		button: {
 			display:'flex',
 			textAlign: 'center',
+			padding: '0px 20px',
 			fontSize: 22,
 			lineHeight: '50px',
-			fontWeight: 300,
+			fontWeight: 400,
 			border: 'none',
-			background: `rgba(${STYLE_CONST.GREEN_VALUES},${0.6})`,
-			width: '44%',
+			// background: `rgba(${STYLE_CONST.GREEN_VALUES},${0.6})`,
+			// background: `#62ecbc`,
+			background: STYLE_CONST.BLACK,
+			color: STYLE_CONST.WHITE,
 			marginTop: 14,
+			cursor: 'pointer',
 		},
 		buttonContainer: {
 			display: 'flex',
 			flexDirection: 'row',
 			justifyContent: 'space-around',
+			margin: '0 0 10px',
 		},
 		buttonPressed: {
 			background: STYLE_CONST.BLACK,
 			color: STYLE_CONST.WHITE,
 		}
+	},
+	footer: {
+		display: 'flex',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		height: 58,
+		alignItems: 'flex-end',
+	},
+	footerMobile: {
+		fontSize: 12,
+	},
+	appStoreButton: {
+		height: 50,
+		display: 'flex',
+		alignItems: 'center',
+		padding: '0 20px',
+		marginRight: 5,
+		textAlign: 'center',
+		cursor: 'pointer',
+	},
+	appStoreButtonSmall: {
+		padding: '0 10px',
+	},
+	appStoreButtonPressed: {
+		background: STYLE_CONST.GREEN,
+	},
+	madeByFemurLink: {
+		marginBottom: 18,
+		color: STYLE_CONST.BLACK,
 	}
 });

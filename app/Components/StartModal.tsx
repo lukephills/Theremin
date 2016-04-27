@@ -5,17 +5,12 @@ const Modal = require('react-modal');
 import { startModalChange } from '../Actions/actions';
 import { IGlobalState } from '../Constants/GlobalState';
 import {DEFAULTS} from '../Constants/Defaults';
-
-const appleStoreImage = require('../Assets/images/apple-app-store.png');
-const chromeStoreImage = require('../Assets/images/chrome-web-store.png');
-const androidStoreImage = require('../Assets/images/google-play-store.png');
-
-const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+import AppButtons from './AppButtons';
+import {prefixer} from './Styles/styles';
 
 interface IProps {
-	onStartPress?: Function;
-	buttonDown?: boolean;
-	startText?: string;
+	mainText: string;
+	secondaryText: string
 }
 
 function select(state: IGlobalState): any {
@@ -30,13 +25,12 @@ class StartModal extends React.Component<any, IProps> {
 	constructor(props){
 		super(props);
 		this.state = {
-			buttonDown: false,
-			startText: DEFAULTS.Copy.en.startText,
+			mainText: DEFAULTS.Copy.en.startTextMain,
+			secondaryText: DEFAULTS.Copy.en.startTextSecondary,
 		}
-		// this.startApp = this.startApp.bind(this);
-		this.onTouchDown = this.onTouchDown.bind(this);
+
 		this.onTouchEnd = this.onTouchEnd.bind(this);
-		this.onTouchCancel = this.onTouchCancel.bind(this);
+		this.onRequestClose = this.onRequestClose.bind(this);
 	}
 
 	public render(): React.ReactElement<{}> {
@@ -47,99 +41,74 @@ class StartModal extends React.Component<any, IProps> {
 			overlay,
 			content_large,
 			title,
-			button,
 			subtitle,
 			buttonPressed,
 			buttonContainer,
 		} = this.props.style;
 
-		let {content} = this.props.style;
-		content = Object.assign({}, content, {
-			top: 0,
+		let {content, button} = this.props.style;
+		content = prefixer.prefix(Object.assign({}, content, {
+			top: -60,
 			left: 0,
 			right: 0,
 			bottom: 0,
 			margin: 'auto',
-		});
+			width: 630,
+			flexDirection: 'column',
+		}));
 
-		//TODO: move to styles
-		const appStoreImagesContainer = Object.assign({}, {
+		const appButtonsContainer = prefixer.prefix(Object.assign({}, {
 			display: 'flex',
-			justifyContent: 'space-between',
+			justifyContent: 'space-around',
 			alignItems: 'center',
-			width: 550,
-		})
-		const appStoreImageContainer = Object.assign({}, {
-			maxWidth: 160,
-		})
-		const appStoreImage = Object.assign({}, {
+			maxWidth: 400,
+			width: '100%',
+			marginBottom: 8,
+		}, this.props.mobileSizeSmall && {
+			flexDirection: 'column',
+		}))
+
+		const titleContainer = Object.assign({},{
+			maxWidth: 400,
 			width: '100%',
 		})
 
+		const closeButton = Object.assign({}, {
+			position: 'absolute',
+			right: 15,
+			top: 3,
+			fontSize: 36,
+			fontWeight: 400,
+			cursor: 'pointer',
+		})
 
 		return (
-			<Modal isOpen={this.props.isOpen}
-			       onRequestClose={this.startApp}
-			       style={{content: Object.assign({}, content, largeSize && content_large), overlay}}>
-				<div key="start-modal">
-					<span>Theremin App</span>
-
-					<ul>
-						<li>Record yourself</li>
-						<li>Create loops, add overdubs &amp; play over the top</li>
-						<li>Share/download your recording as a .wav file</li>
-						<li>Use all 10 fingers with multitouch</li>
-						<li>Works Offline</li>
-					</ul>
-					<div style={appStoreImagesContainer}>
-						<div style={appStoreImageContainer}>
-							<img src={appleStoreImage} style={appStoreImage} />
-						</div>
-						<div style={appStoreImageContainer}>
-							<img src={chromeStoreImage} style={appStoreImage} />
-						</div>
-						<div style={appStoreImageContainer}>
-							<img src={androidStoreImage} style={appStoreImage} />
-						</div>
-					</div>
-					{this.startModalCopy(title, subtitle, button, buttonPressed)}
+			<Modal
+				isOpen={this.props.isOpen}
+				onRequestClose={this.onRequestClose}
+				style={{content: Object.assign({}, content, largeSize && content_large), overlay}}>
+				<span style={closeButton} onClick={this.onRequestClose}>{'\u00D7'}</span>
+				<div style={titleContainer}>
+					<span style={title}>{this.state.mainText}</span>
+					<span style={subtitle}>{this.state.secondaryText}</span>
 				</div>
+
+				<AppButtons containerStyle={appButtonsContainer} buttonStyle={button}/>
 			</Modal>
 		);
 	}
 
-	private startModalCopy(titleStyle, subtitleStyle, buttonStyle, buttonPressedStyle) {
-		return this.startButton(buttonStyle, buttonPressedStyle)
-	}
-
-	private startButton(style, pressedStyle) {
-		style = Object.assign({}, style, this.state.buttonDown && pressedStyle)
-		return <div style={style}
-		            onTouchStart={this.onTouchDown}
-		            onTouchEnd={this.onTouchEnd}
-		            onTouchCancel={this.onTouchCancel}
-		            onMouseDown={this.onTouchDown}
-		            onMouseUp={this.onTouchEnd}
-		            onMouseLeave={this.onTouchCancel}
-		>
-			<span>{this.state.startText}</span>
-		</div>
-	}
-
-	private onTouchDown(e) {
-		e.preventDefault();
-		this.setState({buttonDown: true, startText: DEFAULTS.Copy.en.resumeText});
-	}
-
 	private onTouchEnd(e) {
-		this.setState({buttonDown: false});
+		console.log(e)
 		this.startApp(e)
 	}
-
-	private onTouchCancel(e) {
-		this.setState({buttonDown: false})
+	private openIOSAppLink() {
+		window.open("http://www.apple.com","_self")
 	}
 
+	private openChromeAppLink() {
+		window.open("http://www.google.com","_self")
+	}
 
 	public componentDidMount() {
 	// Get the components DOM node
@@ -155,10 +124,22 @@ class StartModal extends React.Component<any, IProps> {
 	}
 
 	private startApp(e){
+		console.log('close requested')
 		e.preventDefault();
 		this.props.onStartPress(() => {
-			this.props.dispatch(startModalChange(false));
+			this.closeModal();
 		});
+	}
+
+	private onRequestClose(){
+		this.closeModal();
+	}
+	private closeModal(){
+		this.props.dispatch(startModalChange(false));
+		this.setState({
+			mainText: DEFAULTS.Copy.en.recorderOnlyWorksInPaidVersionMain,
+			secondaryText: DEFAULTS.Copy.en.recorderOnlyWorksInPaidVersionSecondary,
+		})
 	}
 	
 }

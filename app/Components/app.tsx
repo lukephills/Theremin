@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import {STYLE, STYLE_CONST} from './Styles/styles';
+import SocialShareIcons from './SocialShareIcons';
 import RecordPlayButtonGroup from './RecordPlayButtonGroup';
 import WaveformSelectGroup from './WaveformSelectGroup';
 import RangeSliderGroup from './RangeSliderGroup';
@@ -126,12 +127,13 @@ class App extends React.Component<any, IState> {
 	private updateSize() {
 		const topPanelHeight = this.mobileLandscapeSize ? STYLE_CONST.TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE : STYLE_CONST.TOP_PANEL_HEIGHT;
 		const bottomPanelHeight = this.smallScreen ? STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE : STYLE_CONST.BOTTOM_PANEL_HEIGHT
-
 		const statusBarHeight = this.getStatusBarHeight();
+		// const shareArea = topPanelHeight;
+		const shareArea = 58;
 
 		this._touchAreaHeight = this.state.windowHeight - (statusBarHeight +
 			topPanelHeight + (STYLE_CONST.PADDING * 2) +
-			bottomPanelHeight);
+			bottomPanelHeight + shareArea);
 		this._touchAreaWidth = this.state.windowWidth - (STYLE_CONST.PADDING * 2);
 	}
 
@@ -258,6 +260,24 @@ class App extends React.Component<any, IState> {
 				    smallScreen={this.smallScreen}
 				    windowWidth={this.state.windowWidth}
 			    />
+				<div style={Object.assign({}, STYLE.footer, mobileSizeSmall && STYLE.footerMobile)}>
+					<div style={{display: 'flex'}}>
+						<div onClick={e => window.open(DEFAULTS.Links.iosAppStore)}
+						     className="appStoreButton"
+						     style={Object.assign({}, STYLE.appStoreButton, mobileSizeSmall && STYLE.appStoreButtonSmall)}>
+							<span>Apple Store</span>
+						</div>
+						<div onClick={e => window.open(DEFAULTS.Links.chromeAppStore)}
+						     className="appStoreButton"
+						     style={Object.assign({}, STYLE.appStoreButton, mobileSizeSmall && STYLE.appStoreButtonSmall)}>
+							<span>Chrome Store</span>
+						</div>
+					</div>
+					<span style={Object.assign({}, STYLE.madeByFemurLink)}>
+						By <a style={Object.assign({}, STYLE.madeByFemurLink)} href={DEFAULTS.Links.femur}>Femur</a>
+					</span>
+					<SocialShareIcons/>
+				</div>
 				<DownloadModal
 					Audio={this.Audio}
 					isActive={this.props.isDownloadModalOpen}
@@ -270,6 +290,7 @@ class App extends React.Component<any, IState> {
 					onStartPress={this.startPress}
 					buttonText={this.state.startModalText}
 					style={Object.assign({}, STYLE.startModal)}
+					mobileSizeSmall={mobileSizeSmall}
 				/>
 			</div>
 		);
