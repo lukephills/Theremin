@@ -57,13 +57,16 @@ class MultiTouchView extends React.Component<IProps, {}> {
 	}
 
 	handleResize() {
-		// Resize the canvas element
+		// Resize the canvas element and re draw it
 		CanvasUtils.canvasResize(this.props.canvas, this.props.width, this.props.height);
 		this.canvasHeight = this.props.canvas.height;
 		this.canvasWidth = this.props.canvas.width;
 		if (this.props.draw){
 			this.props.draw();
 		}
+
+		// Remove all current pointers
+		this._pointers = {};
 	}
 
 	public render(): React.ReactElement<{}> {

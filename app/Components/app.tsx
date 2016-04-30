@@ -338,6 +338,8 @@ class App extends React.Component<any, IState> {
 	}
 
 	private handleResize() {
+		this.Audio.StopAll();
+		
 		this.setState({
 			windowWidth: window.innerWidth,
 			windowHeight: window.innerHeight,
