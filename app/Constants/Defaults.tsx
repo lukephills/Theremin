@@ -82,8 +82,8 @@ export const DEFAULTS: any = {
 		},
 	},
 	Links: {
-		iosAppStore: 'http://apple.com',
-		chromeAppStore: 'http://chrome.com',
+		iosAppStore: 'https://geo.itunes.apple.com/us/app/theremin-synth-loop-record/id1104816326?mt=8',
+		chromeAppStore: 'https://chrome.google.com/webstore/detail/theremin/ghajldemkobafmgejbnjpeohpifhkhjd',
 		androidAppStore: 'http://android.com',
 		femur: 'http://femurdesign.com',
 		homepage: 'http://www.femurdesign.com/theremin',

@@ -102,13 +102,6 @@ class StartModal extends React.Component<any, IProps> {
 		console.log(e)
 		this.startApp(e)
 	}
-	private openIOSAppLink() {
-		window.open("http://www.apple.com","_self")
-	}
-
-	private openChromeAppLink() {
-		window.open("http://www.google.com","_self")
-	}
 
 	public componentDidMount() {
 	// Get the components DOM node
