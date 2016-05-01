@@ -37,11 +37,12 @@ class Loop {
 	 * @param time {number = currentTime)
 	 */
 	public play(time: number = this.context.currentTime): void {
+		time = time + this.startOffset;
 		// Create a temporary BufferSourceNode for this loop and play
 		let source: AudioBufferSourceNode = this.context.createBufferSource();
 		source.buffer = this.buffer;
-		source.start(time + this.startOffset);
 		source.connect(this.output);
+		source.start(time);
 
 		// Save the buffer source so we can stop if we need to
 		this.activeBufferSource = source;

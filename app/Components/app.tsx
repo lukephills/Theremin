@@ -108,6 +108,7 @@ class App extends React.Component<any, IState> {
 		this.Download = this.Download.bind(this);
 		this.handleResize = this.handleResize.bind(this);
 		this.startPress = this.startPress.bind(this);
+		this.onIOSActiveEvent = this.onIOSActiveEvent.bind(this);
 	}
 
 	private initializeSpectrum() {
@@ -160,18 +161,21 @@ class App extends React.Component<any, IState> {
 		}
 
 		if (isCordovaIOS()){
-			document.addEventListener("active", onActive, false);
-			function onActive() {
-				setTimeout(() => {
-					AudioUtils.isIOSAudioUnlocked(this.Audio.context, (isUnlocked) => {
-						console.log('is unlocked:', isUnlocked)
-						if (!isUnlocked) {
-							this.resetOnIOSLockedAudio();
-						}
-					});
-				}, 100);
-			}
+			document.addEventListener("active", this.onIOSActiveEvent, false);
 		}
+	}
+
+	onIOSActiveEvent(e){
+		//TODO: Currently if you slide up the iOS settings panel and then close it, about 1 in 3 times `isUnlocked` will come back false. If it comes back fals we  have to reset the audio context which means we can loose recordings too. Look reseting without deleting current recordings. And also make the reset happen less frequently
+		setTimeout(() => {
+			AudioUtils.isIOSAudioUnlocked(this.Audio.context, (isUnlocked) => {
+				console.log('is unlocked:', isUnlocked)
+				if (!isUnlocked || this.Audio.context.state !== 'running') {
+					this.resetOnIOSLockedAudio();
+				}
+			});
+		}, 1);
+
 	}
 	
 	private resetOnIOSLockedAudio() {
@@ -339,7 +343,7 @@ class App extends React.Component<any, IState> {
 
 	private handleResize() {
 		this.Audio.StopAll();
-		
+
 		this.setState({
 			windowWidth: window.innerWidth,
 			windowHeight: window.innerHeight,

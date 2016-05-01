@@ -25,6 +25,7 @@
         <preference name="orientation" value="default" />
     </platform>
     <platform name="ios">
+        <preference name="BackupWebStorage" value="none" />
         <preference name="orientation" value="all" />
     </platform>
     <preference name="iosExtraFilesystems" value="library,library-nosync,documents,documents-nosync,cache,bundle,root" />
@@ -51,9 +52,5 @@
     <preference name="show-splash-screen-spinner" value="false" />  <!-- iOS -->
 
 
-    <!--<preference name="AutoHideSplashScreen" value="false" />-->
-    <!--<preference name="SplashScreenDelay" value="3000" />-->
-    <!--<preference name="SplashScreenBackgroundColor" value="#fff997" />-->
     <preference name="FadeSplashScreen" value="false" />
-    <!--<preference name="SplashMaintainAspectRatio" value="true" />-->
 </widget>
