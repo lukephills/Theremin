@@ -62,8 +62,7 @@ module.exports = {
       { from: 'background.js', to: '../' },
       { from: 'icon-16.png', to: '../' },
       { from: 'icon-128.png', to: '../' },
-      { from: 'config.xml', to: '../../phonegap/theremin' },
-      { from: 'index.html', to: '../../phonegap/theremin/www' },
+      { from: 'favicons', to: '../favicons/' },
     ]),
     // plugin to replace /static/app.js to static/app-[hash].js in the build index file
     // check here for a nicer version in the future: https://github.com/webpack/webpack/issues/86
