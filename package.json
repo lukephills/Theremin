@@ -10,7 +10,8 @@
     "clean": "rimraf build",
     "start": "node dev_server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "moveFonts": "mv -v build/static/fonts build/"
+    "moveFonts": "mv -v build/static/fonts build/",
+    "deploy": "git subtree push --prefix build origin live"
   },
   "paths": {
     "Tone": "tone/Tone"

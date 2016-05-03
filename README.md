@@ -16,5 +16,7 @@ Paid version with Record, Loop and Download available in the [iOS app store](htt
 
 `npm run build` to run webpack and copy all needed files to `build/` folder.
 
+`npm run deploy` to push `build/` folder to `live` branch.
 
-Copyright Luke Phillips 2016
+
+Copyright 2016 Luke Phillips, Femur Design
