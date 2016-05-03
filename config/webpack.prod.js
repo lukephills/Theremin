@@ -63,6 +63,7 @@ module.exports = {
       { from: 'icon-16.png', to: '../' },
       { from: 'icon-128.png', to: '../' },
       { from: 'favicons', to: '../favicons/' },
+      { from: '.gitignore', to: '../' },
     ]),
     // plugin to replace /static/app.js to static/app-[hash].js in the build index file
     // check here for a nicer version in the future: https://github.com/webpack/webpack/issues/86
