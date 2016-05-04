@@ -10,6 +10,8 @@ class SocialShareIcons extends React.Component<any, any> {
 			twCount: '',
 		}
 		this.getFacebookCount(DEFAULTS.Links.homepage);
+		this.shareOnTwitter = this.shareOnTwitter.bind(this);
+		this.shareOnFacebook = this.shareOnFacebook.bind(this);
 	}
 
 
@@ -42,7 +44,7 @@ class SocialShareIcons extends React.Component<any, any> {
 
 	private shareOnFacebook() {
 		//TODO: Update share image
-		var popUp = window.open('http://www.facebook.com/sharer/sharer.php?s=100&p[url]=http://femurdesign.com/theremin', 'popupwindow', 'scrollbars=yes,width=800,height=400');
+		var popUp = window.open('http://www.facebook.com/sharer/sharer.php?s=100&u=http://femurdesign.com/theremin', 'popupwindow', 'scrollbars=yes,width=800,height=400');
 		popUp.focus();
 		return false;
 	}
@@ -67,7 +69,8 @@ class SocialShareIcons extends React.Component<any, any> {
 					<a href="#"
 					   className="btnFb"
 					   data-href={DEFAULTS.Links.homepage}
-					   onClick={this.shareOnFacebook}>
+					   onClick={this.shareOnFacebook}
+					   onTouchStart={this.shareOnFacebook}>
 						<div className="count">
 							<p className="fbCount">{this.state.fbCount}</p>
 						</div>
@@ -77,7 +80,8 @@ class SocialShareIcons extends React.Component<any, any> {
 					<a href="#"
 					   className="tweet btnTw"
 					   data-url={DEFAULTS.Links.homepage}
-					   onClick={this.shareOnTwitter}>
+					   onClick={this.shareOnTwitter}
+					   onTouchStart={this.shareOnTwitter}>
 						<div className="count">
 							<p className="twCount">{this.state.twCount}</p>
 						</div>

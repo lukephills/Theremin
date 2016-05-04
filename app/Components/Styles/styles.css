@@ -68,6 +68,11 @@ html {
     -o-transform: translate(0, -10px);
     transform: translate(0, -10px);
 }
+@media (max-width: 510px) {
+    .share li:hover .count {
+        display: none;
+    }
+}
 .share a {
     position: relative;
     display: block;
