@@ -283,6 +283,7 @@ export const STYLE: any = prefixer.prefix({
 	},
 	footerMobile: {
 		fontSize: 12,
+		height: 58,
 	},
 	appStoreButton: {
 		height: 50,
@@ -295,6 +296,7 @@ export const STYLE: any = prefixer.prefix({
 	},
 	appStoreButtonSmall: {
 		padding: '0 10px',
+		height: 40,
 	},
 	appStoreButtonPressed: {
 		background: STYLE_CONST.GREEN,
@@ -302,5 +304,10 @@ export const STYLE: any = prefixer.prefix({
 	madeByFemurLink: {
 		marginBottom: 18,
 		color: STYLE_CONST.BLACK,
-	}
+	},
+	madeByFemurLinkMobile: {
+		position: 'absolute',
+		top: 5,
+		right: 5,
+	},
 });

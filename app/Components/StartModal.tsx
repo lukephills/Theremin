@@ -75,11 +75,12 @@ class StartModal extends React.Component<any, IProps> {
 
 		const closeButton = Object.assign({}, {
 			position: 'absolute',
-			right: 15,
-			top: 3,
+			right: 0,
+			top: 0,
 			fontSize: 36,
 			fontWeight: 400,
 			cursor: 'pointer',
+			padding: '10px 20px',
 		})
 
 		return (
@@ -87,7 +88,10 @@ class StartModal extends React.Component<any, IProps> {
 				isOpen={this.props.isOpen}
 				onRequestClose={this.onRequestClose}
 				style={{content: Object.assign({}, content, largeSize && content_large), overlay}}>
-				<span style={closeButton} onClick={this.onRequestClose}>{'\u00D7'}</span>
+				<span style={closeButton}
+				      onTouchStart={this.onRequestClose}
+				      onClick={this.onRequestClose}
+				>{'\u00D7'}</span>
 				<div style={titleContainer}>
 					<span style={title}>{this.state.mainText}</span>
 					<span style={subtitle}>{this.state.secondaryText}</span>
@@ -124,8 +128,8 @@ class StartModal extends React.Component<any, IProps> {
 		});
 	}
 
-	private onRequestClose(){
-		this.closeModal();
+	private onRequestClose(e){
+		this.startApp(e)
 	}
 	private closeModal(){
 		this.props.dispatch(startModalChange(false));

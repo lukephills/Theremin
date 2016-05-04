@@ -273,7 +273,7 @@ class App extends React.Component<any, IState> {
 							<span>Chrome Store</span>
 						</div>
 					</div>
-					<span style={Object.assign({}, STYLE.madeByFemurLink)}>
+					<span style={Object.assign({}, STYLE.madeByFemurLink, mobileSizeSmall && STYLE.madeByFemurLinkMobile)}>
 						By <a style={Object.assign({}, STYLE.madeByFemurLink)} href={DEFAULTS.Links.femur}>Femur</a>
 					</span>
 					<SocialShareIcons/>

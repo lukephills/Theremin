@@ -29,6 +29,12 @@ html {
     height: 50px;
 }
 
+@media (max-width: 510px) {
+    .share {
+        height: 40px;
+    }
+}
+
 .share li {
     display: inline-block;
     margin-left: 5px;
@@ -46,9 +52,10 @@ html {
     -o-transition: background-color 0.4s ease;
     transition: background-color 0.4s ease;
 }
-@media (max-width: 500px) {
+@media (max-width: 510px) {
     .share li {
-        width: 50px
+        width: 50px;
+        height: 40px;
     }
 }
 .share li:hover .count {
