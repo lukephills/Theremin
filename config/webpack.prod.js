@@ -67,23 +67,23 @@ module.exports = {
     ]),
     // plugin to replace /static/app.js to static/app-[hash].js in the build index file
     // check here for a nicer version in the future: https://github.com/webpack/webpack/issues/86
-    // function () {
-    //   this.plugin("done", function (stats) {
-    //     var replaceInFile = function (filePath, toReplace, replacement) {
-    //       var replacer = function (match) {
-    //         console.log('Replacing in %s: %s => %s', filePath, match, replacement);
-    //         return replacement
-    //       };
-    //       var str = fs.readFileSync(filePath, 'utf8');
-    //       var out = str.replace(new RegExp(toReplace, 'g'), replacer);
-    //       fs.writeFileSync(filePath, out);
-    //     };
-    //
-    //     var hash = stats.hash; // Build's hash, found in `stats` since build lifecycle is done.
-    //
-    //     replaceInFile('build/index.html', '/static/app.js', 'static/app-' + hash + '.js');
-    //   });
-    // }
+    function () {
+      this.plugin("done", function (stats) {
+        var replaceInFile = function (filePath, toReplace, replacement) {
+          var replacer = function (match) {
+            console.log('Replacing in %s: %s => %s', filePath, match, replacement);
+            return replacement
+          };
+          var str = fs.readFileSync(filePath, 'utf8');
+          var out = str.replace(new RegExp(toReplace, 'g'), replacer);
+          fs.writeFileSync(filePath, out);
+        };
+
+        var hash = stats.hash; // Build's hash, found in `stats` since build lifecycle is done.
+
+        replaceInFile('build/index.html', '/static/app.js', 'static/app.js');
+      });
+    }
   ],
   resolve: {
     alias: {
