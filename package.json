@@ -22,7 +22,6 @@
     "Tone": "tone/Tone"
   },
   "author": "Luke Phillips",
-  "license": "ISC",
   "repository": {
     "type": "git",
     "url": "https://github.com/lukephills/Theremin"
