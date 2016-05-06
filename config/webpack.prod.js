@@ -40,7 +40,7 @@ module.exports = {
   },
   output: {
     path: path.join(__dirname, '..', 'build/static'),
-    filename: 'app.js',
+    filename: 'app-[hash].js',
     // publicPath: '/static/'
   },
   plugins: [
@@ -81,7 +81,7 @@ module.exports = {
 
         var hash = stats.hash; // Build's hash, found in `stats` since build lifecycle is done.
 
-        replaceInFile('build/index.html', '/static/app.js', 'static/app.js');
+        replaceInFile('build/index.html', '/static/app.js', 'static/app-' + hash + '.js');
       });
     }
   ],
