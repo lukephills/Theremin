@@ -1,7 +1,9 @@
 import { START_MODAL_CHANGE } from '../Constants/ActionTypes';
 import {IModal} from '../Constants/GlobalState';
 
-const isOpen = true;
+//TODO: make this a global check
+var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(<any>window).MSStream;
+const isOpen = iOS;
 
 export const StartModal = (state = { isOpen }, action): IModal => {
 	switch (action.type) {

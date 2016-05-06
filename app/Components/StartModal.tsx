@@ -24,10 +24,21 @@ class StartModal extends React.Component<any, IProps> {
 
 	constructor(props){
 		super(props);
-		this.state = {
-			mainText: DEFAULTS.Copy.en.startTextMain,
-			secondaryText: DEFAULTS.Copy.en.startTextSecondary,
+
+		//TODO: make this a global check
+		var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+		if (iOS) {
+			this.state = {
+				mainText: DEFAULTS.Copy.en.startTextMain,
+				secondaryText: DEFAULTS.Copy.en.startTextSecondary,
+			}
+		} else {
+			this.state = {
+				mainText: DEFAULTS.Copy.en.recorderOnlyWorksInPaidVersionMain,
+				secondaryText: DEFAULTS.Copy.en.recorderOnlyWorksInPaidVersionSecondary,
+			}
 		}
+
 
 		this.onTouchEnd = this.onTouchEnd.bind(this);
 		this.onRequestClose = this.onRequestClose.bind(this);
