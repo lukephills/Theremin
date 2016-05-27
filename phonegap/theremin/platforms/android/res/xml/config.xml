@@ -1,19 +1,19 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.femurdesign.theremin" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.femurdesign.theremin" version="2.0.4" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <preference name="loglevel" value="DEBUG" />
-    <feature name="Whitelist">
-        <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
-        <param name="onload" value="true" />
-    </feature>
-    <feature name="SocialSharing">
-        <param name="android-package" value="nl.xservices.plugins.SocialSharing" />
-    </feature>
     <feature name="Notification">
         <param name="android-package" value="org.apache.cordova.dialogs.Notification" />
     </feature>
     <feature name="SplashScreen">
         <param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
         <param name="onload" value="true" />
+    </feature>
+    <feature name="Whitelist">
+        <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="SocialSharing">
+        <param name="android-package" value="nl.xservices.plugins.SocialSharing" />
     </feature>
     <allow-intent href="market:*" />
     <preference name="orientation" value="default" />
@@ -32,10 +32,9 @@
     <allow-intent href="geo:*" />
     <preference name="iosExtraFilesystems" value="library,library-nosync,documents,documents-nosync,cache,bundle,root" />
     <preference name="AndroidExtraFilesystems" value="files,files-external,documents,sdcard,cache,cache-external,root" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <preference name="AutoHideSplashScreen" value="false" />
+    <preference name="SplashScreen" value="splash" />
     <preference name="SplashScreenDelay" value="3000" />
-    <preference name="SplashScreenBackgroundColor" value="#fff997" />
+    <preference name="auto-hide-splash-screen" value="false" />
+    <preference name="show-splash-screen-spinner" value="false" />
     <preference name="FadeSplashScreen" value="false" />
-    <preference name="SplashMaintainAspectRatio" value="true" />
 </widget>

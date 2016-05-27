@@ -1,11 +1,13 @@
 {
   "name": "theremin",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Theremin emulator",
   "main": "index.js",
   "scripts": {
-    "ios:build": "npm run build && cd phonegap/theremin && cordova build ios",
-    "android": "cd phonegap/theremin && cordova build android",
+    "android": "npm run build && cd phonegap/theremin && cordova build android",
+    "ios": "npm run build && cd phonegap/theremin && cordova build ios",
+    "all": "npm run build && cd phonegap/theremin && cordova build ios && cordova build android",
+    "icons": "cd phonegap/theremin && cordova-icon && cordova-splash",
     "copyIndex": "cp build/index.html phonegap/theremin/www",
     "copyFonts": "cp -a build/fonts phonegap/theremin/www/",
     "copyScript": "rm -r phonegap/theremin/www/static && cp -a build/static phonegap/theremin/www",

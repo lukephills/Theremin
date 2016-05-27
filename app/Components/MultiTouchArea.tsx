@@ -65,8 +65,6 @@ class MultiTouchView extends React.Component<IProps, {}> {
 			this.props.draw();
 		}
 
-		// Remove all current pointers
-		this._pointers = {};
 	}
 
 	public render(): React.ReactElement<{}> {
@@ -167,7 +165,6 @@ class MultiTouchView extends React.Component<IProps, {}> {
 		for (let i = 0; i < touches.length; i++) {
 			const touch: any = touches[i];
 			const isTouchInBounds: boolean = CanvasUtils.hitTest(touch.clientX, touch.clientY, touch.target.offsetLeft, touch.target.offsetTop, touch.target.clientWidth, touch.target.clientHeight);
-
 			//TODO: we might not want to check if touchmove is in bounds
 			if (this._pointers[touch.identifier]) {
 			// if (isTouchInBounds && this._pointers[touch.identifier]) {

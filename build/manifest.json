@@ -1,7 +1,7 @@
 {
   "name": "Theremin",
   "description": "This is a multitouch synthesizer. Play with 4 waveforms, delay & scuzz effects, then record, loop and even download your creation.",
-  "version": "2.0.3.1",
+  "version": "2.0.4",
   "manifest_version": 2,
   "author": "Luke Phillips",
   "minimum_chrome_version": "48",

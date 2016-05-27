@@ -9,19 +9,19 @@
                 "parents": {
                     "/*": [
                         {
-                            "xml": "<feature name=\"Whitelist\"><param name=\"android-package\" value=\"org.apache.cordova.whitelist.WhitelistPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"SocialSharing\"><param name=\"android-package\" value=\"nl.xservices.plugins.SocialSharing\" /></feature>",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"Notification\"><param name=\"android-package\" value=\"org.apache.cordova.dialogs.Notification\" /></feature>",
                             "count": 1
                         },
                         {
                             "xml": "<feature name=\"SplashScreen\"><param name=\"android-package\" value=\"org.apache.cordova.splashscreen.SplashScreen\" /><param name=\"onload\" value=\"true\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Whitelist\"><param name=\"android-package\" value=\"org.apache.cordova.whitelist.WhitelistPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"SocialSharing\"><param name=\"android-package\" value=\"nl.xservices.plugins.SocialSharing\" /></feature>",
                             "count": 1
                         }
                     ]
@@ -40,33 +40,21 @@
         }
     },
     "installed_plugins": {
-        "cordova-plugin-whitelist": {
-            "PACKAGE_NAME": "com.femurdesign.theremin"
-        },
-        "cordova-plugin-x-socialsharing": {
-            "PACKAGE_NAME": "com.femurdesign.theremin"
-        },
         "cordova-plugin-dialogs": {
             "PACKAGE_NAME": "com.femurdesign.theremin"
         },
         "cordova-plugin-splashscreen": {
             "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-x-socialsharing": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
         }
     },
     "dependent_plugins": {},
     "modules": [
-        {
-            "file": "plugins/cordova-plugin-whitelist/whitelist.js",
-            "id": "cordova-plugin-whitelist.whitelist",
-            "runs": true
-        },
-        {
-            "file": "plugins/cordova-plugin-x-socialsharing/www/SocialSharing.js",
-            "id": "cordova-plugin-x-socialsharing.SocialSharing",
-            "clobbers": [
-                "window.plugins.socialsharing"
-            ]
-        },
         {
             "file": "plugins/cordova-plugin-dialogs/www/notification.js",
             "id": "cordova-plugin-dialogs.notification",
@@ -87,12 +75,24 @@
             "clobbers": [
                 "navigator.splashscreen"
             ]
+        },
+        {
+            "file": "plugins/cordova-plugin-whitelist/whitelist.js",
+            "id": "cordova-plugin-whitelist.whitelist",
+            "runs": true
+        },
+        {
+            "file": "plugins/cordova-plugin-x-socialsharing/www/SocialSharing.js",
+            "id": "cordova-plugin-x-socialsharing.SocialSharing",
+            "clobbers": [
+                "window.plugins.socialsharing"
+            ]
         }
     ],
     "plugin_metadata": {
-        "cordova-plugin-whitelist": "1.2.1",
-        "cordova-plugin-x-socialsharing": "5.0.11",
         "cordova-plugin-dialogs": "1.2.0",
-        "cordova-plugin-splashscreen": "3.2.1"
+        "cordova-plugin-splashscreen": "3.2.1",
+        "cordova-plugin-whitelist": "1.2.1",
+        "cordova-plugin-x-socialsharing": "5.0.11"
     }
 }

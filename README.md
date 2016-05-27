@@ -1,11 +1,14 @@
-`npm start` to serve and watch on localhost:3000
+Copyright, Luke Phillips 2016    
+http://femurdesign.com
 
-`npm run ios:build` to create build folder for chrome and cordova ios platform
+`npm start` to serve and watch on `localhost:3000`      
+`npm run build` to create build folder for chrome     
+`npm run ios` to build for xcode     
+`npm run android` to build for android      
+`npm run all` to build all platforms   
+`npm run icons` to create icons & splashes
 
-
-TODO List
-
-- Test on Android
-- Taper loop start and end to avoid clicking
-- Pressing waveforms re render main canvas which causes a screen flash
-- IOS resume should carry on with current loop instead of deleting it
+When updating bump versions in 3 places:
+- package.json
+- manifest.json
+- phonegap/theremin/config.xml

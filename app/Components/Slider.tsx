@@ -55,7 +55,6 @@ class Slider extends React.Component<IProps, any> {
 	}
 
 	public render(): React.ReactElement<{}> {
-		// console.log('render')
 		
 		return (
 			<MultiTouchArea
