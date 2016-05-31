@@ -8,3 +8,14 @@ export const STATE: any = {
 	STOPPED: 'stopped',
 	PLAYING: 'playing',
 };
+
+// SCREEN SIZES
+export const SCREEN: any = {
+	MOBILE_LANDSCAPE: 'mobile-landscape',
+	MOBILE: 'mobile',
+	LARGE: 'large',
+	DESKTOP: 'desktop',
+}
+
+
+

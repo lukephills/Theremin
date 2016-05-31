@@ -5,6 +5,7 @@ import SliderToolTip from './SliderToolTip';
 
 import { DEFAULTS } from '../Constants/Defaults';
 import { STYLE, STYLE_CONST } from './Styles/styles';
+import { SCREEN } from '../Constants/AppTypings';
 
 class RangeSliderGroup extends React.Component<any, any> {
 
@@ -20,8 +21,14 @@ class RangeSliderGroup extends React.Component<any, any> {
 	}
 
 	public render(): React.ReactElement<{}> {
-		// this.setSliderStyles();
-		const sliderHeight = this.props.smallScreen ? STYLE.slider_smallScreen.height : STYLE.slider.height;
+		const screenHeightGroup = this.props.screenHeightGroup;
+		let sliderHeight = STYLE.slider.height;
+		if (screenHeightGroup === SCREEN.MOBILE_LANDSCAPE || screenHeightGroup === SCREEN.MOBILE) {
+			sliderHeight = STYLE.slider_small.height;
+		} else if (screenHeightGroup === SCREEN.LARGE) {
+			sliderHeight = STYLE.slider_large.height;
+		}
+
 		return (
 			<div style={STYLE.sliderGroup}>
 				<div style={this.getSliderContainerStyles()}>
@@ -100,24 +107,31 @@ class RangeSliderGroup extends React.Component<any, any> {
 	}
 
 	private getWaveformTitleStyles(slider) {
+		const screenHeightGroup = this.props.screenHeightGroup;
 		const smlFontSize = this.props.windowWidth / 15;
 		const fontSize = smlFontSize < STYLE.sliderToolTip.fontSize ? smlFontSize : STYLE.sliderToolTip.fontSize;
+		console.log(screenHeightGroup);
 		return Object.assign(
 			{},
 			STYLE.sliderToolTip,
-			this.props.smallScreen && STYLE.sliderToolTip_smallScreen,
 			{
 				marginLeft: this.props[slider.name],
 				fontSize,
-			}
+			},
+			(screenHeightGroup === SCREEN.MOBILE ||
+			screenHeightGroup === SCREEN.MOBILE_LANDSCAPE) && STYLE.sliderToolTip_small,
+			(screenHeightGroup === SCREEN.LARGE) && STYLE.sliderToolTip_large
 		);
 	}
 
 	private getSliderContainerStyles(){
+		const screenHeightGroup = this.props.screenHeightGroup;
 		return Object.assign(
 			{},
 			STYLE.sliderContainer,
-			this.props.smallScreen && STYLE.sliderContainer_smallScreen
+			(screenHeightGroup === SCREEN.MOBILE ||
+			screenHeightGroup === SCREEN.MOBILE_LANDSCAPE) && STYLE.sliderContainer_small,
+			(screenHeightGroup === SCREEN.LARGE) && STYLE.sliderContainer_large
 		);
 	}
 }

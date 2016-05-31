@@ -22,9 +22,8 @@ import * as AudioUtils from '../Utils/AudioUtils';
 import * as CanvasUtils from '../Utils/CanvasUtils';
 import {IdentifierIndexMap, isCordovaIOS} from '../Utils/utils';
 import Spectrum from './Spectrum';
-import {RecordStateType} from '../Constants/AppTypings';
-import {STATE} from '../Constants/AppTypings';
-import {PlayerStateType} from '../Constants/AppTypings';
+import {RecordStateType, PlayerStateType, STATE, SCREEN} from '../Constants/AppTypings';
+
 
 interface IState {
 	delayVal?: number;
@@ -116,17 +115,46 @@ class App extends React.Component<any, IState> {
 		this.spectrumRecording = new Spectrum(this.canvas, this.Audio.analysers.recording);
 	}
 
-	get mobileLandscapeSize(): boolean {
-		return this.state.windowHeight < 450 && (this.state.windowWidth > this.state.windowHeight);
-	}
+	// get mobileLandscapeSize(): string {
+	// 	if (this.state.windowHeight < 450 && (this.state.windowWidth > this.state.windowHeight)) {
+	// 		return 'mobile';
+	// 	} else if (this.state.windowHeight > 1000) {
+	// 		return 'large';
+	// 	} else {
+	// 		return 'desktop';
+	// 	}
+	// }
 
-	get smallScreen(): boolean {
-		return this.state.windowHeight < 600;
+	get screenHeightGroup(): string {
+		if (this.state.windowHeight < 450) {
+			return SCREEN.MOBILE_LANDSCAPE;
+		} else if (this.state.windowHeight < 600) {
+			return SCREEN.MOBILE;
+		} else if (this.state.windowHeight > 1000 && this.state.windowWidth > 1000) {
+			return SCREEN.LARGE;
+		} else {
+			return SCREEN.DESKTOP;
+		}
 	}
 
 	private updateSize() {
-		const topPanelHeight = this.mobileLandscapeSize ? STYLE_CONST.TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE : STYLE_CONST.TOP_PANEL_HEIGHT;
-		const bottomPanelHeight = this.smallScreen ? STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE : STYLE_CONST.BOTTOM_PANEL_HEIGHT
+		let topPanelHeight = STYLE_CONST.TOP_PANEL_HEIGHT;
+		let bottomPanelHeight = STYLE_CONST.BOTTOM_PANEL_HEIGHT;
+		switch (this.screenHeightGroup) {
+			case SCREEN.MOBILE_LANDSCAPE:
+				topPanelHeight = STYLE_CONST.TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE;
+				bottomPanelHeight = STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE;
+				break;
+			case SCREEN.MOBILE:
+				bottomPanelHeight = STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE;
+				break;
+			case SCREEN.LARGE:
+				topPanelHeight = STYLE_CONST.TOP_PANEL_HEIGHT_LARGE;
+				bottomPanelHeight = STYLE_CONST.BOTTOM_PANEL_HEIGHT_LARGE;
+				break;
+		}
+		console.log(this.screenHeightGroup, 'top', topPanelHeight, 'bottom', bottomPanelHeight);
+
 
 		const statusBarHeight = this.getStatusBarHeight();
 
@@ -198,17 +226,22 @@ class App extends React.Component<any, IState> {
 	public render(): React.ReactElement<{}> {
 		const mobileSizeSmall = this.state.windowWidth < 512;
 		const mobileSizeLarge = this.state.windowWidth < 600;
-		const mobileLandscape = this.mobileLandscapeSize;
+		const mobileLandscape = (this.screenHeightGroup === SCREEN.MOBILE_LANDSCAPE);
+		const largeScreen = (this.screenHeightGroup === SCREEN.LARGE);
 
 		let buttonSize = this.state.windowWidth > 600 ? 50 : (this.state.windowWidth / 9);
 		buttonSize = buttonSize < 50 ? buttonSize : 50;
+		if (largeScreen) {
+			buttonSize = 60;
+		}
 
 		const titleStyle = Object.assign({},
 			STYLE.title.h1,
 			mobileSizeLarge && STYLE.title.h1_mobileSizeLarge,
 			mobileSizeSmall && STYLE.title.h1_mobileSizeSmall,
 			mobileLandscape && STYLE.title.h1_mobileLandscape,
-			mobileLandscape && mobileSizeSmall && STYLE.title.h1_mobileSizeSmall
+			mobileLandscape && mobileSizeSmall && STYLE.title.h1_mobileSizeSmall,
+			largeScreen && STYLE.title.h1_large
 		);
 
 		const statusBarHeight = this.getStatusBarHeight();
@@ -220,16 +253,21 @@ class App extends React.Component<any, IState> {
 					Object.assign({},
 						STYLE.topPanel,
 						statusBarStyle,
-						mobileLandscape && STYLE.topPanel_mobileLandscape
+						mobileLandscape && STYLE.topPanel_mobileLandscape,
+						largeScreen && STYLE.topPanel_large
 					)}>
 					<div style={Object.assign({},STYLE.title.container,
 					mobileSizeSmall && STYLE.title.container_mobile,
-					mobileLandscape && STYLE.title.container_mobileLandscape)}>
+					mobileLandscape && STYLE.title.container_mobileLandscape,
+			        largeScreen && STYLE.title.container_large
+					)}>
 						<span style={titleStyle}>{DEFAULTS.Title.toUpperCase()}</span>
 					</div>
 					<RecordPlayButtonGroup
-						style={Object.assign({},STYLE.recordPlayButtonGroup.container,
-							mobileSizeSmall && STYLE.recordPlayButtonGroup.container_mobile)}
+						style={Object.assign({},
+							STYLE.recordPlayButtonGroup.container,
+							mobileSizeSmall && STYLE.recordPlayButtonGroup.container_mobile
+						)}
 						onRecordButtonChange={this.Record}
 						onPlaybackButtonChange={this.Playback}
 						onDownloadButtonChange={this.Download}
@@ -259,7 +297,7 @@ class App extends React.Component<any, IState> {
 				/>
 				<RangeSliderGroup
 					sliderChange={this.SliderChange}
-				    smallScreen={this.smallScreen}
+					screenHeightGroup={this.screenHeightGroup}
 				    windowWidth={this.state.windowWidth}
 			    />
 				<DownloadModal

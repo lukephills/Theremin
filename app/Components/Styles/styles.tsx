@@ -17,14 +17,18 @@ export const prefixer = new Prefixer();
 export const STYLE_CONST: any = prefixer.prefix({
 	TOP_PANEL_HEIGHT: 80,
 	TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE: 60,
+	TOP_PANEL_HEIGHT_LARGE: 120,
 	STATUS_BAR_HEIGHT: 0,
 	BORDER_WIDTH: 0,
 	BOTTOM_PANEL_HEIGHT: 150,
 	BOTTOM_PANEL_HEIGHT_MOBILE: 120,
+	BOTTOM_PANEL_HEIGHT_LARGE: 240,
 	TITLE_FONT_SIZE: 34,
 	TITLE_FONT_SIZE_MED: 24,
 	TITLE_FONT_SIZE_SML: 16,
+	TITLE_FONT_SIZE_LRG: 48,
 	SLIDER_FONT_SIZE: 28,
+	SLIDER_FONT_SIZE_LRG: 36,
 	WHITE: 'white',
 	BLACK: '#444',
 	GREY: 'rgba(50,50,50,0.4)',
@@ -46,13 +50,19 @@ export const STYLE: any = prefixer.prefix({
 	topPanel_mobileLandscape: {
 		height: `${STYLE_CONST.TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE}px`,
 	},
+	topPanel_large: {
+		height: `${STYLE_CONST.TOP_PANEL_HEIGHT_LARGE}px`,
+	},
 	title: {
 		container: {
-			flexGrow: 11,
+			flexGrow: 1,
 			height: STYLE_CONST.TOP_PANEL_HEIGHT,
 		},
 		container_mobileLandscape: {
 			height: STYLE_CONST.TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE,
+		},
+		container_large: {
+			height: STYLE_CONST.TOP_PANEL_HEIGHT_LARGE,
 		},
 		container_mobile: {
 			position: 'absolute',
@@ -77,6 +87,11 @@ export const STYLE: any = prefixer.prefix({
 		},
 		h1_mobileLandscape: {
 			lineHeight: `${STYLE_CONST.TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE}px`,
+		},
+		h1_large: {
+			lineHeight: `${STYLE_CONST.TOP_PANEL_HEIGHT_LARGE}px`,
+			fontSize: STYLE_CONST.TITLE_FONT_SIZE_LRG,
+			marginLeft: 32,
 		}
 	},
 	recordPlayButtonGroup: {
@@ -138,16 +153,24 @@ export const STYLE: any = prefixer.prefix({
 		height: STYLE_CONST.BOTTOM_PANEL_HEIGHT/3,
 	},
 
-	slider_smallScreen: {
+	slider_small: {
 		height: STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE/3,
+	},
+
+	slider_large: {
+		height: STYLE_CONST.BOTTOM_PANEL_HEIGHT_LARGE/3,
 	},
 
 	sliderContainer: {
 		height: STYLE_CONST.BOTTOM_PANEL_HEIGHT/3,
 	},
 	
-	sliderContainer_smallScreen: {
+	sliderContainer_small: {
 		height: STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE/3,
+	},
+
+	sliderContainer_large: {
+		height: STYLE_CONST.BOTTOM_PANEL_HEIGHT_LARGE/3,
 	},
 
 	sliderToolTip: {
@@ -163,8 +186,13 @@ export const STYLE: any = prefixer.prefix({
 		color: STYLE_CONST.BLACK,
 	},
 	
-	sliderToolTip_smallScreen: {
+	sliderToolTip_small: {
 		lineHeight: `${STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE/3}px`,
+	},
+
+	sliderToolTip_large: {
+		lineHeight: `${STYLE_CONST.BOTTOM_PANEL_HEIGHT_LARGE/3}px`,
+		fontSize: STYLE_CONST.SLIDER_FONT_SIZE_LRG,
 	},
 
 	downloadModal: {
