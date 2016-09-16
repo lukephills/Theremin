@@ -168,7 +168,7 @@ class DownloadModal extends React.Component<any, any> {
 					null,
 					'Theremin recording',
 					reader.result,
-					'http://femurdesign.com',
+					'https://femurdesign.com',
 					this.successSharing, this.errorSharing)
 			}
 			
