@@ -88,21 +88,21 @@ export function getElementArea(el: HTMLElement): Area {
 		y: el.offsetTop,
 		width: el.offsetWidth,
 		height: el.offsetHeight,
-	}
+	};
 }
 
 export function getCoordinateFromPointerEvent(e: MouseEvent | Touch): Coordinate {
 	return {
 		x: e.pageX,
 		y: e.pageY,
-	}
+	};
 }
 
 export function getPositionAsPercentageInArea(coordinate: Coordinate, area: Area): Coordinate {
 	return {
 		x: (coordinate.x - area.x) / area.width * 100,
 		y: 100 - ((coordinate.y - area.y) / area.height * 100),
-	}
+	};
 }
 
 //TODO: does this need rounding?

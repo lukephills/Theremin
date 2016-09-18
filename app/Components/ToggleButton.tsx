@@ -19,7 +19,7 @@ class ToggleButton extends React.Component<IProps, {}> {
 	private _touchIdentifiers;
 	constructor(props: IProps) {
 		super(props);
-		this._touchIdentifiers = {}
+		this._touchIdentifiers = {};
 
 		this.onTouchStart = this.onTouchStart.bind(this);
 		this.onTouchEnd = this.onTouchEnd.bind(this);

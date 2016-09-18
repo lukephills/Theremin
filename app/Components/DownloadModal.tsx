@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 const Modal = require('react-modal');
-import ToggleButton from './ToggleButton'
+import ToggleButton from './ToggleButton';
 import { downloadModalChange, RecorderStateChange, PlayerStateChange } from '../Actions/actions';
 import {IGlobalState} from '../Constants/GlobalState';
 import { DEFAULTS } from '../Constants/Defaults';
@@ -30,7 +30,7 @@ class DownloadModal extends React.Component<any, any> {
 
 		this.onDownloadSubmit = this.onDownloadSubmit.bind(this);
 		this.closeModal = this.closeModal.bind(this);
-		this.onDownloadModalOpen = this.onDownloadModalOpen.bind(this)
+		this.onDownloadModalOpen = this.onDownloadModalOpen.bind(this);
 
 	}
 
@@ -94,7 +94,7 @@ class DownloadModal extends React.Component<any, any> {
 						<div>Cancel</div>
 					</ToggleButton>
 				</div>
-			)
+			);
 		} else {
 			return <span></span>;
 		}
@@ -169,22 +169,22 @@ class DownloadModal extends React.Component<any, any> {
 					'Theremin recording',
 					reader.result,
 					'http://femurdesign.com',
-					this.successSharing, this.errorSharing)
-			}
+					this.successSharing, this.errorSharing);
+			};
 			
 			reader.onerror = function(e: any) {
 				console.log('File could not be read! Error:', e);
-			}
+			};
 			reader.readAsDataURL(wav);
 		}
 	}
 
 	successSharing(e) {
-		console.log('success', e)
+		console.log('success', e);
 	}
 
 	errorSharing(e) {
-		console.log('error', e)
+		console.log('error', e);
 	}
 
 

@@ -29,7 +29,7 @@ class MultiTouchView extends React.Component<IProps, {}> {
 
 	constructor(props) {
 		super(props);
-		this._pointers = {}
+		this._pointers = {};
 		this.props = {
 			fireMouseLeaveOnElementExit: false,
 		};
@@ -99,8 +99,8 @@ class MultiTouchView extends React.Component<IProps, {}> {
 		e.preventDefault();
 
 		// listen for other mouse events
-		document.body.addEventListener('mouseup', this.onMouseUp)
-		document.body.addEventListener('mousemove', this.onMouseMove)
+		document.body.addEventListener('mouseup', this.onMouseUp);
+		document.body.addEventListener('mousemove', this.onMouseMove);
 
 		this.addMouseLeaveListener();
 
@@ -135,14 +135,14 @@ class MultiTouchView extends React.Component<IProps, {}> {
 			delete this._pointers[MOUSE_ID];
 		}
 		// Remove other mouse event listeners
-		document.body.removeEventListener('mouseup', this.onMouseUp)
-		document.body.removeEventListener('mousemove', this.onMouseMove)
+		document.body.removeEventListener('mouseup', this.onMouseUp);
+		document.body.removeEventListener('mousemove', this.onMouseMove);
 		this.removeMouseLeaveListener();
 	}
 
 	private onMouseLeave(e) {
 		if (this.props.onMouseLeave){
-			this.props.onMouseLeave(e, MOUSE_ID)
+			this.props.onMouseLeave(e, MOUSE_ID);
 		}
 		this.onMouseUp(e);
 	}
@@ -164,7 +164,7 @@ class MultiTouchView extends React.Component<IProps, {}> {
 		const touches = e.changedTouches;
 		for (let i = 0; i < touches.length; i++) {
 			const touch: any = touches[i];
-			const isTouchInBounds: boolean = CanvasUtils.hitTest(touch.clientX, touch.clientY, touch.target.offsetLeft, touch.target.offsetTop, touch.target.clientWidth, touch.target.clientHeight);
+			// const isTouchInBounds: boolean = CanvasUtils.hitTest(touch.clientX, touch.clientY, touch.target.offsetLeft, touch.target.offsetTop, touch.target.clientWidth, touch.target.clientHeight);
 			//TODO: we might not want to check if touchmove is in bounds
 			if (this._pointers[touch.identifier]) {
 			// if (isTouchInBounds && this._pointers[touch.identifier]) {
@@ -201,20 +201,20 @@ class MultiTouchView extends React.Component<IProps, {}> {
 	private addMouseLeaveListener() {
 		if (this.props.fireMouseLeaveOnElementExit) {
 			// check when mouse leaves element
-			ReactDOM.findDOMNode(this).addEventListener('mouseleave', this.onMouseLeave)
+			ReactDOM.findDOMNode(this).addEventListener('mouseleave', this.onMouseLeave);
 		} else {
 			// check when mouse leaves body
-			document.body.addEventListener('mouseleave', this.onMouseLeave)
+			document.body.addEventListener('mouseleave', this.onMouseLeave);
 		}
 	}
 
 	private removeMouseLeaveListener() {
 		if (this.props.fireMouseLeaveOnElementExit) {
 			// check when mouse leaves element
-			ReactDOM.findDOMNode(this).removeEventListener('mouseleave', this.onMouseLeave)
+			ReactDOM.findDOMNode(this).removeEventListener('mouseleave', this.onMouseLeave);
 		} else {
 			// check when mouse leaves body
-			document.body.removeEventListener('mouseleave', this.onMouseLeave)
+			document.body.removeEventListener('mouseleave', this.onMouseLeave);
 		}
 	}
 }

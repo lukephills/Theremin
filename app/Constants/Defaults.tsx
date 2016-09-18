@@ -6,7 +6,7 @@ export const WAVEFORMS: WaveformStringType[] = [
 	'square',
 	'triangle',
 	'sawtooth',
-]
+];
 
 export const DEFAULTS: any = {
 	Analyser: {
@@ -81,4 +81,4 @@ export const DEFAULTS: any = {
 	VoiceCount: 8,
 	Volume: 10,
 	Waveform: 2,
-}
+};

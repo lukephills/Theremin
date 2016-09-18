@@ -268,7 +268,7 @@ class Looper {
 				command: 'exportWAV',
 				type: 'audio/wav',
 			});
-		}, 0)
+		}, 0);
 	}
 
 	/**

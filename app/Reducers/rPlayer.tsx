@@ -2,7 +2,7 @@ import { PLAYER_STATE_CHANGE } from '../Constants/ActionTypes';
 import { IPlayer } from '../Constants/GlobalState';
 import { STATE } from '../Constants/AppTypings';
 
-const defaultState = { playerState: STATE.STOPPED }
+const defaultState = { playerState: STATE.STOPPED };
 
 export const Player = (state = defaultState, action): IPlayer => {
 	switch (action.type) {

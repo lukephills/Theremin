@@ -39,7 +39,7 @@ export function PlayButtonDisabled(isDisabled: boolean): any {
 	return {
 		type: PLAY_BUTTON_DISABLED_CHANGE,
 		isDisabled,
-	}
+	};
 }
 
 export function SliderAction(sliderName: string, value: number): any {

@@ -15,7 +15,7 @@ export const SCREEN: any = {
 	MOBILE: 'mobile',
 	LARGE: 'large',
 	DESKTOP: 'desktop',
-}
+};
 
 
 

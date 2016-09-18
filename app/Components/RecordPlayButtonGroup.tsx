@@ -49,8 +49,8 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		this.state = {
 			downloadButtonHighlighted: false,
 			// playButtonDisabled: true,
-		}
-		this._touchIdentifiers = {}
+		};
+		this._touchIdentifiers = {};
 
 		this.draw = this.draw.bind(this);
 		this.onTouchEndDownloadButton = this.onTouchEndDownloadButton.bind(this);
@@ -104,15 +104,15 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 	}
 
 	onTouchStartDownloadButton(e: TouchEvent) {
-		this.setState({downloadButtonHighlighted: true})
+		this.setState({downloadButtonHighlighted: true});
 	}
 
 	onTouchCancelDownloadButton(e: TouchEvent) {
-		this.setState({downloadButtonHighlighted: false})
+		this.setState({downloadButtonHighlighted: false});
 	}
 
 	onTouchEndDownloadButton(e: TouchEvent) {
-		this.setState({downloadButtonHighlighted: false})
+		this.setState({downloadButtonHighlighted: false});
 		this.props.onDownloadButtonChange();
 	}
 
@@ -152,10 +152,10 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 				switch (this.props.playerState) {
 					case STATE.PLAYING:
-						this.drawIconStop(ctx, cx, cy, units, (this.props.playButtonDisabled ? STYLE_CONST.GREY : STYLE_CONST.RED))
+						this.drawIconStop(ctx, cx, cy, units, (this.props.playButtonDisabled ? STYLE_CONST.GREY : STYLE_CONST.RED));
 					break;
 					case STATE.STOPPED:
-						this.drawIconPlay(ctx, cx, cy, units, (this.props.playButtonDisabled ? STYLE_CONST.GREY : STYLE_CONST.GREEN))
+						this.drawIconPlay(ctx, cx, cy, units, (this.props.playButtonDisabled ? STYLE_CONST.GREY : STYLE_CONST.GREEN));
 					break;
 				}
 				ctx.stroke();
@@ -181,7 +181,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 
 	private drawIconPlay(ctx, cx, cy, units, color) {
 		ctx.strokeStyle = color;
-		ctx.moveTo(cx + (6*units),cy)
+		ctx.moveTo(cx + (6*units),cy);
 		ctx.lineTo(cx - (4*units), cy + (6*units));
 		ctx.lineTo(cx - (4*units), cy - (6*units));
 		ctx.closePath();
@@ -192,7 +192,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 		ctx.strokeStyle = color;
 		ctx.arc(cx, cy, (6*units), 0, 2 * Math.PI, false);
 
-		ctx.moveTo(cx + (3*units), cy)
+		ctx.moveTo(cx + (3*units), cy);
 		ctx.lineTo(cx - (3*units), cy);
 		ctx.lineTo(cx, cy);
 		ctx.lineTo(cx, cy + (3*units));
@@ -249,7 +249,7 @@ class RecordPlayButtonGroup extends React.Component<IProps, IState> {
 	private record(e) {
 		e.preventDefault();
 
-		this.props.dispatch(PlayButtonDisabled(false))
+		this.props.dispatch(PlayButtonDisabled(false));
 
 		switch (this.props.recordState) {
 			case STATE.RECORDING:

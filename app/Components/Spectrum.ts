@@ -4,7 +4,7 @@ import {RecordStateType} from '../Constants/AppTypings';
 export interface ISpectrumOptions {
 	color?: string;
 	isActive?: boolean;
-	recordState?: RecordStateType
+	recordState?: RecordStateType;
 }
 
 class Spectrum {

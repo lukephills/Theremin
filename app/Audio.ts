@@ -3,7 +3,7 @@ require('./Utils/audio-shim');
 import { DEFAULTS } from './Constants/Defaults';
 import * as CanvasUtils from './Utils/CanvasUtils';
 import {WaveformStringType} from './Constants/AppTypings';
-import Looper from './Utils/Looper/Looper'
+import Looper from './Utils/Looper/Looper';
 
 interface IAnalysers {
 	live: AnalyserNode;
@@ -49,7 +49,7 @@ class Audio {
 		this.routeSounds();
 		this.setupAnalysers();
 
-		this.looper = new Looper(this.thereminOutput, this.recordingGain)
+		this.looper = new Looper(this.thereminOutput, this.recordingGain);
 	}
 
 	public createNodes() {
@@ -70,7 +70,7 @@ class Audio {
 		this.analysers = {
 			live: this.context.createAnalyser(),
 			recording: this.context.createAnalyser(),
-		}
+		};
 
 		// Oscillators
 		this.oscillators = [];
@@ -125,7 +125,9 @@ class Audio {
 
 	public SetFilterFrequency(y: number, id: number): void {
 		if (id < this.voiceCount) {
-			if (y === 0) y = this._minFrequency;
+			if (y === 0) {
+				y = this._minFrequency;
+			}
 			this.filters[id].frequency.value = (this.context.sampleRate / 2) * (y / 150);
 		}
 	}

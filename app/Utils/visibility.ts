@@ -18,7 +18,7 @@ Visibility.onChange((visible) => {
 	} else {
 		Visibility.onInvisible();
 	}
-})
+});
 
 function onPageShow() {
 	Visibility.onVisible();

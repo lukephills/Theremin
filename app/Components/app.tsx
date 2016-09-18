@@ -56,7 +56,7 @@ function select(state: IGlobalState) {
 @connect(select)
 class App extends React.Component<any, IState> {
 
-	public Audio: Audio
+	public Audio: Audio;
 	public canvas: HTMLCanvasElement;
 	public spectrumLive: Spectrum;
 	public spectrumRecording: Spectrum;
@@ -181,12 +181,12 @@ class App extends React.Component<any, IState> {
 		// Make sure all sounds stop when app is awoken.
 		Visibility.onVisible = () => {
 			this.Audio.StopAll();
-		}
+		};
 
 		// Stop when switch to another tab in browser
 		Visibility.onInvisible = () => {
 			this.Audio.StopAll();
-		}
+		};
 
 		if (isCordovaIOS()){
 			document.addEventListener("active", this.onIOSActiveEvent, false);
@@ -197,7 +197,7 @@ class App extends React.Component<any, IState> {
 		//TODO: Currently if you slide up the iOS settings panel and then close it, about 1 in 3 times `isUnlocked` will come back false. If it comes back fals we  have to reset the audio context which means we can loose recordings too. Look reseting without deleting current recordings. And also make the reset happen less frequently
 		setTimeout(() => {
 			AudioUtils.isIOSAudioUnlocked(this.Audio.context, (isUnlocked) => {
-				console.log('is unlocked:', isUnlocked)
+				console.log('is unlocked:', isUnlocked);
 				if (!isUnlocked || this.Audio.context.state !== 'running') {
 					this.resetOnIOSLockedAudio();
 				}
@@ -337,7 +337,7 @@ class App extends React.Component<any, IState> {
 			if (isUnlocked){
 				this.onIOSAudioUnlocked(onStartPressed);
 			} else {
-				this.onIOSAudioNotUnlocked(onStartPressed)
+				this.onIOSAudioNotUnlocked(onStartPressed);
 			}
 		});
 
@@ -345,13 +345,13 @@ class App extends React.Component<any, IState> {
 	}
 
 	private onIOSAudioUnlocked(onUnlocked) {
-		console.log('UNLOCKED')
+		console.log('UNLOCKED');
 		this._IOSAudioContextUnlockFailCounter = 0;
 		onUnlocked();
 	}
 
 	private onIOSAudioNotUnlocked(onNotUnlocked){
-		console.log('NOT UNLOCKED')
+		console.log('NOT UNLOCKED');
 
 		this.Audio.context.close();
 		this.Audio = new Audio();
@@ -409,7 +409,7 @@ class App extends React.Component<any, IState> {
 		this.Audio.Stop(pos, index);
 
 		//Remove from list of touch ids
-		this.touches.Remove(identifier)
+		this.touches.Remove(identifier);
 	}
 
 	public Move(e: MouseEvent | Touch, id: number = 0) {
@@ -449,7 +449,7 @@ class App extends React.Component<any, IState> {
 
 	public Download() {
 		this.props.dispatch(downloadModalChange(true));
-		this.setState({isDownloadOverlayActive: true})
+		this.setState({isDownloadOverlayActive: true});
 	}
 
 	private Draw() {
@@ -465,13 +465,13 @@ class App extends React.Component<any, IState> {
 		let liveColor = STYLE_CONST.BLACK;
 		switch (this.props.recordState) {
 			case 'recording':
-				liveColor = STYLE_CONST.RED
+				liveColor = STYLE_CONST.RED;
 				break;
 			case 'overdubbing':
-				liveColor = STYLE_CONST.RED
+				liveColor = STYLE_CONST.RED;
 				break;
 			case 'stopped':
-				liveColor = STYLE_CONST.BLACK
+				liveColor = STYLE_CONST.BLACK;
 				break;
 		}
 

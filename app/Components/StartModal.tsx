@@ -9,7 +9,7 @@ const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 interface IProps {
 	onStartPress?: Function;
-	buttonDown?: boolean
+	buttonDown?: boolean;
 }
 
 function select(state: IGlobalState): any {
@@ -25,7 +25,7 @@ class StartModal extends React.Component<any, IProps> {
 		super(props);
 		this.state = {
 			buttonDown: false,
-		}
+		};
 		// this.startApp = this.startApp.bind(this);
 		this.onTouchDown = this.onTouchDown.bind(this);
 		this.onTouchEnd = this.onTouchEnd.bind(this);
@@ -41,7 +41,7 @@ class StartModal extends React.Component<any, IProps> {
 			left: contentPadding,
 			right: contentPadding,
 			bottom: contentPadding,
-		})
+		});
 		title = Object.assign({}, title, {
 			fontSize: window.innerWidth / 7 < 80 ? window.innerWidth / 7 : 80,
 			marginBottom: window.innerWidth / 20,
@@ -81,11 +81,11 @@ class StartModal extends React.Component<any, IProps> {
 		// TODO: if ( no splash screen ) {
 		//     this.startText(titleStyle, subtitleStyle)
 		// }
-		return this.startButton(buttonStyle, buttonPressedStyle)
+		return this.startButton(buttonStyle, buttonPressedStyle);
 	}
 
 	private startButton(style, pressedStyle) {
-		style = Object.assign({}, style, this.state.buttonDown && pressedStyle)
+		style = Object.assign({}, style, this.state.buttonDown && pressedStyle);
 		return <div style={style}
 		            onTouchStart={this.onTouchDown}
 		            onTouchEnd={this.onTouchEnd}
@@ -95,14 +95,7 @@ class StartModal extends React.Component<any, IProps> {
 		            onMouseLeave={this.onTouchCancel}
 		>
 			<span>{this.props.buttonText}</span>
-		</div>
-	}
-
-	private startText(titleStyle, subtitleStyle) {
-		return <span>
-			<span style={titleStyle}>THEREMIN</span>
-			<span style={subtitleStyle}>femurdesign.com</span>
-		</span>
+		</div>;
 	}
 
 	private onTouchDown(e) {
@@ -112,11 +105,11 @@ class StartModal extends React.Component<any, IProps> {
 
 	private onTouchEnd(e) {
 		this.setState({buttonDown: false});
-		this.startApp(e)
+		this.startApp(e);
 	}
 
 	private onTouchCancel(e) {
-		this.setState({buttonDown: false})
+		this.setState({buttonDown: false});
 	}
 
 

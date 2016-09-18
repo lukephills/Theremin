@@ -1,4 +1,3 @@
-import * as React from 'react';
 require('./fonts/fonts.css');
 require('./styles.css');
 
@@ -38,7 +37,7 @@ export const STYLE_CONST: any = prefixer.prefix({
 	GREEN_VALUES: '114,193,165',
 	PADDING: 5,
 	FONT_FAMILY: 'Lato, sans-serif',
-})
+});
 
 export const STYLE: any = prefixer.prefix({
 	topPanel: {

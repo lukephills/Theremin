@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware, compose } from 'redux';
-import Logger from './Middleware/Logger';
+// import Logger from './Middleware/Logger';
 import rootReducer from './Reducers/root';
 
 declare const module: IHotModule;
@@ -9,7 +9,7 @@ interface IHotModule {
 
 // List all middleware for development
 //const middleware = [Logger]
-const middleware = []
+const middleware = [];
 
 const enhancer = compose(
 	applyMiddleware(...middleware)

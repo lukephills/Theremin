@@ -155,7 +155,7 @@ const RecorderWorker = new InlineWorker(function () {
 
 RecorderWorker.onmessage = (e) => {
 	let cb = this.callbacks[e.data.command].pop();
-	if (typeof cb == 'function') {
+	if (typeof cb === 'function') {
 		cb(e.data.data);
 	}
 };

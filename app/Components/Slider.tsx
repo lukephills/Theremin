@@ -30,7 +30,7 @@ function select(state: IGlobalState): any {
 class Slider extends React.Component<IProps, any> {
 
 	private sliders: any;
-	private canvas
+	private canvas;
 	private _pixelRatio;
 	private value: number;
 	private domNode;
@@ -46,7 +46,7 @@ class Slider extends React.Component<IProps, any> {
 		this.onDown = this.onDown.bind(this);
 		this.onUp = this.onUp.bind(this);
 		this.onMove = this.onMove.bind(this);
-		this.DrawOnce = this.DrawOnce.bind(this)
+		this.DrawOnce = this.DrawOnce.bind(this);
 	}
 
 	public componentDidMount() {
@@ -93,7 +93,7 @@ class Slider extends React.Component<IProps, any> {
 		ctx.moveTo(sliderLength, height/2);
 		ctx.beginPath();
 		ctx.fillStyle = STYLE_CONST.BLACK;
-		ctx.moveTo(sliderLength, cy + diamondSize)
+		ctx.moveTo(sliderLength, cy + diamondSize);
 		ctx.lineTo(sliderLength + diamondSize, cy);
 		ctx.lineTo(sliderLength, cy - diamondSize);
 		ctx.lineTo(sliderLength - diamondSize, cy);
@@ -102,11 +102,11 @@ class Slider extends React.Component<IProps, any> {
 	}
 
 	//TODO: add slider step functionality
-	private calculateStep(x: number) {
-		let step = this.props.step ? this.props.step : 0;
-		x = Math.ceil(x / step) * step;
-		return x;
-	}
+	// private calculateStep(x: number) {
+	// 	let step = this.props.step ? this.props.step : 0;
+	// 	x = Math.ceil(x / step) * step;
+	// 	return x;
+	// }
 
 	onDown(e, id){
 		const pos = CanvasUtils.getCoordinateFromEventAsPercentageWithinElement(e, this.domNode as HTMLElement);

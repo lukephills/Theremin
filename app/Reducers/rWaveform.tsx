@@ -1,5 +1,5 @@
 import { WAVEFORM_CHANGE } from '../Constants/ActionTypes';
-import { DEFAULTS, WAVEFORMS } from '../Constants/Defaults'
+import { DEFAULTS, WAVEFORMS } from '../Constants/Defaults';
 import {IWaveform} from '../Constants/GlobalState';
 
 export const Waveform = (state = { wave: WAVEFORMS[DEFAULTS.Waveform] }, action): IWaveform => {

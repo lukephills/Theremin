@@ -47,7 +47,7 @@ export function createIOSSafeAudioContext(desiredSampleRate = 44100): AudioConte
 		context.close(); // dispose old context
 		context = new AudioContext();
 	}
-	return context
+	return context;
 }
 
 
