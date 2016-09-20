@@ -27,6 +27,13 @@ export class IdentifierIndexMap {
 
 
 export function isCordovaIOS() {
-	return !!window.cordova && cordova.platformId === 'ios';
+	return isCordova() && cordova.platformId === 'ios';
 }
 
+export function isCordova() {
+	return !!window.cordova;
+}
+
+export function isIOS() {
+	return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(<any>window).MSStream;
+}

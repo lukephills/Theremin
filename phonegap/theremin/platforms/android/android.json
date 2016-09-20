@@ -23,6 +23,34 @@
                         {
                             "xml": "<feature name=\"SocialSharing\"><param name=\"android-package\" value=\"nl.xservices.plugins.SocialSharing\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<preference name=\"webView\" value=\"org.crosswalk.engine.XWalkWebViewEngine\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<preference default=\"20+\" name=\"xwalkVersion\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<preference default=\"xwalk_core_library_canary:17+\" name=\"xwalkLiteVersion\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<preference default=\"--disable-pull-to-refresh-effect\" name=\"xwalkCommandLine\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<preference default=\"embedded\" name=\"xwalkMode\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<preference default=\"true\" name=\"xwalkMultipleApk\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<preference default=\"16\" name=\"android-minSdkVersion\" />",
+                            "count": 1
                         }
                     ]
                 }
@@ -32,6 +60,14 @@
                     "/*": [
                         {
                             "xml": "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\" />",
                             "count": 1
                         }
                     ]
@@ -50,6 +86,12 @@
             "PACKAGE_NAME": "com.femurdesign.theremin"
         },
         "cordova-plugin-x-socialsharing": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-crosswalk-webview": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-wkwebview-engine": {
             "PACKAGE_NAME": "com.femurdesign.theremin"
         }
     },
@@ -93,6 +135,8 @@
         "cordova-plugin-dialogs": "1.2.0",
         "cordova-plugin-splashscreen": "3.2.1",
         "cordova-plugin-whitelist": "1.2.1",
-        "cordova-plugin-x-socialsharing": "5.0.11"
+        "cordova-plugin-x-socialsharing": "5.0.11",
+        "cordova-plugin-crosswalk-webview": "2.0.0",
+        "cordova-plugin-wkwebview-engine": "1.1.0"
     }
 }

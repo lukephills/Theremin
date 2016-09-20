@@ -18,6 +18,12 @@
         },
         "cordova-plugin-x-socialsharing": {
             "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-crosswalk-webview": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-wkwebview-engine": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
         }
     },
     "dependent_plugins": {}

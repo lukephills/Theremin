@@ -1,0 +1,16 @@
+{
+  "osx" : {
+    "title": "Theremin",
+    "background": "assets/osx/background.png",
+    "icon": "assets/osx/logo.icns",
+    "icon-size": 128,
+    "contents": [
+      { "x": 355, "y": 125, "type": "link", "path": "/Applications" },
+      { "x": 155, "y": 125, "type": "file" }
+    ]
+  },
+  "win" : {
+    "title" : "Theremin",
+    "icon" : "assets/win/logo.ico"
+  }
+}

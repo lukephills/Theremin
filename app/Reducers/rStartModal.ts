@@ -1,8 +1,9 @@
 import { START_MODAL_CHANGE } from '../Constants/ActionTypes';
 import {IModal} from '../Constants/GlobalState';
-import {isCordovaIOS} from '../Utils/utils';
+import {isCordova, isIOS} from '../Utils/utils';
 
-const isOpen = isCordovaIOS();
+// Only open for cordova or ios webpages
+const isOpen = isCordova() || isIOS();
 
 export const StartModal = (state = { isOpen }, action): IModal => {
 	switch (action.type) {

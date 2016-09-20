@@ -13,6 +13,7 @@
     "config",
     "dev_server.js",
     "typings/browser.d.ts",
-    "typings/browser"
+    "typings/browser",
+    "electron/node_modules"
   ]
 }

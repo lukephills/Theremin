@@ -110,7 +110,6 @@ class RangeSliderGroup extends React.Component<any, any> {
 		const screenHeightGroup = this.props.screenHeightGroup;
 		const smlFontSize = this.props.windowWidth / 15;
 		const fontSize = smlFontSize < STYLE.sliderToolTip.fontSize ? smlFontSize : STYLE.sliderToolTip.fontSize;
-		console.log(screenHeightGroup);
 		return Object.assign(
 			{},
 			STYLE.sliderToolTip,

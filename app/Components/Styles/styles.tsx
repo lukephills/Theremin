@@ -253,37 +253,25 @@ export const STYLE: any = prefixer.prefix({
 			borderRadius: 0,
 			fontFamily: STYLE_CONST.FONT_FAMILY,
 		},
-		title: {
-			display:'flex',
-			justifyContent: 'center',
-			fontSize: STYLE_CONST.TITLE_FONT_SIZE + 10,
-			fontWeight: 400,
-			lineHeight: `${STYLE_CONST.TITLE_FONT_SIZE}px`,
-			marginBottom: 20,
-			textTransform: 'uppercase',
-		},
-		subtitle: {
-			display:'flex',
-			justifyContent: 'center',
-			fontSize: 18,
-			marginBottom: 40,
-		},
 		button: {
 			display:'flex',
 			justifyContent: 'center',
 			textAlign: 'center',
 			fontSize: '36px',
 			fontWeight: 400,
-			border: `2px solid ${STYLE_CONST.BLACK}`,
-			padding: 10,
-			paddingLeft: 100,
-			paddingRight: 100,
+			padding: 80,
 			minWidth: 250,
 			cursor: 'pointer',
 		},
-		buttonPressed: {
-			background: STYLE_CONST.BLACK,
-			color: STYLE_CONST.WHITE,
+		playIcon: {
+			width: '100%',
+			height: '100%',
+			maxWidth: 230,
+			maxHeight: 230,
+			marginLeft: 20,
+		},
+		playIconPressed: {
+			opacity: 0.8,
 		}
 	}
 });

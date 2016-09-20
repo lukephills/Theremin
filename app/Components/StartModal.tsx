@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
+import {STYLE} from './Styles/styles';
 const Modal = require('react-modal');
 import { startModalChange } from '../Actions/actions';
 import { IGlobalState } from '../Constants/GlobalState';
@@ -67,25 +68,16 @@ class StartModal extends React.Component<any, IProps> {
 				                         transitionEnterTimeout={0}
 				                         transitionLeaveTimeout={0}>
 					<div key="start-modal">
-						{this.startModalCopy(title, subtitle, button, buttonPressed)}
+						{this.startButton(button, buttonPressed)}
 					</div>
 				</ReactCSSTransitionGroup>
 			</Modal>
 		);
 	}
 
-	private startModalCopy(titleStyle, subtitleStyle, buttonStyle, buttonPressedStyle) {
-		// if (window.cordova && cordova.platformId === 'ios'){
-		//TODO: get rid of start button for android and chrome
-		// }
-		// TODO: if ( no splash screen ) {
-		//     this.startText(titleStyle, subtitleStyle)
-		// }
-		return this.startButton(buttonStyle, buttonPressedStyle);
-	}
-
 	private startButton(style, pressedStyle) {
-		style = Object.assign({}, style, this.state.buttonDown && pressedStyle);
+		style = Object.assign({}, style);
+		const playIconStyle = Object.assign({}, STYLE.startModal.playIcon, this.state.buttonDown && STYLE.startModal.playIconPressed);
 		return <div style={style}
 		            onTouchStart={this.onTouchDown}
 		            onTouchEnd={this.onTouchEnd}
@@ -94,7 +86,7 @@ class StartModal extends React.Component<any, IProps> {
 		            onMouseUp={this.onTouchEnd}
 		            onMouseLeave={this.onTouchCancel}
 		>
-			<span>{this.props.buttonText}</span>
+			<svg width="230" height="230" style={playIconStyle} viewBox="0 0 230 230" xmlns="http://www.w3.org/2000/svg"><title>Triangle 2</title><path fill="#444" d="M230 115L0 230V0" fill-rule="evenodd"/></svg>
 		</div>;
 	}
 

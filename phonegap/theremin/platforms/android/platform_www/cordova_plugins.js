@@ -40,7 +40,9 @@ module.exports.metadata =
     "cordova-plugin-dialogs": "1.2.0",
     "cordova-plugin-splashscreen": "3.2.1",
     "cordova-plugin-whitelist": "1.2.1",
-    "cordova-plugin-x-socialsharing": "5.0.11"
+    "cordova-plugin-x-socialsharing": "5.0.11",
+    "cordova-plugin-crosswalk-webview": "2.0.0",
+    "cordova-plugin-wkwebview-engine": "1.1.0"
 };
 // BOTTOM OF METADATA
 });

@@ -19,6 +19,14 @@
                         {
                             "xml": "<feature name=\"SocialSharing\"><param name=\"ios-package\" value=\"SocialSharing\" /><param name=\"onload\" value=\"true\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"CDVWKWebViewEngine\"><param name=\"ios-package\" value=\"CDVWKWebViewEngine\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<preference name=\"CordovaWebViewEngine\" value=\"CDVWKWebViewEngine\" />",
+                            "count": 1
                         }
                     ]
                 }
@@ -36,6 +44,12 @@
             "PACKAGE_NAME": "com.femurdesign.theremin"
         },
         "cordova-plugin-x-socialsharing": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-crosswalk-webview": {
+            "PACKAGE_NAME": "com.femurdesign.theremin"
+        },
+        "cordova-plugin-wkwebview-engine": {
             "PACKAGE_NAME": "com.femurdesign.theremin"
         }
     },
@@ -64,12 +78,22 @@
             "clobbers": [
                 "window.plugins.socialsharing"
             ]
+        },
+        {
+            "file": "plugins/cordova-plugin-wkwebview-engine/src/www/ios/ios-wkwebview-exec.js",
+            "id": "cordova-plugin-wkwebview-engine.ios-wkwebview-exec",
+            "pluginId": "cordova-plugin-wkwebview-engine",
+            "clobbers": [
+                "cordova.exec"
+            ]
         }
     ],
     "plugin_metadata": {
         "cordova-plugin-dialogs": "1.2.0",
         "cordova-plugin-splashscreen": "3.2.1",
         "cordova-plugin-whitelist": "1.2.1",
-        "cordova-plugin-x-socialsharing": "5.0.11"
+        "cordova-plugin-x-socialsharing": "5.0.11",
+        "cordova-plugin-crosswalk-webview": "2.0.0",
+        "cordova-plugin-wkwebview-engine": "1.1.0"
     }
 }

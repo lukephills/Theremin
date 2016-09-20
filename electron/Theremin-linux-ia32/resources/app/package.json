@@ -1,0 +1,17 @@
+{
+  "name": "theremin",
+  "productName": "Theremin",
+  "version": "2.1.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "electron": "electron .",
+    "electron-pkg": "electron-packager . --all"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^1.4.0",
+    "electron-packager": "^8.0.0"
+  }
+}
