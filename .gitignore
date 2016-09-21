@@ -31,3 +31,6 @@ node_modules
 
 # IDE specific
 .idea
+
+# Stop commiting cordova builds
+phonegap/platforms
