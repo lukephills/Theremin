@@ -10,6 +10,7 @@
   },
   "exclude": [
     "node_modules",
+    "electron/node_modules",
     "config",
     "dev_server.js",
     "typings/browser.d.ts",
