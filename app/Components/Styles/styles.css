@@ -13,6 +13,11 @@ html {
     padding: 0 5px 5px 5px;
 }
 
+a {
+    color: white;
+    text-decoration: none;
+}
+
 ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
     color:    #444;
 }
@@ -131,14 +136,131 @@ html {
     background-color: #44C8F5;
 }
 
-.appStoreButton{
+.appStoreButton {
+    position: relative;
     background: #444;
     color: white;
-    -webkit-transition: all 0.4s ease;
-    -moz-transition: all 0.4s ease;
-    -o-transition: all 0.4s ease;
-    transition: all 0.4s ease;
+    width: 1000px;
+    max-width: 199px;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease;
 }
-.appStoreButton:hover {
-    background: black;
+
+.appStoreButton.open {
+    height: 176px !important;
+}
+
+.appStoreButton.open ul {
+    display: block
+} 
+
+ul {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+.appStoreButton ul {
+    display: none;
+    
+}
+.appStoreButton li {
+    text-align: left;
+    font-size: 16px;
+    border-bottom: 1px solid rgba(255,255,255, 0.2);
+}
+.appStoreButton li a {
+    padding: 13px 0;
+    display: block;
+}
+
+.appStoreButton li:hover span {
+    /*text-decoration: underline;*/
+        border-bottom: 1px solid white;
+    padding-bottom: 1px;
+}
+
+.get-the-app-text {
+    display: block;
+    font-size: 16px;
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+.get-the-app-text span:first-child {
+    display: inline-block;
+    padding: 10px 0;
+}
+
+.chevron {
+    position: absolute;
+    transform-origin: 10px 10px;
+}
+
+.chevron-up {
+    display: inline-block;
+    margin-left: 52px;
+    font-size: 24px;
+    margin-top: 9px;
+}
+
+.chevron-right {
+    transform: rotate(90deg);
+    right: -20px;
+    margin-top: 10px;
+    font-size: 38px;
+}
+
+.appStoreButton.open .chevron-up {
+    transform: rotate(180deg);
+}
+
+.appStoreLinks ul {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    padding: 0 20px;
+}
+.appStoreLinks a {
+    position: relative;
+    display: block;
+    color: #444;
+    font-size: 38px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(140,140,140,0.1);
+}
+
+.appStoreLinks li:hover a {
+    color: rgba(68,68,68, 0.6);
+}
+
+.appStoreLinks ul li:last-of-type a {
+    border-bottom: none;
+} 
+
+@media (min-width: 512px) {
+    .appStoreButton {
+        max-width: 225px;
+    }
+    .appStoreButton.open {
+        height: 238px !important;
+    }
+    .get-the-app-text {
+        font-size: 18px;
+    }
+    .get-the-app-text span:first-child {
+        padding: 14px 0;
+    }
+    .chevron-up {
+        margin-top: 13px;
+    }
+    .appStoreButton li {
+        font-size: 18px;
+    }
+    .appStoreButton li a {
+        padding: 20px 0;
+    }
 }

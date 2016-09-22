@@ -1,4 +1,4 @@
-import * as React from 'react';
+require('normalize.css');
 require('./fonts/fonts.css');
 require('./styles.css');
 
@@ -34,7 +34,7 @@ export const STYLE_CONST: any = prefixer.prefix({
 	GREEN_VALUES: '114,193,165',
 	PADDING: 5,
 	FONT_FAMILY: 'Lato, sans-serif',
-})
+});
 
 export const STYLE: any = prefixer.prefix({
 	topPanel: {
@@ -217,14 +217,13 @@ export const STYLE: any = prefixer.prefix({
 		overlay: {
 			zIndex: 99,
 			display: 'flex',
-			background: 'rgba(255, 255, 255, 0.5)',
+			background: 'rgba(0, 0, 0, 0.7)',
 		},
 		content: {
 			position: 'relative',
 			background: STYLE_CONST.WHITE,
 			color: STYLE_CONST.BLACK,
 			display: 'flex',
-			alignItems: 'center',
 			justifyContent: 'center',
 			border: '1px solid #f4f4f4',
 			borderRadius: 0,
@@ -236,7 +235,6 @@ export const STYLE: any = prefixer.prefix({
 		title: {
 			display:'flex',
 			justifyContent: 'center',
-			textAlign: 'center',
 			fontSize: 22,
 			fontWeight: 400,
 			padding: '20px 20px 0 20px',
@@ -288,10 +286,8 @@ export const STYLE: any = prefixer.prefix({
 	appStoreButton: {
 		height: 50,
 		display: 'flex',
-		alignItems: 'center',
+		flexDirection: 'column',
 		padding: '0 20px',
-		marginRight: 5,
-		textAlign: 'center',
 		cursor: 'pointer',
 	},
 	appStoreButtonSmall: {
@@ -304,6 +300,7 @@ export const STYLE: any = prefixer.prefix({
 	madeByFemurLink: {
 		marginBottom: 18,
 		color: STYLE_CONST.BLACK,
+		borderBottom: '1px solid',
 	},
 	madeByFemurLinkMobile: {
 		position: 'absolute',

@@ -6,7 +6,7 @@ export const WAVEFORMS: WaveformStringType[] = [
 	'square',
 	'triangle',
 	'sawtooth',
-]
+];
 
 export const DEFAULTS: any = {
 	Analyser: {
@@ -73,22 +73,22 @@ export const DEFAULTS: any = {
 			recordingTooLong: 'The recording is too large. Try a shorter length.',
 			cantShare: `Can't share file`,
 			sharePrompt: 'Would you like to share your recording?',
-			startTextMain: `I've made an app that loops, records and downloads!`,
-			recorderOnlyWorksInPaidVersionMain: `Record, loop and download only work in the app!`,
-			startTextSecondary: `Available for iphone/ipad from the Apple Store, or any desktop computers using Chrome.`,
-			recorderOnlyWorksInPaidVersionSecondary: `Available for iphone/ipad from the Apple Store, or any desktop computers using Chrome.`,
+			startTextMain: `Get the app`,
+			recorderOnlyWorksInPaidVersionMain: `Recorder / Looper only works in the app. Get it here:`,
+			startTextSecondary: '',
+			recorderOnlyWorksInPaidVersionSecondary: ``,
 			resumeText: 'Continue with free version',
 			downloadPrompt: 'Would you like to download your recording?',
 		},
 	},
 	Links: {
-		iosAppStore: 'http://geo.itunes.apple.com/us/app/theremin-synth-loop-record/id1104816326?mt=8',
-		chromeAppStore: 'http://chrome.google.com/webstore/detail/theremin/ghajldemkobafmgejbnjpeohpifhkhjd',
-		androidAppStore: 'http://android.com',
+		iosAppStore: 'https://itunes.apple.com/app/theremin-synth-loop-record/id1104816326',
+		chromeAppStore: 'https://chrome.google.com/webstore/detail/theremin/ghajldemkobafmgejbnjpeohpifhkhjd',
+		androidAppStore: 'https://play.google.com/store/apps/details?id=com.femurdesign.theremin',
 		femur: 'https://femurdesign.com',
 		homepage: 'https://femurdesign.com/theremin',
 	},
 	VoiceCount: 8,
 	Volume: 10,
 	Waveform: 2,
-}
+};

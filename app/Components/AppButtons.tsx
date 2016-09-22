@@ -5,31 +5,18 @@ class AppButtons extends React.Component<any, any> {
 
 	public render(): React.ReactElement<{}> {
 
-		let button = this.props.buttonStyle;
 		let containerStyle = this.props.containerStyle;
+		const {iosAppStore, chromeAppStore, androidAppStore} = DEFAULTS.Links;
 
 		return (
-			<div style={containerStyle}>
-				<div style={button}
-				     onTouchStart={this.openIOSAppLink}
-				     onMouseDown={this.openIOSAppLink}>
-					<span>Apple Store</span>
-				</div>
-				<div style={button}
-				     onTouchStart={this.openChromeAppLink}
-				     onMouseDown={this.openChromeAppLink}>
-					<span>Chrome Store</span>
-				</div>
+			<div className="appStoreLinks" style={containerStyle}>
+				<ul>
+					<li><a href={iosAppStore}>iOS <span className="chevron chevron-right">&#8963;</span></a></li>
+					<li><a href={androidAppStore}>Android <span className="chevron chevron-right">&#8963;</span></a></li>
+					<li><a href={chromeAppStore}>Desktop <span className="chevron chevron-right">&#8963;</span></a></li>
+				</ul>
 			</div>
 		);
-	}
-	
-	private openIOSAppLink() {
-		window.open(DEFAULTS.Links.iosAppStore)
-	}
-
-	private openChromeAppLink() {
-		window.open(DEFAULTS.Links.chromeAppStore)
 	}
 
 }

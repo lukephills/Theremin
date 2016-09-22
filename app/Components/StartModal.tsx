@@ -10,7 +10,7 @@ import {prefixer} from './Styles/styles';
 
 interface IProps {
 	mainText: string;
-	secondaryText: string
+	secondaryText: string;
 }
 
 function select(state: IGlobalState): any {
@@ -31,12 +31,12 @@ class StartModal extends React.Component<any, IProps> {
 			this.state = {
 				mainText: DEFAULTS.Copy.en.startTextMain,
 				secondaryText: DEFAULTS.Copy.en.startTextSecondary,
-			}
+			};
 		} else {
 			this.state = {
 				mainText: DEFAULTS.Copy.en.recorderOnlyWorksInPaidVersionMain,
 				secondaryText: DEFAULTS.Copy.en.recorderOnlyWorksInPaidVersionSecondary,
-			}
+			};
 		}
 
 
@@ -53,8 +53,6 @@ class StartModal extends React.Component<any, IProps> {
 			content_large,
 			title,
 			subtitle,
-			buttonPressed,
-			buttonContainer,
 		} = this.props.style;
 
 		let {content, button} = this.props.style;
@@ -64,25 +62,22 @@ class StartModal extends React.Component<any, IProps> {
 			right: 0,
 			bottom: 0,
 			margin: 'auto',
-			width: 630,
+			width: '98%',
+			maxWidth: 480,
 			flexDirection: 'column',
 		}));
 
 		const appButtonsContainer = prefixer.prefix(Object.assign({}, {
 			display: 'flex',
-			justifyContent: 'space-around',
-			alignItems: 'center',
-			maxWidth: 400,
+			maxWidth: 380,
 			width: '100%',
 			marginBottom: 8,
-		}, this.props.mobileSizeSmall && {
 			flexDirection: 'column',
-		}))
+		}));
 
 		const titleContainer = Object.assign({},{
-			maxWidth: 400,
 			width: '100%',
-		})
+		});
 
 		const closeButton = Object.assign({}, {
 			position: 'absolute',
@@ -92,7 +87,7 @@ class StartModal extends React.Component<any, IProps> {
 			fontWeight: 400,
 			cursor: 'pointer',
 			padding: '10px 20px',
-		})
+		});
 
 		return (
 			<Modal
@@ -114,8 +109,7 @@ class StartModal extends React.Component<any, IProps> {
 	}
 
 	private onTouchEnd(e) {
-		console.log(e)
-		this.startApp(e)
+		this.startApp(e);
 	}
 
 	public componentDidMount() {
@@ -132,7 +126,6 @@ class StartModal extends React.Component<any, IProps> {
 	}
 
 	private startApp(e){
-		console.log('close requested')
 		e.preventDefault();
 		this.props.onStartPress(() => {
 			this.closeModal();
@@ -140,14 +133,14 @@ class StartModal extends React.Component<any, IProps> {
 	}
 
 	private onRequestClose(e){
-		this.startApp(e)
+		this.startApp(e);
 	}
 	private closeModal(){
 		this.props.dispatch(startModalChange(false));
 		this.setState({
 			mainText: DEFAULTS.Copy.en.recorderOnlyWorksInPaidVersionMain,
 			secondaryText: DEFAULTS.Copy.en.recorderOnlyWorksInPaidVersionSecondary,
-		})
+		});
 	}
 	
 }

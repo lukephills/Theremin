@@ -13,10 +13,7 @@ import {WaveformStringType} from '../Constants/AppTypings';
 import { WAVEFORMS, DEFAULTS } from '../Constants/Defaults';
 import {IGlobalState} from '../Constants/GlobalState';
 import Audio from '../Audio';
-import {
-	downloadModalChange, startModalChange, PlayerStateChange, RecorderStateChange,
-	PlayButtonDisabled
-} from '../Actions/actions';
+import {downloadModalChange} from '../Actions/actions';
 
 import Visibility from '../Utils/visibility';
 import * as AudioUtils from '../Utils/AudioUtils';
@@ -58,7 +55,7 @@ function select(state: IGlobalState) {
 @connect(select)
 class App extends React.Component<any, IState> {
 
-	public Audio: Audio
+	public Audio: Audio;
 	public canvas: HTMLCanvasElement;
 	public spectrumLive: Spectrum;
 	public spectrumRecording: Spectrum;
@@ -126,7 +123,7 @@ class App extends React.Component<any, IState> {
 
 	private updateSize() {
 		const topPanelHeight = this.mobileLandscapeSize ? STYLE_CONST.TOP_PANEL_HEIGHT_MOBILE_LANDSCAPE : STYLE_CONST.TOP_PANEL_HEIGHT;
-		const bottomPanelHeight = this.smallScreen ? STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE : STYLE_CONST.BOTTOM_PANEL_HEIGHT
+		const bottomPanelHeight = this.smallScreen ? STYLE_CONST.BOTTOM_PANEL_HEIGHT_MOBILE : STYLE_CONST.BOTTOM_PANEL_HEIGHT;
 		const statusBarHeight = this.getStatusBarHeight();
 		// const shareArea = topPanelHeight;
 		const shareArea = 58;
@@ -154,19 +151,19 @@ class App extends React.Component<any, IState> {
 		// Make sure all sounds stop when app is awoken.
 		Visibility.onVisible = () => {
 			this.Audio.StopAll();
-		}
+		};
 
 		// Stop when switch to another tab in browser
 		Visibility.onInvisible = () => {
 			this.Audio.StopAll();
-		}
+		};
 
 		if (isCordovaIOS()){
 			document.addEventListener("active", onActive, false);
 			function onActive() {
 				setTimeout(() => {
 					AudioUtils.isIOSAudioUnlocked(this.Audio.context, (isUnlocked) => {
-						console.log('is unlocked:', isUnlocked)
+						console.log('is unlocked:', isUnlocked);
 						if (!isUnlocked) {
 							this.resetOnIOSLockedAudio();
 						}
@@ -176,18 +173,18 @@ class App extends React.Component<any, IState> {
 		}
 	}
 	
-	private resetOnIOSLockedAudio() {
-		this.props.dispatch(startModalChange(true));
-		this.setState({startModalText: DEFAULTS.Copy.en.resumeText});
+	// private resetOnIOSLockedAudio() {
+	// 	this.props.dispatch(startModalChange(true));
+	// 	this.setState({startModalText: DEFAULTS.Copy.en.resumeText});
 	
-		//Reset any record playback, download states
+	// 	//Reset any record playback, download states
 
-		//FIXME: This depends on what state the recording was in
-		this.props.dispatch(RecorderStateChange(STATE.STOPPED));
-		this.props.dispatch(PlayerStateChange(STATE.STOPPED));
-		this.props.dispatch(PlayButtonDisabled(true));
-		this.props.dispatch(downloadModalChange(false));
-	}
+	// 	//FIXME: This depends on what state the recording was in
+	// 	this.props.dispatch(RecorderStateChange(STATE.STOPPED));
+	// 	this.props.dispatch(PlayerStateChange(STATE.STOPPED));
+	// 	this.props.dispatch(PlayButtonDisabled(true));
+	// 	this.props.dispatch(downloadModalChange(false));
+	// }
 
 	public componentWillUnmount() {
 		window.removeEventListener('resize', this.handleResize);
@@ -211,6 +208,7 @@ class App extends React.Component<any, IState> {
 
 		const statusBarHeight = this.getStatusBarHeight();
 		const statusBarStyle = Object.assign({}, {marginTop: statusBarHeight});
+		const {iosAppStore, chromeAppStore, androidAppStore} = DEFAULTS.Links;
 
 		return (
 			<div id='body-wrapper' onTouchMove={(e)=> e.preventDefault()}>
@@ -262,16 +260,19 @@ class App extends React.Component<any, IState> {
 			    />
 				<div style={Object.assign({}, STYLE.footer, mobileSizeSmall && STYLE.footerMobile)}>
 					<div style={{display: 'flex'}}>
-						<div onClick={e => window.open(DEFAULTS.Links.iosAppStore)}
+						<div onClick={(e) =>  {
+							(e as any).currentTarget.classList.toggle('open');
+						}}
 						     className="appStoreButton"
 						     style={Object.assign({}, STYLE.appStoreButton, mobileSizeSmall && STYLE.appStoreButtonSmall)}>
-							<span>Apple Store</span>
+							<span className="get-the-app-text">Get the app <span className="chevron chevron-up">&#8963;</span></span>
+							<ul>
+								<li><a href={iosAppStore}><span>iOS</span></a></li>
+								<li><a href={androidAppStore}><span>Android</span></a></li>
+								<li><a href={chromeAppStore}><span>Desktop</span></a></li>
+							</ul>
 						</div>
-						<div onClick={e => window.open(DEFAULTS.Links.chromeAppStore)}
-						     className="appStoreButton"
-						     style={Object.assign({}, STYLE.appStoreButton, mobileSizeSmall && STYLE.appStoreButtonSmall)}>
-							<span>Chrome Store</span>
-						</div>
+						
 					</div>
 					<span style={Object.assign({}, STYLE.madeByFemurLink, mobileSizeSmall && STYLE.madeByFemurLinkMobile)}>
 						By <a style={Object.assign({}, STYLE.madeByFemurLink)} href={DEFAULTS.Links.femur}>Femur</a>
@@ -316,7 +317,7 @@ class App extends React.Component<any, IState> {
 			if (isUnlocked){
 				this.onIOSAudioUnlocked(onStartPressed);
 			} else {
-				this.onIOSAudioNotUnlocked(onStartPressed)
+				this.onIOSAudioNotUnlocked(onStartPressed);
 			}
 		});
 
@@ -324,13 +325,13 @@ class App extends React.Component<any, IState> {
 	}
 
 	private onIOSAudioUnlocked(onUnlocked) {
-		console.log('UNLOCKED')
+		console.log('UNLOCKED');
 		this._IOSAudioContextUnlockFailCounter = 0;
 		onUnlocked();
 	}
 
 	private onIOSAudioNotUnlocked(onNotUnlocked){
-		console.log('NOT UNLOCKED')
+		console.log('NOT UNLOCKED');
 
 		this.Audio.context.close();
 		this.Audio = new Audio();
@@ -386,7 +387,7 @@ class App extends React.Component<any, IState> {
 		this.Audio.Stop(pos, index);
 
 		//Remove from list of touch ids
-		this.touches.Remove(identifier)
+		this.touches.Remove(identifier);
 	}
 
 	public Move(e: MouseEvent | Touch, id: number = 0) {
@@ -426,7 +427,7 @@ class App extends React.Component<any, IState> {
 
 	public Download() {
 		this.props.dispatch(downloadModalChange(true));
-		this.setState({isDownloadOverlayActive: true})
+		this.setState({isDownloadOverlayActive: true});
 	}
 
 	private Draw() {
@@ -442,13 +443,13 @@ class App extends React.Component<any, IState> {
 		let liveColor = STYLE_CONST.BLACK;
 		switch (this.props.recordState) {
 			case 'recording':
-				liveColor = STYLE_CONST.RED
+				liveColor = STYLE_CONST.RED;
 				break;
 			case 'overdubbing':
-				liveColor = STYLE_CONST.RED
+				liveColor = STYLE_CONST.RED;
 				break;
 			case 'stopped':
-				liveColor = STYLE_CONST.BLACK
+				liveColor = STYLE_CONST.BLACK;
 				break;
 		}
 
