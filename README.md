@@ -7,10 +7,18 @@ This is the free web version which can be found at http://femurdesign.com/therem
 - Delay, Feedback and Scuzz effects
 - 4 Waveforms
 
-Paid version with Record, Loop and Download available in the [iOS app store](http://geo.itunes.apple.com/us/app/theremin-synth-loop-record/id1104816326?mt=8), [Android Play Store](https://play.google.com/store/apps/details?id=com.femurdesign.theremin) and for desktop, the [Chrome web store](https://chrome.google.com/webstore/detail/theremin/ghajldemkobafmgejbnjpeohpifhkhjd)
+Paid version with Record, Loop and Download available on the: 
+- [iOS App Store](http://geo.itunes.apple.com/us/app/theremin-synth-loop-record/id1104816326?mt=8) 
+- [Android Play Store](https://play.google.com/store/apps/details?id=com.femurdesign.theremin) 
+- and for **desktop**, the [Chrome Web Store](https://chrome.google.com/webstore/detail/theremin/ghajldemkobafmgejbnjpeohpifhkhjd)
 
-[![iOS app store](./.github/apple-store.png)](http://geo.itunes.apple.com/us/app/theremin-synth-loop-record/id1104816326?mt=8)
-[![Android Play Store](./.github/google-play.png)](https://play.google.com/store/apps/details?id=com.femurdesign.theremin)
+
+<a href="http://geo.itunes.apple.com/us/app/theremin-synth-loop-record/id1104816326?mt=8" style="height:48px;">
+  <img src="./.github/apple-store.png" alt="iOS App Store" />
+</a>
+<a href="https://play.google.com/store/apps/details?id=com.femurdesign.theremin" style="height:48px;">
+  <img src="./.github/google-play.png" alt="Android Play Store"/>
+</a>
 
 
 ##Workflow
