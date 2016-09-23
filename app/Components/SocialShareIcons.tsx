@@ -19,7 +19,7 @@ class SocialShareIcons extends React.Component<any, any> {
 					</a>
 				</li>
 				<li className="twitter">
-					<a href="//twitter.com/share?text='Theremin+by+@femurdesign.+Play+your+own+theremin+%23synth."
+					<a href="//twitter.com/share?text=Theremin+by+@femurdesign.+Play+your+own+theremin+%23synth."
 						target="_blank"
 						className="tweet btnTw"
 						data-url={DEFAULTS.Links.homepage}>
