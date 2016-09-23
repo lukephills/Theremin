@@ -264,3 +264,7 @@ ul {
         padding: 20px 0;
     }
 }
+
+.madeByFemur:hover {
+    border-bottom: 1px solid;
+}

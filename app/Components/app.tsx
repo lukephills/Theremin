@@ -274,9 +274,9 @@ class App extends React.Component<any, IState> {
 						</div>
 						
 					</div>
-					<span style={Object.assign({}, STYLE.madeByFemurLink, mobileSizeSmall && STYLE.madeByFemurLinkMobile)}>
-						By <a style={Object.assign({}, STYLE.madeByFemurLink)} href={DEFAULTS.Links.femur}>Femur</a>
-					</span>
+					<a href={DEFAULTS.Links.femur} className="madeByFemur" style={Object.assign({}, STYLE.madeByFemurLink, mobileSizeSmall && STYLE.madeByFemurLinkMobile)}>
+						By Femur
+					</a>
 					<SocialShareIcons/>
 				</div>
 				<DownloadModal

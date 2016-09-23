@@ -298,9 +298,9 @@ export const STYLE: any = prefixer.prefix({
 		background: STYLE_CONST.GREEN,
 	},
 	madeByFemurLink: {
+		height: 20,
 		marginBottom: 18,
 		color: STYLE_CONST.BLACK,
-		borderBottom: '1px solid',
 	},
 	madeByFemurLinkMobile: {
 		position: 'absolute',
