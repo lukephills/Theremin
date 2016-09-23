@@ -13,11 +13,11 @@ Paid version with Record, Loop and Download available on the:
 - and for **desktop**, the [Chrome Web Store](https://chrome.google.com/webstore/detail/theremin/ghajldemkobafmgejbnjpeohpifhkhjd)
 
 
-<a href="http://geo.itunes.apple.com/us/app/theremin-synth-loop-record/id1104816326?mt=8" style="height:48px;">
-  <img src="./.github/apple-store.png" alt="iOS App Store" />
+<a href="http://geo.itunes.apple.com/us/app/theremin-synth-loop-record/id1104816326?mt=8">
+  <img src="./.github/apple-store.png" alt="iOS App Store" height="48"/>
 </a>
-<a href="https://play.google.com/store/apps/details?id=com.femurdesign.theremin" style="height:48px;">
-  <img src="./.github/google-play.png" alt="Android Play Store"/>
+<a href="https://play.google.com/store/apps/details?id=com.femurdesign.theremin">
+  <img src="./.github/google-play.png" alt="Android Play Store" height="48"/>
 </a>
 
 
