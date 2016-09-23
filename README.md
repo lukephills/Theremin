@@ -9,12 +9,17 @@ This is the free web version which can be found at http://femurdesign.com/therem
 
 Paid version with Record, Loop and Download available in the [iOS app store](http://geo.itunes.apple.com/us/app/theremin-synth-loop-record/id1104816326?mt=8), [Android Play Store](https://play.google.com/store/apps/details?id=com.femurdesign.theremin) and for desktop, the [Chrome web store](https://chrome.google.com/webstore/detail/theremin/ghajldemkobafmgejbnjpeohpifhkhjd)
 
+[![iOS app store](./apple-store.svg)](http://geo.itunes.apple.com/us/app/theremin-synth-loop-record/id1104816326?mt=8)
+[![Android Play Store](./google-play.svg)](https://play.google.com/store/apps/details?id=com.femurdesign.theremin)
+
 
 ##Workflow
 
 `npm start` to serve the project on localhost:3000.
 
 `npm run build` to run webpack and copy all needed files to `build/` folder.
+
+Commit changes then...    
 
 `npm run deploy` to push `build/` folder to `live` branch.
 
