@@ -26,9 +26,11 @@ class DownloadModal extends React.Component<any, any> {
 			filename: 'theremin',
 			title: this.downloadText,
 			filesize: null,
+			readyToDownload: false,
 		};
 
 		this.onDownloadSubmit = this.onDownloadSubmit.bind(this);
+		this.startedDownloading = this.startedDownloading.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.onDownloadModalOpen = this.onDownloadModalOpen.bind(this);
 
@@ -80,6 +82,25 @@ class DownloadModal extends React.Component<any, any> {
 	}
 
 	buttons(style, buttonContainerStyle) {
+		if (this.state.readyToDownload) {
+			return (
+				<div style={Object.assign({}, buttonContainerStyle)}>
+					<a href={this.state.downloadUrl} 
+						download={`${this.sanitizeFilename(this.state.filename)}.wav`} 
+						style={Object.assign({}, style, {
+							width: 'inherit',
+							padding: '0 30px',
+							textDecoration: 'none',
+							color: 'black',
+						})}
+						onTouchStart={this.startedDownloading}
+						onClick={this.startedDownloading}
+						>
+						Download
+					</a>
+				</div>
+			);
+		}
 		if (!this.state.buttonsDisabled) {
 			return (
 				<div style={Object.assign({}, buttonContainerStyle)}>
@@ -112,6 +133,11 @@ class DownloadModal extends React.Component<any, any> {
 	}
 
 	private closeModal(){
+		this.setState({
+			title: this.downloadText,
+			buttonsDisabled: false,
+			readyToDownload: false,
+		});
 		this.props.dispatch(downloadModalChange(false));
 	}
 
@@ -130,13 +156,14 @@ class DownloadModal extends React.Component<any, any> {
 
 			if (window.cordova){
 				this.shareAudioUsingCordova(wav, DEFAULTS.Copy.en.filename);
+				this.props.dispatch(downloadModalChange(false));
 			} else {
 				this.downloadWav(wav);
 			}
 
-			this.props.dispatch(downloadModalChange(false));
 		});
 	}
+
 
 	private sanitizeFilename(s: string): string {
 		return s.replace(/[^a-z0-9_\-]/gi, '_');
@@ -144,15 +171,20 @@ class DownloadModal extends React.Component<any, any> {
 
 	private downloadWav(wav: Blob){
 		const url = (window.URL || (window as any).webkitURL).createObjectURL(wav);
-		const link: HTMLAnchorElement = document.createElement('a');
-		link.href = url;
-		const downloadAttrSupported = ('download' in link);
-		if (downloadAttrSupported) {
-			link.setAttribute('download', `${this.sanitizeFilename(this.state.filename)}.wav`);
-			let click = document.createEvent("Event");
-			click.initEvent("click", true, true);
-			link.dispatchEvent(click);
-		}
+		this.setState({
+			title: `WAV file is ready to download`,
+			readyToDownload: true,
+			downloadUrl: url,
+		});
+	}
+
+	private startedDownloading() {
+		this.setState({
+			title: this.downloadText,
+			buttonsDisabled: false,
+			readyToDownload: false,
+		});
+		this.props.dispatch(downloadModalChange(false));
 	}
 
 	//TODO: Make rendering the loop asyncrounous too.

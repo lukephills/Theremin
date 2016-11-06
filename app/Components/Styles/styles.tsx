@@ -198,6 +198,7 @@ export const STYLE: any = prefixer.prefix({
 		overlay: {
 			zIndex: 99,
 			display: 'flex',
+			background: 'rgba(0,0,0,0.75)',
 		},
 		content: {
 			position: 'relative',
